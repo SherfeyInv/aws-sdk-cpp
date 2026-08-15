@@ -8,12 +8,12 @@
 
 #include <aws/lightsail/LightsailClient.h>
 #include <aws/lightsail/LightsailEndpointProvider.h>
-#include <aws/lightsail/LightsailEndpointRules.h>
 #include <aws/lightsail/LightsailErrorMarshaller.h>
 #include <aws/lightsail/LightsailErrors.h>
 #include <aws/lightsail/LightsailRequest.h>
 #include <aws/lightsail/LightsailServiceClientModel.h>
 #include <aws/lightsail/Lightsail_EXPORTS.h>
+#include <aws/lightsail/internal/LightsailEndpointRules.h>
 #include <aws/lightsail/model/AccessDeniedException.h>
 #include <aws/lightsail/model/AccessDirection.h>
 #include <aws/lightsail/model/AccessKey.h>
@@ -54,6 +54,8 @@
 #include <aws/lightsail/model/Bucket.h>
 #include <aws/lightsail/model/BucketAccessLogConfig.h>
 #include <aws/lightsail/model/BucketBundle.h>
+#include <aws/lightsail/model/BucketCorsConfig.h>
+#include <aws/lightsail/model/BucketCorsRule.h>
 #include <aws/lightsail/model/BucketMetricName.h>
 #include <aws/lightsail/model/BucketState.h>
 #include <aws/lightsail/model/Bundle.h>
@@ -426,6 +428,7 @@
 #include <aws/lightsail/model/OperationStatus.h>
 #include <aws/lightsail/model/OperationType.h>
 #include <aws/lightsail/model/Origin.h>
+#include <aws/lightsail/model/OriginIpAddressTypeEnum.h>
 #include <aws/lightsail/model/OriginProtocolPolicyEnum.h>
 #include <aws/lightsail/model/PasswordData.h>
 #include <aws/lightsail/model/PeerVpcRequest.h>
@@ -453,6 +456,7 @@
 #include <aws/lightsail/model/RecordState.h>
 #include <aws/lightsail/model/Region.h>
 #include <aws/lightsail/model/RegionName.h>
+#include <aws/lightsail/model/RegionSetupInProgressException.h>
 #include <aws/lightsail/model/RegisterContainerImageRequest.h>
 #include <aws/lightsail/model/RegisterContainerImageResult.h>
 #include <aws/lightsail/model/RegisteredDomainDelegationInfo.h>

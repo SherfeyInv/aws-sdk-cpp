@@ -8,12 +8,12 @@
 
 #include <aws/marketplace-catalog/MarketplaceCatalogClient.h>
 #include <aws/marketplace-catalog/MarketplaceCatalogEndpointProvider.h>
-#include <aws/marketplace-catalog/MarketplaceCatalogEndpointRules.h>
 #include <aws/marketplace-catalog/MarketplaceCatalogErrorMarshaller.h>
 #include <aws/marketplace-catalog/MarketplaceCatalogErrors.h>
 #include <aws/marketplace-catalog/MarketplaceCatalogRequest.h>
 #include <aws/marketplace-catalog/MarketplaceCatalogServiceClientModel.h>
 #include <aws/marketplace-catalog/MarketplaceCatalog_EXPORTS.h>
+#include <aws/marketplace-catalog/internal/MarketplaceCatalogEndpointRules.h>
 #include <aws/marketplace-catalog/model/AmiProductEntityIdFilter.h>
 #include <aws/marketplace-catalog/model/AmiProductFilters.h>
 #include <aws/marketplace-catalog/model/AmiProductLastModifiedDateFilter.h>
@@ -99,6 +99,21 @@
 #include <aws/marketplace-catalog/model/OfferReleaseDateFilter.h>
 #include <aws/marketplace-catalog/model/OfferReleaseDateFilterDateRange.h>
 #include <aws/marketplace-catalog/model/OfferResaleAuthorizationIdFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetAssociatedOfferIdsFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetEntityIdFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetFilters.h>
+#include <aws/marketplace-catalog/model/OfferSetIdFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetLastModifiedDateFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetLastModifiedDateFilterDateRange.h>
+#include <aws/marketplace-catalog/model/OfferSetNameFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetReleaseDateFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetReleaseDateFilterDateRange.h>
+#include <aws/marketplace-catalog/model/OfferSetSolutionIdFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetSort.h>
+#include <aws/marketplace-catalog/model/OfferSetSortBy.h>
+#include <aws/marketplace-catalog/model/OfferSetStateFilter.h>
+#include <aws/marketplace-catalog/model/OfferSetStateString.h>
+#include <aws/marketplace-catalog/model/OfferSetSummary.h>
 #include <aws/marketplace-catalog/model/OfferSort.h>
 #include <aws/marketplace-catalog/model/OfferSortBy.h>
 #include <aws/marketplace-catalog/model/OfferStateFilter.h>
@@ -125,6 +140,8 @@
 #include <aws/marketplace-catalog/model/ResaleAuthorizationProductNameFilter.h>
 #include <aws/marketplace-catalog/model/ResaleAuthorizationResellerAccountIDFilter.h>
 #include <aws/marketplace-catalog/model/ResaleAuthorizationResellerLegalNameFilter.h>
+#include <aws/marketplace-catalog/model/ResaleAuthorizationResellerRoleFilter.h>
+#include <aws/marketplace-catalog/model/ResaleAuthorizationResellerRoleString.h>
 #include <aws/marketplace-catalog/model/ResaleAuthorizationSort.h>
 #include <aws/marketplace-catalog/model/ResaleAuthorizationSortBy.h>
 #include <aws/marketplace-catalog/model/ResaleAuthorizationStatusFilter.h>

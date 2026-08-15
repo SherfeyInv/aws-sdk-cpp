@@ -8,12 +8,12 @@
 
 #include <aws/chime-sdk-meetings/ChimeSDKMeetingsClient.h>
 #include <aws/chime-sdk-meetings/ChimeSDKMeetingsEndpointProvider.h>
-#include <aws/chime-sdk-meetings/ChimeSDKMeetingsEndpointRules.h>
 #include <aws/chime-sdk-meetings/ChimeSDKMeetingsErrorMarshaller.h>
 #include <aws/chime-sdk-meetings/ChimeSDKMeetingsErrors.h>
 #include <aws/chime-sdk-meetings/ChimeSDKMeetingsRequest.h>
 #include <aws/chime-sdk-meetings/ChimeSDKMeetingsServiceClientModel.h>
 #include <aws/chime-sdk-meetings/ChimeSDKMeetings_EXPORTS.h>
+#include <aws/chime-sdk-meetings/internal/ChimeSDKMeetingsEndpointRules.h>
 #include <aws/chime-sdk-meetings/model/Attendee.h>
 #include <aws/chime-sdk-meetings/model/AttendeeCapabilities.h>
 #include <aws/chime-sdk-meetings/model/AttendeeFeatures.h>
@@ -50,6 +50,7 @@
 #include <aws/chime-sdk-meetings/model/ListTagsForResourceResult.h>
 #include <aws/chime-sdk-meetings/model/MediaCapabilities.h>
 #include <aws/chime-sdk-meetings/model/MediaPlacement.h>
+#include <aws/chime-sdk-meetings/model/MediaPlacementNetworkType.h>
 #include <aws/chime-sdk-meetings/model/Meeting.h>
 #include <aws/chime-sdk-meetings/model/MeetingFeatureStatus.h>
 #include <aws/chime-sdk-meetings/model/MeetingFeaturesConfiguration.h>

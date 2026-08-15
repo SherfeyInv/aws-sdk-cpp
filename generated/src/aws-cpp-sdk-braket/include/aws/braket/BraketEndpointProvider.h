@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/braket/BraketEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Braket
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Braket {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using BraketClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -34,8 +28,7 @@ using BraketBuiltInParameters = Aws::Endpoint::BuiltInParameters;
  * Inherit from this Base class / "Interface" should you want to provide a custom endpoint provider.
  * The SDK must use service-specific type for each service per specification.
  */
-using BraketEndpointProviderBase =
-    EndpointProviderBase<BraketClientConfiguration, BraketBuiltInParameters, BraketClientContextParameters>;
+using BraketEndpointProviderBase = EndpointProviderBase<BraketClientConfiguration, BraketBuiltInParameters, BraketClientContextParameters>;
 
 using BraketDefaultEpProviderBase =
     DefaultEndpointProvider<BraketClientConfiguration, BraketBuiltInParameters, BraketClientContextParameters>;
@@ -43,19 +36,14 @@ using BraketDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_BRAKET_API BraketEndpointProvider : public BraketDefaultEpProviderBase
-{
-public:
-    using BraketResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_BRAKET_API BraketEndpointProvider : public BraketDefaultEpProviderBase {
+ public:
+  using BraketResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    BraketEndpointProvider()
-      : BraketDefaultEpProviderBase(Aws::Braket::BraketEndpointRules::GetRulesBlob(), Aws::Braket::BraketEndpointRules::RulesBlobSize)
-    {}
+  BraketEndpointProvider();
 
-    ~BraketEndpointProvider()
-    {
-    }
+  ~BraketEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Braket
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Braket
+}  // namespace Aws

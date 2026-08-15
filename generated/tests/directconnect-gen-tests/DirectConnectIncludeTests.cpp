@@ -8,12 +8,12 @@
 
 #include <aws/directconnect/DirectConnectClient.h>
 #include <aws/directconnect/DirectConnectEndpointProvider.h>
-#include <aws/directconnect/DirectConnectEndpointRules.h>
 #include <aws/directconnect/DirectConnectErrorMarshaller.h>
 #include <aws/directconnect/DirectConnectErrors.h>
 #include <aws/directconnect/DirectConnectRequest.h>
 #include <aws/directconnect/DirectConnectServiceClientModel.h>
 #include <aws/directconnect/DirectConnect_EXPORTS.h>
+#include <aws/directconnect/internal/DirectConnectEndpointRules.h>
 #include <aws/directconnect/model/AcceptDirectConnectGatewayAssociationProposalRequest.h>
 #include <aws/directconnect/model/AcceptDirectConnectGatewayAssociationProposalResult.h>
 #include <aws/directconnect/model/AddressFamily.h>
@@ -150,6 +150,7 @@
 #include <aws/directconnect/model/NewTransitVirtualInterface.h>
 #include <aws/directconnect/model/NewTransitVirtualInterfaceAllocation.h>
 #include <aws/directconnect/model/NniPartnerType.h>
+#include <aws/directconnect/model/RateLimiterStatus.h>
 #include <aws/directconnect/model/ResourceTag.h>
 #include <aws/directconnect/model/RouteFilterPrefix.h>
 #include <aws/directconnect/model/RouterType.h>

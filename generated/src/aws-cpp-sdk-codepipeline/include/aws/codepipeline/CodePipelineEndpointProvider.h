@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/codepipeline/CodePipelineEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CodePipeline
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CodePipeline {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CodePipelineClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CodePipelineDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CODEPIPELINE_API CodePipelineEndpointProvider : public CodePipelineDefaultEpProviderBase
-{
-public:
-    using CodePipelineResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CODEPIPELINE_API CodePipelineEndpointProvider : public CodePipelineDefaultEpProviderBase {
+ public:
+  using CodePipelineResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CodePipelineEndpointProvider()
-      : CodePipelineDefaultEpProviderBase(Aws::CodePipeline::CodePipelineEndpointRules::GetRulesBlob(), Aws::CodePipeline::CodePipelineEndpointRules::RulesBlobSize)
-    {}
+  CodePipelineEndpointProvider();
 
-    ~CodePipelineEndpointProvider()
-    {
-    }
+  ~CodePipelineEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CodePipeline
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CodePipeline
+}  // namespace Aws

@@ -11,11 +11,9 @@ void S3CrtClient::CrtClientShutdownCallback(void *data)
   wrappedData->clientShutdownSem->Release();
 }
 
-void S3CrtClient::CancelCrtRequestAsync(aws_s3_meta_request *meta_request) const {
+void S3CrtClient::CancelCrtRequest(aws_s3_meta_request* meta_request) const {
   assert(meta_request);
-  m_clientConfiguration.executor->Submit([meta_request]() {
-    aws_s3_meta_request_cancel(meta_request);
-  });
+  aws_s3_meta_request_cancel(meta_request);
 }
 
 int S3CrtClient::S3CrtRequestHeadersCallback(struct aws_s3_meta_request *meta_request, const struct aws_http_headers *headers,
@@ -23,7 +21,7 @@ int S3CrtClient::S3CrtRequestHeadersCallback(struct aws_s3_meta_request *meta_re
 {
   AWS_UNREFERENCED_PARAM(meta_request);
   auto *userData = static_cast<S3CrtClient::CrtRequestCallbackUserData*>(user_data);
-  if (!userData || !userData->response || !userData->originalRequest) {
+  if (!userData || !userData->response || !userData->originalRequest || !headers) {
     return AWS_OP_ERR;
   }
 
@@ -38,7 +36,7 @@ int S3CrtClient::S3CrtRequestHeadersCallback(struct aws_s3_meta_request *meta_re
   auto& shouldContinueFn = userData->originalRequest->GetContinueRequestHandler();
   const HttpRequest* httpRequest = userData->request ? userData->request.get() : nullptr;
   if (shouldContinueFn && !shouldContinueFn(httpRequest)) {
-    userData->s3CrtClient->CancelCrtRequestAsync(meta_request);
+    userData->s3CrtClient->CancelCrtRequest(meta_request);
   }
 
   return AWS_OP_SUCCESS;
@@ -59,6 +57,11 @@ int S3CrtClient::S3CrtRequestGetBodyCallback(struct aws_s3_meta_request *meta_re
   {
     bodyStream.flush();
   }
+  if (bodyStream.fail()) {
+    AWS_LOGSTREAM_ERROR(ALLOCATION_TAG, "Failed to write download data");
+    aws_raise_error(AWS_ERROR_FILE_WRITE_FAILURE);
+    return AWS_OP_ERR;
+  }
 
   // Replenish flow-control window (no-op if enable_read_backpressure is not set):
   aws_s3_meta_request_increment_read_window(meta_request, body->len);
@@ -73,7 +76,7 @@ int S3CrtClient::S3CrtRequestGetBodyCallback(struct aws_s3_meta_request *meta_re
   auto& shouldContinueFn = userData->originalRequest->GetContinueRequestHandler();
   const HttpRequest* httpRequest = userData->request ? userData->request.get() : nullptr;
   if (shouldContinueFn && !shouldContinueFn(httpRequest)) {
-    userData->s3CrtClient->CancelCrtRequestAsync(meta_request);
+    userData->s3CrtClient->CancelCrtRequest(meta_request);
   }
 
   return AWS_OP_SUCCESS;
@@ -95,7 +98,7 @@ void S3CrtClient::S3CrtRequestProgressCallback(struct aws_s3_meta_request *meta_
   auto& shouldContinueFn = userData->originalRequest->GetContinueRequestHandler();
   const HttpRequest* httpRequest = userData->request ? userData->request.get() : nullptr;
   if (shouldContinueFn && !shouldContinueFn(httpRequest)) {
-    userData->s3CrtClient->CancelCrtRequestAsync(meta_request);
+    userData->s3CrtClient->CancelCrtRequest(meta_request);
   }
 
   return;
@@ -302,6 +305,180 @@ void S3CrtClient::InitCommonCrtRequestOption(CrtRequestCallbackUserData *userDat
   options->progress_callback = S3CrtRequestProgressCallback;
   options->finish_callback = S3CrtRequestFinishCallback;
 }
+
+S3CrtClient::CopyObjectPropertiesOutcome S3CrtClient::PopulateCopyObjectProperties(const Model::CopyObjectRequest &request,
+                                                                                   const std::shared_ptr<Aws::Http::HttpRequest> &httpRequest) const
+{
+  const bool copyMetadata = request.MetadataDirectiveHasBeenSet() &&
+      request.GetMetadataDirective() == Model::MetadataDirective::COPY;
+  const bool copyTags = request.TaggingDirectiveHasBeenSet() &&
+      request.GetTaggingDirective() == Model::TaggingDirective::COPY;
+  const bool copyAnnotations = request.AnnotationDirectiveHasBeenSet() &&
+      request.GetAnnotationDirective() == Model::AnnotationDirective::COPY;
+
+  Aws::Map<Aws::String, Aws::String> annotations;
+  if (!copyMetadata && !copyTags && !copyAnnotations)
+  {
+    return annotations;
+  }
+
+  // Parse "[/]bucket/key[?versionId=...]" from x-amz-copy-source. rfind: keys may contain '?'.
+  Aws::String copySource = request.GetCopySource();
+  Aws::String sourceVersionId;
+  const auto queryPos = copySource.rfind('?');
+  if (queryPos != Aws::String::npos)
+  {
+    const Aws::String query = copySource.substr(queryPos + 1);
+    copySource = copySource.substr(0, queryPos);
+    const auto versionPos = query.find("versionId=");
+    if (versionPos != Aws::String::npos)
+    {
+      sourceVersionId = query.substr(versionPos + Aws::String("versionId=").size());
+      const auto ampPos = sourceVersionId.find('&');
+      if (ampPos != Aws::String::npos)
+      {
+        sourceVersionId = sourceVersionId.substr(0, ampPos);
+      }
+    }
+  }
+  if (!copySource.empty() && copySource.front() == '/')
+  {
+    copySource = copySource.substr(1);
+  }
+  const auto slashPos = copySource.find('/');
+  if (slashPos == Aws::String::npos)
+  {
+    return Aws::Client::AWSError<S3CrtErrors>(S3CrtErrors::INVALID_PARAMETER_VALUE,
+        "INVALID_PARAMETER_VALUE", "Could not parse bucket and key from CopySource for property copy", false);
+  }
+  const Aws::String sourceBucket = copySource.substr(0, slashPos);
+  const Aws::String sourceKey = copySource.substr(slashPos + 1);
+
+  Model::HeadObjectRequest headRequest;
+  headRequest.SetBucket(sourceBucket);
+  headRequest.SetKey(sourceKey);
+  if (!sourceVersionId.empty())
+  {
+    headRequest.SetVersionId(sourceVersionId);
+  }
+  auto headOutcome = HeadObject(headRequest);
+  if (!headOutcome.IsSuccess())
+  {
+    return headOutcome.GetError();
+  }
+  const auto& head = headOutcome.GetResult();
+  const Aws::String sourceETag = head.GetETag();
+
+  if (!httpRequest->HasHeader("x-amz-copy-source-if-match") && !sourceETag.empty())
+  {
+    httpRequest->SetHeaderValue("x-amz-copy-source-if-match", sourceETag);
+  }
+
+  if (copyAnnotations)
+  {
+    // Neither the multipart copy nor S3's single-part CopyObject carries annotations, so always
+    // read them from the source here (regardless of size) and return them to be written to the
+    // destination after the copy completes (see the wrapped completion handler).
+    Aws::String continuationToken;
+    do
+    {
+      Model::ListObjectAnnotationsRequest listRequest;
+      listRequest.SetBucket(sourceBucket);
+      listRequest.SetKey(sourceKey);
+      if (!sourceVersionId.empty())
+      {
+        listRequest.SetVersionId(sourceVersionId);
+      }
+      if (!continuationToken.empty())
+      {
+        listRequest.SetContinuationToken(continuationToken);
+      }
+      auto listOutcome = ListObjectAnnotations(listRequest);
+      if (!listOutcome.IsSuccess())
+      {
+        return listOutcome.GetError();
+      }
+      for (const auto& entry : listOutcome.GetResult().GetAnnotations())
+      {
+        Model::GetObjectAnnotationRequest getRequest;
+        getRequest.SetBucket(sourceBucket);
+        getRequest.SetKey(sourceKey);
+        getRequest.SetAnnotationName(entry.GetAnnotationName());
+        if (!sourceVersionId.empty())
+        {
+          getRequest.SetVersionId(sourceVersionId);
+        }
+        auto getOutcome = GetObjectAnnotation(getRequest);
+        if (!getOutcome.IsSuccess())
+        {
+          return getOutcome.GetError();
+        }
+        auto& sourcePayload = getOutcome.GetResult().GetAnnotationPayload();
+        sourcePayload.clear();
+        sourcePayload.seekg(0);
+        Aws::StringStream payloadStream;
+        payloadStream << sourcePayload.rdbuf();
+        annotations.emplace(entry.GetAnnotationName(), payloadStream.str());
+      }
+      continuationToken = listOutcome.GetResult().GetNextContinuationToken();
+    } while (!continuationToken.empty());
+  }
+
+  // Below the multipart threshold S3's single-part CopyObject honors the metadata/tagging directives
+  // natively, so skip header injection (annotations are handled above regardless of size).
+  if (head.GetContentLength() < (1LL * 1024 * 1024 * 1024))
+  {
+    return annotations;
+  }
+
+  if (copyMetadata)
+  {
+    if (!head.GetContentType().empty()) { httpRequest->SetHeaderValue("content-type", head.GetContentType()); }
+    if (!head.GetContentEncoding().empty()) { httpRequest->SetHeaderValue("content-encoding", head.GetContentEncoding()); }
+    if (!head.GetContentDisposition().empty()) { httpRequest->SetHeaderValue("content-disposition", head.GetContentDisposition()); }
+    if (!head.GetContentLanguage().empty()) { httpRequest->SetHeaderValue("content-language", head.GetContentLanguage()); }
+    if (!head.GetCacheControl().empty()) { httpRequest->SetHeaderValue("cache-control", head.GetCacheControl()); }
+    if (!head.GetExpiresString().empty()) { httpRequest->SetHeaderValue("expires", head.GetExpires().ToGmtString(Aws::Utils::DateFormat::RFC822)); }
+    for (const auto& item : head.GetMetadata())
+    {
+      httpRequest->SetHeaderValue("x-amz-meta-" + item.first, item.second);
+    }
+    // REPLACE so CreateMultipartUpload emits these headers.
+    httpRequest->SetHeaderValue("x-amz-metadata-directive", "REPLACE");
+  }
+
+  if (copyTags)
+  {
+    Model::GetObjectTaggingRequest taggingRequest;
+    taggingRequest.SetBucket(sourceBucket);
+    taggingRequest.SetKey(sourceKey);
+    if (!sourceVersionId.empty())
+    {
+      taggingRequest.SetVersionId(sourceVersionId);
+    }
+    auto taggingOutcome = GetObjectTagging(taggingRequest);
+    if (!taggingOutcome.IsSuccess())
+    {
+      return taggingOutcome.GetError();
+    }
+    Aws::StringStream tagStream;
+    bool firstTag = true;
+    for (const auto& tag : taggingOutcome.GetResult().GetTagSet())
+    {
+      if (!firstTag) { tagStream << "&"; }
+      tagStream << Aws::Utils::StringUtils::URLEncode(tag.GetKey().c_str()) << "="
+                << Aws::Utils::StringUtils::URLEncode(tag.GetValue().c_str());
+      firstTag = false;
+    }
+    if (!firstTag)
+    {
+      httpRequest->SetHeaderValue("x-amz-tagging", tagStream.str());
+      httpRequest->SetHeaderValue("x-amz-tagging-directive", "REPLACE");
+    }
+  }
+
+  return annotations;
+}
 #end
 
 #foreach($operation in $serviceModel.operations)
@@ -452,6 +629,60 @@ void ${className}::${operation.name}Async(${constText}${operation.request.shape.
 #else
   InitCommonCrtRequestOption(userData, &options, &request, uri, Aws::Http::HttpMethod::HTTP_${operation.http.method});
 #end
+#if($operation.name == "CopyObject")
+  {
+    auto copyPropertiesOutcome = PopulateCopyObjectProperties(request, userData->request);
+    if (!copyPropertiesOutcome.IsSuccess())
+    {
+      Aws::Delete(userData);
+      return handler(this, request, CopyObjectOutcome(copyPropertiesOutcome.GetError()), handlerContext);
+    }
+    auto copiedAnnotations = copyPropertiesOutcome.GetResultWithOwnership();
+    if (!copiedAnnotations.empty())
+    {
+      // Annotations cannot ride along on the multipart copy, so write each one to the destination
+      // after the copy completes. Any PutObjectAnnotation failure fails the overall CopyObject.
+      const CopyObjectResponseReceivedHandler originalHandler = userData->copyResponseHandler;
+      const S3CrtClient* client = this;
+      userData->copyResponseHandler =
+          [client, originalHandler, copiedAnnotations](const S3CrtClient*, const CopyObjectRequest& copyRequest,
+                                                       const CopyObjectOutcome& outcome,
+                                                       const std::shared_ptr<const Aws::Client::AsyncCallerContext>& context)
+      {
+        if (!outcome.IsSuccess())
+        {
+          originalHandler(client, copyRequest, outcome, context);
+          return;
+        }
+        const Aws::String destVersionId = outcome.GetResult().GetVersionId();
+        const Aws::String destETag = outcome.GetResult().GetCopyObjectResultDetails().GetETag();
+        for (const auto& annotation : copiedAnnotations)
+        {
+          Model::PutObjectAnnotationRequest putRequest;
+          putRequest.SetBucket(copyRequest.GetBucket());
+          putRequest.SetKey(copyRequest.GetKey());
+          putRequest.SetAnnotationName(annotation.first);
+          putRequest.SetBody(Aws::MakeShared<Aws::StringStream>("S3CrtCopyAnnotation", annotation.second));
+          if (!destVersionId.empty())
+          {
+            putRequest.SetVersionId(destVersionId);
+          }
+          if (!destETag.empty())
+          {
+            putRequest.SetObjectIfMatch(destETag);
+          }
+          auto putOutcome = client->PutObjectAnnotation(putRequest);
+          if (!putOutcome.IsSuccess())
+          {
+            originalHandler(client, copyRequest, CopyObjectOutcome(putOutcome.GetError()), context);
+            return;
+          }
+        }
+        originalHandler(client, copyRequest, outcome, context);
+      };
+    }
+  }
+#end
   if(handlerContext)
   {
     handlerContext->GetMonitorContext().StartMonitorContext(Aws::String{"${className}"},request.GetServiceRequestName(), userData->request);
@@ -501,6 +732,10 @@ void ${className}::${operation.name}Async(${constText}${operation.request.shape.
       {ChecksumAlgorithm::SHA1, aws_s3_checksum_algorithm::AWS_SCA_SHA1},
       {ChecksumAlgorithm::SHA256, aws_s3_checksum_algorithm::AWS_SCA_SHA256},
       {ChecksumAlgorithm::CRC64NVME, aws_s3_checksum_algorithm::AWS_SCA_CRC64NVME},
+      {ChecksumAlgorithm::SHA512, aws_s3_checksum_algorithm::AWS_SCA_SHA512},
+      {ChecksumAlgorithm::XXHASH64, aws_s3_checksum_algorithm::AWS_SCA_XXHASH64},
+      {ChecksumAlgorithm::XXHASH3, aws_s3_checksum_algorithm::AWS_SCA_XXHASH3_64},
+      {ChecksumAlgorithm::XXHASH128, aws_s3_checksum_algorithm::AWS_SCA_XXHASH3_128},
     };
 
     const auto checksumAlgorithm = request.GetChecksumAlgorithm();

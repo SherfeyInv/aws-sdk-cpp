@@ -8,12 +8,12 @@
 
 #include <aws/kafkaconnect/KafkaConnectClient.h>
 #include <aws/kafkaconnect/KafkaConnectEndpointProvider.h>
-#include <aws/kafkaconnect/KafkaConnectEndpointRules.h>
 #include <aws/kafkaconnect/KafkaConnectErrorMarshaller.h>
 #include <aws/kafkaconnect/KafkaConnectErrors.h>
 #include <aws/kafkaconnect/KafkaConnectRequest.h>
 #include <aws/kafkaconnect/KafkaConnectServiceClientModel.h>
 #include <aws/kafkaconnect/KafkaConnect_EXPORTS.h>
+#include <aws/kafkaconnect/internal/KafkaConnectEndpointRules.h>
 #include <aws/kafkaconnect/model/ApacheKafkaCluster.h>
 #include <aws/kafkaconnect/model/ApacheKafkaClusterDescription.h>
 #include <aws/kafkaconnect/model/AutoScaling.h>
@@ -83,6 +83,7 @@
 #include <aws/kafkaconnect/model/ListWorkerConfigurationsResult.h>
 #include <aws/kafkaconnect/model/LogDelivery.h>
 #include <aws/kafkaconnect/model/LogDeliveryDescription.h>
+#include <aws/kafkaconnect/model/NetworkType.h>
 #include <aws/kafkaconnect/model/Plugin.h>
 #include <aws/kafkaconnect/model/PluginDescription.h>
 #include <aws/kafkaconnect/model/ProvisionedCapacity.h>

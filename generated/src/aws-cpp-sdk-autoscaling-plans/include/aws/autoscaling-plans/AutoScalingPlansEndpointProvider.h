@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/autoscaling-plans/AutoScalingPlansEndpointRules.h>
-
-
-namespace Aws
-{
-namespace AutoScalingPlans
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace AutoScalingPlans {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using AutoScalingPlansClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -38,24 +32,20 @@ using AutoScalingPlansEndpointProviderBase =
     EndpointProviderBase<AutoScalingPlansClientConfiguration, AutoScalingPlansBuiltInParameters, AutoScalingPlansClientContextParameters>;
 
 using AutoScalingPlansDefaultEpProviderBase =
-    DefaultEndpointProvider<AutoScalingPlansClientConfiguration, AutoScalingPlansBuiltInParameters, AutoScalingPlansClientContextParameters>;
+    DefaultEndpointProvider<AutoScalingPlansClientConfiguration, AutoScalingPlansBuiltInParameters,
+                            AutoScalingPlansClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_AUTOSCALINGPLANS_API AutoScalingPlansEndpointProvider : public AutoScalingPlansDefaultEpProviderBase
-{
-public:
-    using AutoScalingPlansResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_AUTOSCALINGPLANS_API AutoScalingPlansEndpointProvider : public AutoScalingPlansDefaultEpProviderBase {
+ public:
+  using AutoScalingPlansResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    AutoScalingPlansEndpointProvider()
-      : AutoScalingPlansDefaultEpProviderBase(Aws::AutoScalingPlans::AutoScalingPlansEndpointRules::GetRulesBlob(), Aws::AutoScalingPlans::AutoScalingPlansEndpointRules::RulesBlobSize)
-    {}
+  AutoScalingPlansEndpointProvider();
 
-    ~AutoScalingPlansEndpointProvider()
-    {
-    }
+  ~AutoScalingPlansEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace AutoScalingPlans
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace AutoScalingPlans
+}  // namespace Aws

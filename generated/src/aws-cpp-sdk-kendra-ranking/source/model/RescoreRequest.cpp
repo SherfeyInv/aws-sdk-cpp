@@ -3,53 +3,57 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 
+#include <aws/crt/cbor/Cbor.h>
 #include <aws/kendra-ranking/model/RescoreRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
 
 #include <utility>
 
 using namespace Aws::KendraRanking::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String RescoreRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String RescoreRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_rescoreExecutionPlanIdHasBeenSet)
-  {
-   payload.WithString("RescoreExecutionPlanId", m_rescoreExecutionPlanId);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_rescoreExecutionPlanIdHasBeenSet) {
+    mapSize++;
+  }
+  if (m_searchQueryHasBeenSet) {
+    mapSize++;
+  }
+  if (m_documentsHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_searchQueryHasBeenSet)
-  {
-   payload.WithString("SearchQuery", m_searchQuery);
+  encoder.WriteMapStart(mapSize);
 
+  if (m_rescoreExecutionPlanIdHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("RescoreExecutionPlanId"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_rescoreExecutionPlanId.c_str()));
   }
 
-  if(m_documentsHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> documentsJsonList(m_documents.size());
-   for(unsigned documentsIndex = 0; documentsIndex < documentsJsonList.GetLength(); ++documentsIndex)
-   {
-     documentsJsonList[documentsIndex].AsObject(m_documents[documentsIndex].Jsonize());
-   }
-   payload.WithArray("Documents", std::move(documentsJsonList));
-
+  if (m_searchQueryHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("SearchQuery"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_searchQuery.c_str()));
   }
 
-  return payload.View().WriteReadable();
+  if (m_documentsHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("Documents"));
+    encoder.WriteArrayStart(m_documents.size());
+    for (const auto& item_0 : m_documents) {
+      item_0.CborEncode(encoder);
+    }
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection RescoreRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection RescoreRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "AWSKendraRerankingFrontendService.Rescore"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

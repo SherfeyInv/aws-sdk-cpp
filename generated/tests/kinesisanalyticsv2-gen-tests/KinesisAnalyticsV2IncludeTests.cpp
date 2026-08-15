@@ -8,12 +8,12 @@
 
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2Client.h>
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2EndpointProvider.h>
-#include <aws/kinesisanalyticsv2/KinesisAnalyticsV2EndpointRules.h>
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2ErrorMarshaller.h>
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2Errors.h>
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2Request.h>
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2ServiceClientModel.h>
 #include <aws/kinesisanalyticsv2/KinesisAnalyticsV2_EXPORTS.h>
+#include <aws/kinesisanalyticsv2/internal/KinesisAnalyticsV2EndpointRules.h>
 #include <aws/kinesisanalyticsv2/model/AddApplicationCloudWatchLoggingOptionRequest.h>
 #include <aws/kinesisanalyticsv2/model/AddApplicationCloudWatchLoggingOptionResult.h>
 #include <aws/kinesisanalyticsv2/model/AddApplicationInputProcessingConfigurationRequest.h>
@@ -33,6 +33,9 @@
 #include <aws/kinesisanalyticsv2/model/ApplicationConfigurationDescription.h>
 #include <aws/kinesisanalyticsv2/model/ApplicationConfigurationUpdate.h>
 #include <aws/kinesisanalyticsv2/model/ApplicationDetail.h>
+#include <aws/kinesisanalyticsv2/model/ApplicationEncryptionConfiguration.h>
+#include <aws/kinesisanalyticsv2/model/ApplicationEncryptionConfigurationDescription.h>
+#include <aws/kinesisanalyticsv2/model/ApplicationEncryptionConfigurationUpdate.h>
 #include <aws/kinesisanalyticsv2/model/ApplicationMaintenanceConfigurationDescription.h>
 #include <aws/kinesisanalyticsv2/model/ApplicationMaintenanceConfigurationUpdate.h>
 #include <aws/kinesisanalyticsv2/model/ApplicationMode.h>
@@ -128,6 +131,7 @@
 #include <aws/kinesisanalyticsv2/model/InputStartingPositionConfiguration.h>
 #include <aws/kinesisanalyticsv2/model/InputUpdate.h>
 #include <aws/kinesisanalyticsv2/model/JSONMappingParameters.h>
+#include <aws/kinesisanalyticsv2/model/KeyType.h>
 #include <aws/kinesisanalyticsv2/model/KinesisFirehoseInput.h>
 #include <aws/kinesisanalyticsv2/model/KinesisFirehoseInputDescription.h>
 #include <aws/kinesisanalyticsv2/model/KinesisFirehoseInputUpdate.h>

@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import software.amazon.smithy.jmespath.JmespathExpression;
 
 public class C2jModelToGeneratorModelTransformer {
@@ -116,6 +117,36 @@ public class C2jModelToGeneratorModelTransformer {
     private static Set<Integer> RESPONSE_CODES_TO_RETRY = ImmutableSet.of(500, 502, 503, 504);
 
     /**
+     * Hard coded set of errors that are always throttle-able even if modeled
+     */
+    final private static Set<String> THROTTLE_ERRORS = ImmutableSet.of(
+            "Throttling",
+            "ThrottlingException",
+            "ThrottledException",
+            "RequestThrottledException",
+            "TooManyRequestsException",
+            "ProvisionedThroughputExceededException",
+            "TransactionInProgressException",
+            "RequestLimitExceeded",
+            "BandwidthLimitExceeded",
+            "LimitExceededException",
+            "RequestThrottled",
+            "SlowDown",
+            "PriorRequestNotComplete",
+            "EC2ThrottledException"
+    );
+
+    /**
+     * Hard coded set of errors that are always retryable even if modeled
+     */
+    final private static Set<String> RETRYABLE_ERRORS = ImmutableSet.of(
+            "RequestTimeout",
+            "InternalError",
+            "RequestTimeoutException",
+            "IDPCommunicationError"
+    );
+
+    /**
      * Type representing what a member should be remapped to and services that it
      * cannot be renamed to, to preserve backwards compat.
      */
@@ -169,6 +200,7 @@ public class C2jModelToGeneratorModelTransformer {
 
         convertShapes();
         convertOperations();
+        applyLongPollingTrait();
         removeIgnoredOperations();
         removeUnreferencedShapes();
         postProcessShapes();
@@ -185,7 +217,7 @@ public class C2jModelToGeneratorModelTransformer {
         // add protocol check. only for json, query protocols
         final String protocol = serviceModel.getMetadata().findFirstSupportedProtocol();
 
-        if ("json".equals(protocol)) {
+        if ("json".equals(protocol) || "smithy-rpc-v2-cbor".equals(protocol)) {
             serviceModel.getMetadata().setAwsQueryCompatible(
                     c2jServiceModel.getMetadata().getAwsQueryCompatible() != null);
         } else {
@@ -209,6 +241,15 @@ public class C2jModelToGeneratorModelTransformer {
         serviceModel.setEndpointRuleSetModel(c2jServiceModel.getEndpointRuleSetModel());
         serviceModel.setEndpointTests(c2jServiceModel.getEndpointTests());
         serviceModel.setClientContextParams(c2jServiceModel.getClientContextParams());
+
+        serviceModel.getServiceErrors()
+                .stream().filter(error -> THROTTLE_ERRORS.contains(error.getText()))
+                .forEach(error -> error.setThrottling(true));
+
+        serviceModel.getServiceErrors()
+                .stream().filter(error -> RETRYABLE_ERRORS.contains(error.getText()) &&
+                        !THROTTLE_ERRORS.contains(error.getText()))
+                .forEach(error -> error.setRetryable(true));
 
         return serviceModel;
     }
@@ -336,38 +377,46 @@ public class C2jModelToGeneratorModelTransformer {
                     // Header only event
                     shape.setEventPayloadType(null);
                 } else if (shape.hasEventPayloadMembers() || shape.getMembers().size() == 1) {
-                    if (shape.getMembers().size() == 1) {
-                        shape.getMembers().entrySet().stream().forEach(memberEntry -> {
-                            /**
-                             * Note: this is complicated and potentially not completely correct.
-                             * So touch at your own risk until we have protocol tests supported.
-                             * In summary:
-                             * - we need to determine how to serialize events in eventstream
-                             * - to specify payload there is an eventpayload trait
-                             * - but what happens if that trait is not specified
-                             * - if there is one field and its a string or struct then we assume that field is event payload
-                             * - if there is one field and its a blob within structure and not explicitly marked as eventpayload then parent shape is eventpayload
-                             * - if that one field is of any other type then treat parent shape as eventpayload
-                             * - if there is more than one field then parent shape is the payload
-                             */
-                            Shape memberShape = memberEntry.getValue().getShape();
-                            if (memberShape.isString() ||
-                                memberShape.isBlob() && !shape.isStructure() ||
-                                memberShape.isBlob() && memberEntry.getValue().isEventPayload() ||
-                                memberShape.isStructure()) {
-                                memberEntry.getValue().setEventPayload(true);
-                                shape.setEventPayloadMemberName(memberEntry.getKey());
-                                shape.setEventPayloadType(memberShape.getType());
-                            } else {
-                                if (!shape.getType().equals("structure")) {
-                                    throw new RuntimeException("Event shape should always has \"structure\" type if single member cannot be event payload.");
-                                }
-                                shape.setEventPayloadType(shape.getType());
+                    if (shape.getMembers().values().stream().filter(member -> !member.isEventHeader()).count() == 1) {
+                        final List<Map.Entry<String, ShapeMember>> memberEntries = shape.getMembers().entrySet().stream()
+                                .filter(member -> !member.getValue().isEventHeader())
+                                .collect(Collectors.toList());
+                        if (memberEntries.size() != 1) {
+                            throw new RuntimeException("Event shape should have exactly one payload member for event payload.");
+                        }
+                        /**
+                         * Note: this is complicated and potentially not completely correct.
+                         * So touch at your own risk until we have protocol tests supported.
+                         * In summary:
+                         * - we need to determine how to serialize events in eventstream
+                         * - to specify payload there is an eventpayload trait
+                         * - but what happens if that trait is not specified
+                         * - if there is one field and its a string or struct then we assume that field is event payload
+                         * - if there is one field and its a blob within structure and not explicitly marked as eventpayload then parent shape is eventpayload
+                         * - if that one field is of any other type then treat parent shape as eventpayload
+                         * - if there is more than one field then parent shape is the payload
+                         */
+                        final Map.Entry<String, ShapeMember> memberEntry = memberEntries.get(0);
+                        final Shape memberShape = memberEntry.getValue().getShape();
+                        if (memberShape.isString() ||
+                            memberShape.isBlob() && !shape.isStructure() ||
+                            memberShape.isBlob() && memberEntry.getValue().isEventPayload() ||
+                            memberShape.isStructure()) {
+                            memberEntry.getValue().setEventPayload(true);
+                            shape.setEventPayloadMemberName(memberEntry.getKey());
+                            shape.setEventPayloadType(memberShape.getType());
+                        } else {
+                            if (!shape.getType().equals("structure")) {
+                                throw new RuntimeException("Event shape should always has \"structure\" type if single member cannot be event payload.");
                             }
-
-                        });
+                            shape.setEventPayloadType(shape.getType());
+                        }
+                        shape.setEventStreamHeaders(shape.getMembers().entrySet().stream()
+                                .filter(headerEntry -> headerEntry.getValue().isEventHeader())
+                                .map(headerEntry -> Pair.of(headerEntry.getKey(), headerEntry.getValue().getShape()))
+                                .collect(Collectors.toMap(Pair::getKey, Pair::getValue)));
                     } else {
-                        throw new RuntimeException("Event shape used in Event Stream should only has one member if it has event payload member.");
+                        throw new RuntimeException("Event shape used in Event Stream should only has one non header member if it has event payload member.");
                     }
                 } else if (shape.getMembers().size() > 1) {
                     if (!shape.getType().equals("structure")) {
@@ -430,6 +479,10 @@ public class C2jModelToGeneratorModelTransformer {
         shape.setEvent(c2jShape.isEvent());
         shape.setException(c2jShape.isException());
         shape.setDocument(c2jShape.isDocument());
+        shape.setSparse(c2jShape.isSparse());
+        if (shape.isSparse() && !shape.isList() && !shape.isMap()) {
+            throw new SourceGenerationFailedException("The sparse trait is only applicable to list and map shapes, but was found on shape: " + shape.getName());
+        }
 
         if (c2jShape.getXmlNamespace() != null) {
             XmlNamespace xmlns = new XmlNamespace();
@@ -576,6 +629,24 @@ public class C2jModelToGeneratorModelTransformer {
         }
     }
 
+    private static final Map<String, Set<String>> LONG_POLLING_OPERATIONS = ImmutableMap.of(
+        "SQS", ImmutableSet.of("ReceiveMessage"),
+        "SFN", ImmutableSet.of("GetActivityTask"),
+        "SWF", ImmutableSet.of("PollForActivityTask", "PollForDecisionTask")
+    );
+
+    void applyLongPollingTrait() {
+        Optional.ofNullable(c2jServiceModel.getMetadata().getServiceId())
+            .map(LONG_POLLING_OPERATIONS::get)
+            .ifPresent(longPollOps -> {
+                for (Map.Entry<String, Operation> entry : operations.entrySet()) {
+                    if (longPollOps.contains(entry.getKey())) {
+                        entry.getValue().setLongPolling(true);
+                    }
+                }
+            });
+    }
+
     Operation convertOperation(C2jOperation c2jOperation) {
         Operation operation = new Operation();
 
@@ -601,6 +672,7 @@ public class C2jModelToGeneratorModelTransformer {
 
         operation.setDocumentation(formatDocumentation(crossLinkedShapeDocs, 9));
         operation.setAuthtype(c2jOperation.getAuthtype());
+        operation.setAuth(c2jOperation.getAuth());
         operation.setAuthorizer(c2jOperation.getAuthorizer());
         if (c2jOperation.getEndpoint() != null) {
             operation.setEndpoint(convertEndpoint(c2jOperation.getEndpoint()));
@@ -809,7 +881,7 @@ public class C2jModelToGeneratorModelTransformer {
                             member.getShape().getName(),
                             reservedMapping.getValue().remappingName,
                             member.getShape().getName(),
-                            false);
+                            reservedMapping.getKey().equals(shape.getPayload()));
                 });
         }
     }
@@ -840,6 +912,7 @@ public class C2jModelToGeneratorModelTransformer {
         cloned.setException(shape.isException());
         cloned.setXmlNamespace(shape.getXmlNamespace());
         cloned.setDocument(shape.isDocument());
+        cloned.setSparse(shape.isSparse());
         return cloned;
     }
 

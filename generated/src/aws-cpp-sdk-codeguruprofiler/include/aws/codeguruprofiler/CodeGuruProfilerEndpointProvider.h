@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/codeguruprofiler/CodeGuruProfilerEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CodeGuruProfiler
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CodeGuruProfiler {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CodeGuruProfilerClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -38,24 +32,20 @@ using CodeGuruProfilerEndpointProviderBase =
     EndpointProviderBase<CodeGuruProfilerClientConfiguration, CodeGuruProfilerBuiltInParameters, CodeGuruProfilerClientContextParameters>;
 
 using CodeGuruProfilerDefaultEpProviderBase =
-    DefaultEndpointProvider<CodeGuruProfilerClientConfiguration, CodeGuruProfilerBuiltInParameters, CodeGuruProfilerClientContextParameters>;
+    DefaultEndpointProvider<CodeGuruProfilerClientConfiguration, CodeGuruProfilerBuiltInParameters,
+                            CodeGuruProfilerClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CODEGURUPROFILER_API CodeGuruProfilerEndpointProvider : public CodeGuruProfilerDefaultEpProviderBase
-{
-public:
-    using CodeGuruProfilerResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CODEGURUPROFILER_API CodeGuruProfilerEndpointProvider : public CodeGuruProfilerDefaultEpProviderBase {
+ public:
+  using CodeGuruProfilerResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CodeGuruProfilerEndpointProvider()
-      : CodeGuruProfilerDefaultEpProviderBase(Aws::CodeGuruProfiler::CodeGuruProfilerEndpointRules::GetRulesBlob(), Aws::CodeGuruProfiler::CodeGuruProfilerEndpointRules::RulesBlobSize)
-    {}
+  CodeGuruProfilerEndpointProvider();
 
-    ~CodeGuruProfilerEndpointProvider()
-    {
-    }
+  ~CodeGuruProfilerEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CodeGuruProfiler
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CodeGuruProfiler
+}  // namespace Aws

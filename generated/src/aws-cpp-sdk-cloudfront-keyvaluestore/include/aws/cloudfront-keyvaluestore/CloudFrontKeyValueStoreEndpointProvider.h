@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/cloudfront-keyvaluestore/CloudFrontKeyValueStoreEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CloudFrontKeyValueStore
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CloudFrontKeyValueStore {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CloudFrontKeyValueStoreClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -35,27 +29,24 @@ using CloudFrontKeyValueStoreBuiltInParameters = Aws::Endpoint::BuiltInParameter
  * The SDK must use service-specific type for each service per specification.
  */
 using CloudFrontKeyValueStoreEndpointProviderBase =
-    EndpointProviderBase<CloudFrontKeyValueStoreClientConfiguration, CloudFrontKeyValueStoreBuiltInParameters, CloudFrontKeyValueStoreClientContextParameters>;
+    EndpointProviderBase<CloudFrontKeyValueStoreClientConfiguration, CloudFrontKeyValueStoreBuiltInParameters,
+                         CloudFrontKeyValueStoreClientContextParameters>;
 
 using CloudFrontKeyValueStoreDefaultEpProviderBase =
-    DefaultEndpointProvider<CloudFrontKeyValueStoreClientConfiguration, CloudFrontKeyValueStoreBuiltInParameters, CloudFrontKeyValueStoreClientContextParameters>;
+    DefaultEndpointProvider<CloudFrontKeyValueStoreClientConfiguration, CloudFrontKeyValueStoreBuiltInParameters,
+                            CloudFrontKeyValueStoreClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CLOUDFRONTKEYVALUESTORE_API CloudFrontKeyValueStoreEndpointProvider : public CloudFrontKeyValueStoreDefaultEpProviderBase
-{
-public:
-    using CloudFrontKeyValueStoreResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CLOUDFRONTKEYVALUESTORE_API CloudFrontKeyValueStoreEndpointProvider : public CloudFrontKeyValueStoreDefaultEpProviderBase {
+ public:
+  using CloudFrontKeyValueStoreResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CloudFrontKeyValueStoreEndpointProvider()
-      : CloudFrontKeyValueStoreDefaultEpProviderBase(Aws::CloudFrontKeyValueStore::CloudFrontKeyValueStoreEndpointRules::GetRulesBlob(), Aws::CloudFrontKeyValueStore::CloudFrontKeyValueStoreEndpointRules::RulesBlobSize)
-    {}
+  CloudFrontKeyValueStoreEndpointProvider();
 
-    ~CloudFrontKeyValueStoreEndpointProvider()
-    {
-    }
+  ~CloudFrontKeyValueStoreEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CloudFrontKeyValueStore
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CloudFrontKeyValueStore
+}  // namespace Aws

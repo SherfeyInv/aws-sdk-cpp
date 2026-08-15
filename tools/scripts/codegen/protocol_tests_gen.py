@@ -12,7 +12,9 @@ import pathlib
 import re
 import sys
 from concurrent.futures import ProcessPoolExecutor, wait, FIRST_COMPLETED, ALL_COMPLETED
+from subprocess import list2cmdline, run
 
+from codegen.format_util import format_directories
 from codegen.legacy_c2j_cpp_gen import LegacyC2jCppGen
 from codegen.model_utils import SERVICE_MODEL_FILENAME_PATTERN, ServiceModel, ModelUtils
 
@@ -26,9 +28,8 @@ PROTOCOL_TESTS_MOCK_TEST_RULES = "protocol-mock-endpoint-rule-set.json"
 PROTOCOL_TESTS_GENERATED_CLIENTS_DIR = "generated/protocol-tests/test-clients"
 PROTOCOL_GENERATED_TESTS_DIR = "generated/protocol-tests/tests"
 
-UNSUPPORTED_CLIENTS = {"rpcv2protocol"  # RPC V2 CBOR support is not implemented on this SDK
-                       }
-UNSUPPORTED_TESTS = {"smithy-rpc-v2-cbor"}
+UNSUPPORTED_CLIENTS = {}
+UNSUPPORTED_TESTS = {}
 
 # Regexp to parse C2J model filename to extract service name and date version
 TEST_DEFINITION_FILENAME_PATTERN = re.compile(
@@ -87,7 +88,10 @@ class ProtocolTestsGen(object):
         :return:
         """
         if self._generate_test_clients(executor, max_workers) == 0:
-            return self._generate_tests(executor, max_workers)
+            result = self._generate_tests(executor, max_workers)
+            if result == 0:
+                format_directories([self.generated_test_clients_dir, self.generated_tests_dir])
+            return result
         return -1
 
     def _generate_test_clients(self, executor: ProcessPoolExecutor, max_workers: int):

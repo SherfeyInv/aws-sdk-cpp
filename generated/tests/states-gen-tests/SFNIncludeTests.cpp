@@ -8,12 +8,12 @@
 
 #include <aws/states/SFNClient.h>
 #include <aws/states/SFNEndpointProvider.h>
-#include <aws/states/SFNEndpointRules.h>
 #include <aws/states/SFNErrorMarshaller.h>
 #include <aws/states/SFNErrors.h>
 #include <aws/states/SFNRequest.h>
 #include <aws/states/SFNServiceClientModel.h>
 #include <aws/states/SFN_EXPORTS.h>
+#include <aws/states/internal/SFNEndpointRules.h>
 #include <aws/states/model/ActivityFailedEventDetails.h>
 #include <aws/states/model/ActivityListItem.h>
 #include <aws/states/model/ActivityScheduleFailedEventDetails.h>
@@ -75,6 +75,7 @@
 #include <aws/states/model/InspectionData.h>
 #include <aws/states/model/InspectionDataRequest.h>
 #include <aws/states/model/InspectionDataResponse.h>
+#include <aws/states/model/InspectionErrorDetails.h>
 #include <aws/states/model/InspectionLevel.h>
 #include <aws/states/model/KmsInvalidStateException.h>
 #include <aws/states/model/KmsKeyState.h>
@@ -110,6 +111,9 @@
 #include <aws/states/model/MapRunStartedEventDetails.h>
 #include <aws/states/model/MapRunStatus.h>
 #include <aws/states/model/MapStateStartedEventDetails.h>
+#include <aws/states/model/MockErrorOutput.h>
+#include <aws/states/model/MockInput.h>
+#include <aws/states/model/MockResponseValidationMode.h>
 #include <aws/states/model/PublishStateMachineVersionRequest.h>
 #include <aws/states/model/PublishStateMachineVersionResult.h>
 #include <aws/states/model/RedriveExecutionRequest.h>
@@ -149,6 +153,7 @@
 #include <aws/states/model/TaskSucceededEventDetails.h>
 #include <aws/states/model/TaskTimedOutEventDetails.h>
 #include <aws/states/model/TestExecutionStatus.h>
+#include <aws/states/model/TestStateConfiguration.h>
 #include <aws/states/model/TestStateRequest.h>
 #include <aws/states/model/TestStateResult.h>
 #include <aws/states/model/TooManyTags.h>

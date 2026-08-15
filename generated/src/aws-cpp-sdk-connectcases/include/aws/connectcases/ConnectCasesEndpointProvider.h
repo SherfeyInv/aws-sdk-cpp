@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/connectcases/ConnectCasesEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ConnectCases
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ConnectCases {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ConnectCasesClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using ConnectCasesDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CONNECTCASES_API ConnectCasesEndpointProvider : public ConnectCasesDefaultEpProviderBase
-{
-public:
-    using ConnectCasesResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CONNECTCASES_API ConnectCasesEndpointProvider : public ConnectCasesDefaultEpProviderBase {
+ public:
+  using ConnectCasesResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ConnectCasesEndpointProvider()
-      : ConnectCasesDefaultEpProviderBase(Aws::ConnectCases::ConnectCasesEndpointRules::GetRulesBlob(), Aws::ConnectCases::ConnectCasesEndpointRules::RulesBlobSize)
-    {}
+  ConnectCasesEndpointProvider();
 
-    ~ConnectCasesEndpointProvider()
-    {
-    }
+  ~ConnectCasesEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ConnectCases
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ConnectCases
+}  // namespace Aws

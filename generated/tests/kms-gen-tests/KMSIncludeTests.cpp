@@ -8,12 +8,12 @@
 
 #include <aws/kms/KMSClient.h>
 #include <aws/kms/KMSEndpointProvider.h>
-#include <aws/kms/KMSEndpointRules.h>
 #include <aws/kms/KMSErrorMarshaller.h>
 #include <aws/kms/KMSErrors.h>
 #include <aws/kms/KMSRequest.h>
 #include <aws/kms/KMSServiceClientModel.h>
 #include <aws/kms/KMS_EXPORTS.h>
+#include <aws/kms/internal/KMSEndpointRules.h>
 #include <aws/kms/model/AlgorithmSpec.h>
 #include <aws/kms/model/AliasListEntry.h>
 #include <aws/kms/model/CancelKeyDeletionRequest.h>
@@ -50,6 +50,7 @@
 #include <aws/kms/model/DisableKeyRotationRequest.h>
 #include <aws/kms/model/DisconnectCustomKeyStoreRequest.h>
 #include <aws/kms/model/DisconnectCustomKeyStoreResult.h>
+#include <aws/kms/model/DryRunModifierType.h>
 #include <aws/kms/model/EnableKeyRequest.h>
 #include <aws/kms/model/EnableKeyRotationRequest.h>
 #include <aws/kms/model/EncryptRequest.h>
@@ -68,6 +69,8 @@
 #include <aws/kms/model/GenerateMacResult.h>
 #include <aws/kms/model/GenerateRandomRequest.h>
 #include <aws/kms/model/GenerateRandomResult.h>
+#include <aws/kms/model/GetKeyLastUsageRequest.h>
+#include <aws/kms/model/GetKeyLastUsageResult.h>
 #include <aws/kms/model/GetKeyPolicyRequest.h>
 #include <aws/kms/model/GetKeyPolicyResult.h>
 #include <aws/kms/model/GetKeyRotationStatusRequest.h>
@@ -86,6 +89,8 @@
 #include <aws/kms/model/IncludeKeyMaterial.h>
 #include <aws/kms/model/KeyAgreementAlgorithmSpec.h>
 #include <aws/kms/model/KeyEncryptionMechanism.h>
+#include <aws/kms/model/KeyLastUsageData.h>
+#include <aws/kms/model/KeyLastUsageTrackingOperation.h>
 #include <aws/kms/model/KeyListEntry.h>
 #include <aws/kms/model/KeyManagerType.h>
 #include <aws/kms/model/KeyMaterialState.h>

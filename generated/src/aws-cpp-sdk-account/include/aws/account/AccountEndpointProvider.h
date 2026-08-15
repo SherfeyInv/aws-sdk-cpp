@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/account/AccountEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Account
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Account {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using AccountClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using AccountDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_ACCOUNT_API AccountEndpointProvider : public AccountDefaultEpProviderBase
-{
-public:
-    using AccountResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_ACCOUNT_API AccountEndpointProvider : public AccountDefaultEpProviderBase {
+ public:
+  using AccountResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    AccountEndpointProvider()
-      : AccountDefaultEpProviderBase(Aws::Account::AccountEndpointRules::GetRulesBlob(), Aws::Account::AccountEndpointRules::RulesBlobSize)
-    {}
+  AccountEndpointProvider();
 
-    ~AccountEndpointProvider()
-    {
-    }
+  ~AccountEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Account
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Account
+}  // namespace Aws

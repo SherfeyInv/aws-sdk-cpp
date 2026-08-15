@@ -8,12 +8,12 @@
 
 #include <aws/docdb/DocDBClient.h>
 #include <aws/docdb/DocDBEndpointProvider.h>
-#include <aws/docdb/DocDBEndpointRules.h>
 #include <aws/docdb/DocDBErrorMarshaller.h>
 #include <aws/docdb/DocDBErrors.h>
 #include <aws/docdb/DocDBRequest.h>
 #include <aws/docdb/DocDBServiceClientModel.h>
 #include <aws/docdb/DocDB_EXPORTS.h>
+#include <aws/docdb/internal/DocDBEndpointRules.h>
 #include <aws/docdb/model/AddSourceIdentifierToSubscriptionRequest.h>
 #include <aws/docdb/model/AddSourceIdentifierToSubscriptionResult.h>
 #include <aws/docdb/model/AddTagsToResourceRequest.h>
@@ -107,9 +107,12 @@
 #include <aws/docdb/model/FailoverDBClusterResult.h>
 #include <aws/docdb/model/FailoverGlobalClusterRequest.h>
 #include <aws/docdb/model/FailoverGlobalClusterResult.h>
+#include <aws/docdb/model/FailoverState.h>
+#include <aws/docdb/model/FailoverStatus.h>
 #include <aws/docdb/model/Filter.h>
 #include <aws/docdb/model/GlobalCluster.h>
 #include <aws/docdb/model/GlobalClusterMember.h>
+#include <aws/docdb/model/GlobalClusterMemberSynchronizationStatus.h>
 #include <aws/docdb/model/ListTagsForResourceRequest.h>
 #include <aws/docdb/model/ListTagsForResourceResult.h>
 #include <aws/docdb/model/ModifyDBClusterParameterGroupRequest.h>
@@ -146,6 +149,9 @@
 #include <aws/docdb/model/RestoreDBClusterFromSnapshotResult.h>
 #include <aws/docdb/model/RestoreDBClusterToPointInTimeRequest.h>
 #include <aws/docdb/model/RestoreDBClusterToPointInTimeResult.h>
+#include <aws/docdb/model/ServerlessV2FeaturesSupport.h>
+#include <aws/docdb/model/ServerlessV2ScalingConfiguration.h>
+#include <aws/docdb/model/ServerlessV2ScalingConfigurationInfo.h>
 #include <aws/docdb/model/SourceType.h>
 #include <aws/docdb/model/StartDBClusterRequest.h>
 #include <aws/docdb/model/StartDBClusterResult.h>

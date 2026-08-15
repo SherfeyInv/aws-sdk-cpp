@@ -4,13 +4,34 @@
  */
 
 #include <aws/bedrock-data-automation/BedrockDataAutomationEndpointProvider.h>
+#include <aws/bedrock-data-automation/internal/BedrockDataAutomationEndpointRules.h>
 
-namespace Aws
-{
-namespace BedrockDataAutomation
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace BedrockDataAutomation
-} // namespace Aws
+namespace Aws {
+#ifndef AWS_BEDROCKDATAAUTOMATION_EXPORTS  // Except for Windows DLL
+namespace Endpoint {
+/**
+ * Instantiate endpoint providers
+ */
+template class Aws::Endpoint::EndpointProviderBase<BedrockDataAutomation::Endpoint::BedrockDataAutomationClientConfiguration,
+                                                   BedrockDataAutomation::Endpoint::BedrockDataAutomationBuiltInParameters,
+                                                   BedrockDataAutomation::Endpoint::BedrockDataAutomationClientContextParameters>;
+
+template class Aws::Endpoint::DefaultEndpointProvider<BedrockDataAutomation::Endpoint::BedrockDataAutomationClientConfiguration,
+                                                      BedrockDataAutomation::Endpoint::BedrockDataAutomationBuiltInParameters,
+                                                      BedrockDataAutomation::Endpoint::BedrockDataAutomationClientContextParameters>;
+}  // namespace Endpoint
+#endif
+
+namespace BedrockDataAutomation {
+namespace Endpoint {
+BedrockDataAutomationEndpointProvider::BedrockDataAutomationEndpointProvider()
+    : BedrockDataAutomationDefaultEpProviderBase(Aws::BedrockDataAutomation::BedrockDataAutomationEndpointRules::GetRulesBlob(),
+                                                 Aws::BedrockDataAutomation::BedrockDataAutomationEndpointRules::RulesBlobSize) {}
+
+void BedrockDataAutomationBuiltInParameters::SetFromClientConfiguration(const BedrockDataAutomationClientConfiguration& config) {
+  SetFromClientConfiguration(static_cast<const BedrockDataAutomationClientConfiguration::BaseClientConfigClass&>(config));
+}
+
+}  // namespace Endpoint
+}  // namespace BedrockDataAutomation
+}  // namespace Aws

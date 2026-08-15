@@ -9,12 +9,12 @@
 #include <aws/s3control/S3ControlClient.h>
 #include <aws/s3control/S3ControlClientConfiguration.h>
 #include <aws/s3control/S3ControlEndpointProvider.h>
-#include <aws/s3control/S3ControlEndpointRules.h>
 #include <aws/s3control/S3ControlErrorMarshaller.h>
 #include <aws/s3control/S3ControlErrors.h>
 #include <aws/s3control/S3ControlRequest.h>
 #include <aws/s3control/S3ControlServiceClientModel.h>
 #include <aws/s3control/S3Control_EXPORTS.h>
+#include <aws/s3control/internal/S3ControlEndpointRules.h>
 #include <aws/s3control/model/AbortIncompleteMultipartUpload.h>
 #include <aws/s3control/model/AccessControlTranslation.h>
 #include <aws/s3control/model/AccessGrantsLocationConfiguration.h>
@@ -23,6 +23,7 @@
 #include <aws/s3control/model/ActivityMetrics.h>
 #include <aws/s3control/model/AdvancedCostOptimizationMetrics.h>
 #include <aws/s3control/model/AdvancedDataProtectionMetrics.h>
+#include <aws/s3control/model/AdvancedPerformanceMetrics.h>
 #include <aws/s3control/model/AssociateAccessGrantsIdentityCenterRequest.h>
 #include <aws/s3control/model/AsyncErrorDetails.h>
 #include <aws/s3control/model/AsyncOperation.h>
@@ -35,6 +36,8 @@
 #include <aws/s3control/model/BucketLocationConstraint.h>
 #include <aws/s3control/model/BucketVersioningStatus.h>
 #include <aws/s3control/model/CloudWatchMetrics.h>
+#include <aws/s3control/model/ComputeObjectChecksumAlgorithm.h>
+#include <aws/s3control/model/ComputeObjectChecksumType.h>
 #include <aws/s3control/model/CreateAccessGrantRequest.h>
 #include <aws/s3control/model/CreateAccessGrantResult.h>
 #include <aws/s3control/model/CreateAccessGrantsInstanceRequest.h>
@@ -55,6 +58,7 @@
 #include <aws/s3control/model/CreateMultiRegionAccessPointResult.h>
 #include <aws/s3control/model/CreateStorageLensGroupRequest.h>
 #include <aws/s3control/model/Credentials.h>
+#include <aws/s3control/model/DSSEKMSFilter.h>
 #include <aws/s3control/model/DeleteAccessGrantRequest.h>
 #include <aws/s3control/model/DeleteAccessGrantsInstanceRequest.h>
 #include <aws/s3control/model/DeleteAccessGrantsInstanceResourcePolicyRequest.h>
@@ -229,6 +233,9 @@
 #include <aws/s3control/model/NetworkOrigin.h>
 #include <aws/s3control/model/NoncurrentVersionExpiration.h>
 #include <aws/s3control/model/NoncurrentVersionTransition.h>
+#include <aws/s3control/model/NotSSEFilter.h>
+#include <aws/s3control/model/ObjectEncryption.h>
+#include <aws/s3control/model/ObjectEncryptionFilter.h>
 #include <aws/s3control/model/ObjectLambdaAccessPoint.h>
 #include <aws/s3control/model/ObjectLambdaAccessPointAlias.h>
 #include <aws/s3control/model/ObjectLambdaAccessPointAliasStatus.h>
@@ -288,6 +295,7 @@
 #include <aws/s3control/model/S3BucketDestination.h>
 #include <aws/s3control/model/S3CannedAccessControlList.h>
 #include <aws/s3control/model/S3ChecksumAlgorithm.h>
+#include <aws/s3control/model/S3ComputeObjectChecksumOperation.h>
 #include <aws/s3control/model/S3CopyObjectOperation.h>
 #include <aws/s3control/model/S3DeleteObjectTaggingOperation.h>
 #include <aws/s3control/model/S3GeneratedManifestDescriptor.h>
@@ -316,10 +324,15 @@
 #include <aws/s3control/model/S3SetObjectTaggingOperation.h>
 #include <aws/s3control/model/S3StorageClass.h>
 #include <aws/s3control/model/S3Tag.h>
+#include <aws/s3control/model/S3UpdateObjectEncryptionOperation.h>
+#include <aws/s3control/model/S3UpdateObjectEncryptionSSEKMS.h>
+#include <aws/s3control/model/SSECFilter.h>
 #include <aws/s3control/model/SSEKMS.h>
 #include <aws/s3control/model/SSEKMSEncryption.h>
+#include <aws/s3control/model/SSEKMSFilter.h>
 #include <aws/s3control/model/SSES3.h>
 #include <aws/s3control/model/SSES3Encryption.h>
+#include <aws/s3control/model/SSES3Filter.h>
 #include <aws/s3control/model/Scope.h>
 #include <aws/s3control/model/ScopePermission.h>
 #include <aws/s3control/model/SelectionCriteria.h>
@@ -330,12 +343,14 @@
 #include <aws/s3control/model/StorageLensConfiguration.h>
 #include <aws/s3control/model/StorageLensDataExport.h>
 #include <aws/s3control/model/StorageLensDataExportEncryption.h>
+#include <aws/s3control/model/StorageLensExpandedPrefixesDataExport.h>
 #include <aws/s3control/model/StorageLensGroup.h>
 #include <aws/s3control/model/StorageLensGroupAndOperator.h>
 #include <aws/s3control/model/StorageLensGroupFilter.h>
 #include <aws/s3control/model/StorageLensGroupLevel.h>
 #include <aws/s3control/model/StorageLensGroupLevelSelectionCriteria.h>
 #include <aws/s3control/model/StorageLensGroupOrOperator.h>
+#include <aws/s3control/model/StorageLensTableDestination.h>
 #include <aws/s3control/model/StorageLensTag.h>
 #include <aws/s3control/model/SubmitMultiRegionAccessPointRoutesRequest.h>
 #include <aws/s3control/model/SubmitMultiRegionAccessPointRoutesResult.h>

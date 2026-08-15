@@ -8,6 +8,7 @@
 #include <aws/core/auth/signer/AWSAuthSignerHelper.h>
 
 #include <aws/core/auth/AWSCredentialsProvider.h>
+#include <aws/core/client/UserAgent.h>
 #include <aws/core/http/HttpRequest.h>
 #include <aws/core/http/URI.h>
 #include <aws/core/utils/DateTime.h>
@@ -25,6 +26,7 @@
 
 #include <iomanip>
 #include <cstring>
+#include <numeric>
 
 using namespace Aws;
 using namespace Aws::Client;
@@ -62,7 +64,7 @@ AWSAuthV4Signer::AWSAuthV4Signer(const std::shared_ptr<Auth::AWSCredentialsProvi
       m_credentialsProvider(credentialsProvider),
       m_serviceName(serviceName),
       m_region(region),
-      m_unsignedHeaders({USER_AGENT, Aws::Auth::AWSAuthHelper::X_AMZN_TRACE_ID, TRANSFER_ENCODING_HEADER}),
+      m_unsignedHeaders({USER_AGENT, Aws::Auth::AWSAuthHelper::X_AMZN_TRACE_ID, TRANSFER_ENCODING_HEADER, EXPECT_HEADER}),
       m_payloadSigningPolicy(signingPolicy),
       m_urlEscapePath(urlEscapePath) {
   // go ahead and warm up the signing cache.
@@ -81,6 +83,8 @@ bool AWSAuthV4Signer::SignRequestWithSigV4a(Aws::Http::HttpRequest& request, con
     bool signBody, long long expirationTimeInSeconds, Aws::Crt::Auth::SignatureType signatureType) const
 {
     AWSCredentials credentials = GetCredentials(request.GetServiceSpecificParameters());
+    
+    UpdateUserAgentWithCredentialFeatures(request, credentials.GetContext());
     auto crtCredentials = Aws::MakeShared<Aws::Crt::Auth::Credentials>(v4AsymmetricLogTag,
         Aws::Crt::ByteCursorFromCString(credentials.GetAWSAccessKeyId().c_str()),
         Aws::Crt::ByteCursorFromCString(credentials.GetAWSSecretKey().c_str()),
@@ -214,26 +218,10 @@ bool AWSAuthV4Signer::SignRequestWithCreds(Aws::Http::HttpRequest& request, cons
         request.SetAwsSessionToken(credentials.GetSessionToken());
     }
 
-    // If the request checksum, set the signer to use a unsigned
-    // trailing payload. otherwise use it in the header
-    if (request.GetRequestHash().second != nullptr && !request.GetRequestHash().first.empty() && request.GetContentBody() != nullptr) {
-      AWS_LOGSTREAM_DEBUG(v4LogTag, "Note: Http payloads are not being signed. signPayloads="
-                                        << signBody << " http scheme=" << Http::SchemeMapper::ToString(request.GetUri().GetScheme()));
-      if (request.GetRequestHash().second != nullptr) {
+    // If the request has checksum and chunking was applied by interceptor, use streaming payload
+    if (request.GetRequestHash().second != nullptr && !request.GetRequestHash().first.empty() && 
+        request.GetContentBody() != nullptr && request.HasHeader(Http::AWS_TRAILER_HEADER)) {
         payloadHash = STREAMING_UNSIGNED_PAYLOAD_TRAILER;
-        Aws::String checksumHeaderValue = Aws::String("x-amz-checksum-") + request.GetRequestHash().first;
-        request.DeleteHeader(checksumHeaderValue.c_str());
-        request.SetHeaderValue(Http::AWS_TRAILER_HEADER, checksumHeaderValue);
-        request.SetTransferEncoding(CHUNKED_VALUE);
-        request.HasContentEncoding()
-                ? request.SetContentEncoding(Aws::String{Http::AWS_CHUNKED_VALUE} + "," + request.GetContentEncoding())
-                : request.SetContentEncoding(Http::AWS_CHUNKED_VALUE);
-
-        if (request.HasHeader(Http::CONTENT_LENGTH_HEADER)) {
-          request.SetHeaderValue(Http::DECODED_CONTENT_LENGTH_HEADER, request.GetHeaderValue(Http::CONTENT_LENGTH_HEADER));
-          request.DeleteHeader(Http::CONTENT_LENGTH_HEADER);
-        }
-      }
     } else {
       payloadHash = ComputePayloadHash(request);
       if (payloadHash.empty()) {
@@ -336,6 +324,9 @@ bool AWSAuthV4Signer::SignRequestWithCreds(Aws::Http::HttpRequest& request, cons
 bool AWSAuthV4Signer::SignRequest(Aws::Http::HttpRequest& request, const char* region, const char* serviceName, bool signBody) const
 {
     AWSCredentials credentials = GetCredentials(request.GetServiceSpecificParameters());
+    
+    UpdateUserAgentWithCredentialFeatures(request, credentials.GetContext());
+    
     return SignRequestWithCreds(request, credentials, region, serviceName, signBody);
 }
 
@@ -464,6 +455,9 @@ bool AWSAuthV4Signer::PresignRequest(Aws::Http::HttpRequest& request, const Aws:
 bool AWSAuthV4Signer::PresignRequest(Aws::Http::HttpRequest& request, const char* region, const char* serviceName, long long expirationTimeInSeconds) const
 {
     AWSCredentials credentials = GetCredentials(request.GetServiceSpecificParameters());
+    
+    UpdateUserAgentWithCredentialFeatures(request, credentials.GetContext());
+    
     return PresignRequest(request, credentials, region,serviceName, expirationTimeInSeconds );
 }
 
@@ -594,4 +588,51 @@ Aws::Utils::ByteBuffer AWSAuthV4Signer::ComputeHash(const Aws::String& secretKey
 Aws::Auth::AWSCredentials AWSAuthV4Signer::GetCredentials(const std::shared_ptr<Aws::Http::ServiceSpecificParameters> &serviceSpecificParameters) const {
     AWS_UNREFERENCED_PARAM(serviceSpecificParameters);
     return m_credentialsProvider->GetAWSCredentials();
+}
+
+void AWSAuthV4Signer::UpdateUserAgentWithCredentialFeatures(Aws::Http::HttpRequest& request, const Aws::Auth::CredentialsResolutionContext& context) const {
+    if (!request.HasHeader(USER_AGENT)) {
+        AWS_LOGSTREAM_DEBUG(v4LogTag, "Request does not have User-Agent header, skipping credential feature update");
+        return;
+    }
+
+    const auto userAgent = request.GetHeaderValue(USER_AGENT);
+    auto userAgentParsed = Aws::Utils::StringUtils::Split(userAgent, ' ');
+    auto metricsSegment = std::find_if(userAgentParsed.begin(), userAgentParsed.end(),
+        [](const Aws::String& value) { return value.find("m/") != Aws::String::npos; });
+
+    if (metricsSegment == userAgentParsed.end()) {
+        AWS_LOGSTREAM_DEBUG(v4LogTag, "Custom User-Agent detected (no m/ prefix), skipping credential feature update");
+        return;
+    }
+
+    const auto features = context.GetUserAgentFeatures();
+    if (features.empty()) {
+        AWS_LOGSTREAM_DEBUG(v4LogTag, "No credential features to add to User-Agent");
+        return;
+    }
+
+    std::vector<Aws::String> businessMetrics(features.size());
+    std::transform(features.begin(),
+      features.end(),
+      businessMetrics.begin(),
+      [](UserAgentFeature feature) -> Aws::String { return UserAgent::BusinessMetricForFeature(feature); });
+
+    const auto credentialFeatures = std::accumulate(std::next(businessMetrics.begin()),
+      businessMetrics.end(),
+      businessMetrics.front(),
+      [](const Aws::String& a, const Aws::String& b) {
+        return a + "," + b;
+      });
+
+    *metricsSegment = Aws::String{*metricsSegment + "," + credentialFeatures};
+
+    // Reassemble all parts with spaces
+    const auto newUserAgent =  std::accumulate(std::next(userAgentParsed.begin()),
+      userAgentParsed.end(),
+      userAgentParsed.front(),
+      [](const Aws::String& a, const Aws::String& b) {
+        return a + " " + b;
+      });
+    request.SetUserAgent(newUserAgent);
 }

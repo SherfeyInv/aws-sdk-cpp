@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/codeconnections/CodeConnectionsEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CodeConnections
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CodeConnections {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CodeConnectionsClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CodeConnectionsDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CODECONNECTIONS_API CodeConnectionsEndpointProvider : public CodeConnectionsDefaultEpProviderBase
-{
-public:
-    using CodeConnectionsResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CODECONNECTIONS_API CodeConnectionsEndpointProvider : public CodeConnectionsDefaultEpProviderBase {
+ public:
+  using CodeConnectionsResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CodeConnectionsEndpointProvider()
-      : CodeConnectionsDefaultEpProviderBase(Aws::CodeConnections::CodeConnectionsEndpointRules::GetRulesBlob(), Aws::CodeConnections::CodeConnectionsEndpointRules::RulesBlobSize)
-    {}
+  CodeConnectionsEndpointProvider();
 
-    ~CodeConnectionsEndpointProvider()
-    {
-    }
+  ~CodeConnectionsEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CodeConnections
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CodeConnections
+}  // namespace Aws

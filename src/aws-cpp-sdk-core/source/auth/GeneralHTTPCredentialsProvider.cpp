@@ -90,7 +90,7 @@ bool GeneralHTTPCredentialsProvider::ShouldCreateGeneralHTTPProvider(const Aws::
         }
 
         Aws::Http::URI absUri(absoluteUri);
-        const Aws::String& authority = absUri.GetAuthority();
+        const Aws::String& authority = absUri.GetHost();
 
         // Otherwise, implementations MUST fail to resolve when the URI hostname does not satisfy any of the following conditions
         if (IsAllowedIp(authority))
@@ -245,6 +245,9 @@ void GeneralHTTPCredentialsProvider::Reload()
     m_credentials.SetSessionToken(token);
     m_credentials.SetExpiration(Aws::Utils::DateTime(credentialsView.GetString("Expiration"), Aws::Utils::DateFormat::ISO_8601));
     m_credentials.SetAccountId(accountId);
+    if (!m_credentials.IsEmpty()) {
+        m_credentials.AddUserAgentFeature(Aws::Client::UserAgentFeature::CREDENTIALS_HTTP);
+    }
     AWSCredentialsProvider::Reload();
 }
 

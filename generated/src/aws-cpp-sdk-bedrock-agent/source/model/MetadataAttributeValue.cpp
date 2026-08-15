@@ -11,93 +11,69 @@
 using namespace Aws::Utils::Json;
 using namespace Aws::Utils;
 
-namespace Aws
-{
-namespace BedrockAgent
-{
-namespace Model
-{
+namespace Aws {
+namespace BedrockAgent {
+namespace Model {
 
-MetadataAttributeValue::MetadataAttributeValue(JsonView jsonValue)
-{
-  *this = jsonValue;
-}
+MetadataAttributeValue::MetadataAttributeValue(JsonView jsonValue) { *this = jsonValue; }
 
-MetadataAttributeValue& MetadataAttributeValue::operator =(JsonView jsonValue)
-{
-  if(jsonValue.ValueExists("booleanValue"))
-  {
-    m_booleanValue = jsonValue.GetBool("booleanValue");
-    m_booleanValueHasBeenSet = true;
+MetadataAttributeValue& MetadataAttributeValue::operator=(JsonView jsonValue) {
+  if (jsonValue.ValueExists("type")) {
+    m_type = MetadataValueTypeMapper::GetMetadataValueTypeForName(jsonValue.GetString("type"));
+    m_typeHasBeenSet = true;
   }
-  if(jsonValue.ValueExists("numberValue"))
-  {
+  if (jsonValue.ValueExists("numberValue")) {
     m_numberValue = jsonValue.GetDouble("numberValue");
     m_numberValueHasBeenSet = true;
   }
-  if(jsonValue.ValueExists("stringListValue"))
-  {
+  if (jsonValue.ValueExists("booleanValue")) {
+    m_booleanValue = jsonValue.GetBool("booleanValue");
+    m_booleanValueHasBeenSet = true;
+  }
+  if (jsonValue.ValueExists("stringValue")) {
+    m_stringValue = jsonValue.GetString("stringValue");
+    m_stringValueHasBeenSet = true;
+  }
+  if (jsonValue.ValueExists("stringListValue")) {
     Aws::Utils::Array<JsonView> stringListValueJsonList = jsonValue.GetArray("stringListValue");
-    for(unsigned stringListValueIndex = 0; stringListValueIndex < stringListValueJsonList.GetLength(); ++stringListValueIndex)
-    {
+    for (unsigned stringListValueIndex = 0; stringListValueIndex < stringListValueJsonList.GetLength(); ++stringListValueIndex) {
       m_stringListValue.push_back(stringListValueJsonList[stringListValueIndex].AsString());
     }
     m_stringListValueHasBeenSet = true;
   }
-  if(jsonValue.ValueExists("stringValue"))
-  {
-    m_stringValue = jsonValue.GetString("stringValue");
-    m_stringValueHasBeenSet = true;
-  }
-  if(jsonValue.ValueExists("type"))
-  {
-    m_type = MetadataValueTypeMapper::GetMetadataValueTypeForName(jsonValue.GetString("type"));
-    m_typeHasBeenSet = true;
-  }
   return *this;
 }
 
-JsonValue MetadataAttributeValue::Jsonize() const
-{
+JsonValue MetadataAttributeValue::Jsonize() const {
   JsonValue payload;
 
-  if(m_booleanValueHasBeenSet)
-  {
-   payload.WithBool("booleanValue", m_booleanValue);
-
+  if (m_typeHasBeenSet) {
+    payload.WithString("type", MetadataValueTypeMapper::GetNameForMetadataValueType(m_type));
   }
 
-  if(m_numberValueHasBeenSet)
-  {
-   payload.WithDouble("numberValue", m_numberValue);
-
+  if (m_numberValueHasBeenSet) {
+    payload.WithDouble("numberValue", m_numberValue);
   }
 
-  if(m_stringListValueHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> stringListValueJsonList(m_stringListValue.size());
-   for(unsigned stringListValueIndex = 0; stringListValueIndex < stringListValueJsonList.GetLength(); ++stringListValueIndex)
-   {
-     stringListValueJsonList[stringListValueIndex].AsString(m_stringListValue[stringListValueIndex]);
-   }
-   payload.WithArray("stringListValue", std::move(stringListValueJsonList));
-
+  if (m_booleanValueHasBeenSet) {
+    payload.WithBool("booleanValue", m_booleanValue);
   }
 
-  if(m_stringValueHasBeenSet)
-  {
-   payload.WithString("stringValue", m_stringValue);
-
+  if (m_stringValueHasBeenSet) {
+    payload.WithString("stringValue", m_stringValue);
   }
 
-  if(m_typeHasBeenSet)
-  {
-   payload.WithString("type", MetadataValueTypeMapper::GetNameForMetadataValueType(m_type));
+  if (m_stringListValueHasBeenSet) {
+    Aws::Utils::Array<JsonValue> stringListValueJsonList(m_stringListValue.size());
+    for (unsigned stringListValueIndex = 0; stringListValueIndex < stringListValueJsonList.GetLength(); ++stringListValueIndex) {
+      stringListValueJsonList[stringListValueIndex].AsString(m_stringListValue[stringListValueIndex]);
+    }
+    payload.WithArray("stringListValue", std::move(stringListValueJsonList));
   }
 
   return payload;
 }
 
-} // namespace Model
-} // namespace BedrockAgent
-} // namespace Aws
+}  // namespace Model
+}  // namespace BedrockAgent
+}  // namespace Aws

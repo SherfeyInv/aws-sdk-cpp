@@ -1863,6 +1863,194 @@
                 "aws.protocols#awsJson1_1": {},
                 "smithy.api#documentation": "<fullname>CodeBuild</fullname>\n         <p>CodeBuild is a fully managed build service in the cloud. CodeBuild compiles your source code,\n            runs unit tests, and produces artifacts that are ready to deploy. CodeBuild eliminates the\n            need to provision, manage, and scale your own build servers. It provides prepackaged\n            build environments for the most popular programming languages and build tools, such as\n            Apache Maven, Gradle, and more. You can also fully customize build environments in CodeBuild\n            to use your own build tools. CodeBuild scales automatically to meet peak build requests. You\n            pay only for the build time you consume. For more information about CodeBuild, see the <i>\n               <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/welcome.html\">CodeBuild User\n                    Guide</a>.</i>\n         </p>",
                 "smithy.api#title": "AWS CodeBuild",
+                "smithy.rules#endpointBdd": {
+                    "version": "1.1",
+                    "parameters": {
+                        "Region": {
+                            "builtIn": "AWS::Region",
+                            "required": false,
+                            "documentation": "The AWS region used to dispatch the request.",
+                            "type": "string"
+                        },
+                        "UseDualStack": {
+                            "builtIn": "AWS::UseDualStack",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
+                            "type": "boolean"
+                        },
+                        "UseFIPS": {
+                            "builtIn": "AWS::UseFIPS",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
+                            "type": "boolean"
+                        },
+                        "Endpoint": {
+                            "builtIn": "SDK::Endpoint",
+                            "required": false,
+                            "documentation": "Override the endpoint used to send this request",
+                            "type": "string"
+                        }
+                    },
+                    "conditions": [
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Endpoint"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "aws.partition",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ],
+                            "assign": "PartitionResult"
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseFIPS"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseDualStack"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsDualStack"
+                                    ]
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsFIPS"
+                                    ]
+                                },
+                                true
+                            ]
+                        }
+                    ],
+                    "results": [
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: FIPS and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Dualstack and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": {
+                                    "ref": "Endpoint"
+                                },
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://codebuild-fips.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS and DualStack are enabled, but this partition does not support one or both",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://codebuild-fips.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS is enabled but this partition does not support FIPS",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://codebuild.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "DualStack is enabled but this partition does not support DualStack",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://codebuild.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Missing Region",
+                            "type": "error"
+                        }
+                    ],
+                    "root": 2,
+                    "nodeCount": 13,
+                    "nodes": "/////wAAAAH/////AAAAAAAAAAwAAAADAAAAAQAAAAQF9eELAAAAAgAAAAUF9eELAAAAAwAAAAgAAAAGAAAABAAAAAcF9eEKAAAABQX14QgF9eEJAAAABAAAAAoAAAAJAAAABgX14QYF9eEHAAAABQAAAAsF9eEFAAAABgX14QQF9eEFAAAAAwX14QEAAAANAAAABAX14QIF9eED"
+                },
                 "smithy.rules#endpointRuleSet": {
                     "version": "1.0",
                     "parameters": {
@@ -1870,27 +2058,27 @@
                             "builtIn": "AWS::Region",
                             "required": false,
                             "documentation": "The AWS region used to dispatch the request.",
-                            "type": "String"
+                            "type": "string"
                         },
                         "UseDualStack": {
                             "builtIn": "AWS::UseDualStack",
                             "required": true,
                             "default": false,
                             "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "UseFIPS": {
                             "builtIn": "AWS::UseFIPS",
                             "required": true,
                             "default": false,
                             "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "Endpoint": {
                             "builtIn": "SDK::Endpoint",
                             "required": false,
                             "documentation": "Override the endpoint used to send this request",
-                            "type": "String"
+                            "type": "string"
                         }
                     },
                     "rules": [
@@ -2687,17 +2875,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -2708,17 +2885,6 @@
                                 "Region": "us-iso-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-iso-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -2735,17 +2901,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -2756,17 +2911,6 @@
                                 "Region": "us-isob-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-isob-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -3632,6 +3776,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The scope configuration for global or organization webhooks.</p>\n         <note>\n            <p>Global or organization webhooks are only available for GitHub and Github Enterprise webhooks.</p>\n         </note>"
                     }
+                },
+                "pullRequestBuildPolicy": {
+                    "target": "com.amazonaws.codebuild#PullRequestBuildPolicy",
+                    "traits": {
+                        "smithy.api#documentation": "<p>A PullRequestBuildPolicy object that defines comment-based approval requirements for triggering builds on pull requests. This policy helps control when automated builds are executed based on contributor permissions and approval workflows.</p>"
+                    }
                 }
             },
             "traits": {
@@ -4229,7 +4379,7 @@
                 "status": {
                     "target": "com.amazonaws.codebuild#DockerServerStatus",
                     "traits": {
-                        "smithy.api#documentation": "<p>A DockerServerStatus object to use for this docker server.</p>"
+                        "smithy.api#documentation": "<p>A DockerServerStatus object to use for this docker server.</p>\n         <note>\n            <p>Note that <code>status</code> is only an output and cannot be passed in as an input.</p>\n         </note>"
                     }
                 }
             },
@@ -5104,6 +5254,29 @@
             },
             "traits": {
                 "smithy.api#documentation": "<p> Information about the Git submodules configuration for an CodeBuild build project.\n        </p>"
+            }
+        },
+        "com.amazonaws.codebuild#HostKernel": {
+            "type": "enum",
+            "members": {
+                "LINUX_KERNEL_4": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "LINUX_KERNEL_4"
+                    }
+                },
+                "LINUX_KERNEL_6": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "LINUX_KERNEL_6"
+                    }
+                },
+                "LINUX_KERNEL_LATEST": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "LINUX_KERNEL_LATEST"
+                    }
+                }
             }
         },
         "com.amazonaws.codebuild#Identifiers": {
@@ -7151,6 +7324,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>A DockerServer object to use for this build project.</p>"
                     }
+                },
+                "hostKernel": {
+                    "target": "com.amazonaws.codebuild#HostKernel",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The host operating system kernel used for on-demand builds in the build project.\n            The host kernel does not affect the build environment operating system, which is determined by the image you specify.\n            Valid values are:</p>\n         <ul>\n            <li>\n               <p>\n                  <code>LINUX_KERNEL_4</code>: Runs on an Amazon Linux 2 host (kernel 4.x).</p>\n            </li>\n            <li>\n               <p>\n                  <code>LINUX_KERNEL_6</code>: Runs on an Amazon Linux 2023 host (kernel 6.x).</p>\n            </li>\n            <li>\n               <p>\n                  <code>LINUX_KERNEL_LATEST</code>: Runs on the latest supported host kernel.</p>\n            </li>\n         </ul>\n         <p>This setting applies to the <code>LINUX_CONTAINER</code>, <code>ARM_CONTAINER</code>,\n            <code>LINUX_EC2</code>, and <code>ARM_EC2</code>\n            environment types. It is not applicable to Windows, Lambda, or Mac environment\n            types.</p>"
+                    }
                 }
             },
             "traits": {
@@ -7419,6 +7598,145 @@
             },
             "traits": {
                 "smithy.api#documentation": "<p>Information about the proxy configurations that apply network access control to your reserved capacity instances.</p>"
+            }
+        },
+        "com.amazonaws.codebuild#PullRequestBuildApproverRole": {
+            "type": "enum",
+            "members": {
+                "GITHUB_READ": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITHUB_READ"
+                    }
+                },
+                "GITHUB_TRIAGE": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITHUB_TRIAGE"
+                    }
+                },
+                "GITHUB_WRITE": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITHUB_WRITE"
+                    }
+                },
+                "GITHUB_MAINTAIN": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITHUB_MAINTAIN"
+                    }
+                },
+                "GITHUB_ADMIN": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITHUB_ADMIN"
+                    }
+                },
+                "GITLAB_GUEST": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITLAB_GUEST"
+                    }
+                },
+                "GITLAB_PLANNER": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITLAB_PLANNER"
+                    }
+                },
+                "GITLAB_REPORTER": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITLAB_REPORTER"
+                    }
+                },
+                "GITLAB_DEVELOPER": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITLAB_DEVELOPER"
+                    }
+                },
+                "GITLAB_MAINTAINER": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITLAB_MAINTAINER"
+                    }
+                },
+                "GITLAB_OWNER": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "GITLAB_OWNER"
+                    }
+                },
+                "BITBUCKET_READ": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "BITBUCKET_READ"
+                    }
+                },
+                "BITBUCKET_WRITE": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "BITBUCKET_WRITE"
+                    }
+                },
+                "BITBUCKET_ADMIN": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "BITBUCKET_ADMIN"
+                    }
+                }
+            }
+        },
+        "com.amazonaws.codebuild#PullRequestBuildApproverRoles": {
+            "type": "list",
+            "member": {
+                "target": "com.amazonaws.codebuild#PullRequestBuildApproverRole"
+            }
+        },
+        "com.amazonaws.codebuild#PullRequestBuildCommentApproval": {
+            "type": "enum",
+            "members": {
+                "DISABLED": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "DISABLED"
+                    }
+                },
+                "ALL_PULL_REQUESTS": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "ALL_PULL_REQUESTS"
+                    }
+                },
+                "FORK_PULL_REQUESTS": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "FORK_PULL_REQUESTS"
+                    }
+                }
+            }
+        },
+        "com.amazonaws.codebuild#PullRequestBuildPolicy": {
+            "type": "structure",
+            "members": {
+                "requiresCommentApproval": {
+                    "target": "com.amazonaws.codebuild#PullRequestBuildCommentApproval",
+                    "traits": {
+                        "smithy.api#documentation": "<p>Specifies when comment-based approval is required before triggering a build on pull requests. This setting determines whether builds run automatically or require explicit approval through comments.</p>\n         <ul>\n            <li>\n               <p>\n                  <i>DISABLED</i>: Builds trigger automatically without requiring comment approval</p>\n            </li>\n            <li>\n               <p>\n                  <i>ALL_PULL_REQUESTS</i>: All pull requests require comment approval before builds execute (unless contributor is one of the approver roles)</p>\n            </li>\n            <li>\n               <p>\n                  <i>FORK_PULL_REQUESTS</i>: Only pull requests from forked repositories require comment approval (unless contributor is one of the approver roles)</p>\n            </li>\n         </ul>",
+                        "smithy.api#required": {}
+                    }
+                },
+                "approverRoles": {
+                    "target": "com.amazonaws.codebuild#PullRequestBuildApproverRoles",
+                    "traits": {
+                        "smithy.api#documentation": "<p>List of repository roles that have approval privileges for pull request builds when comment approval is required. Only users with these roles can provide valid comment approvals. If a pull request contributor is one of these roles, their pull request builds will trigger automatically. This field is only applicable when <code>requiresCommentApproval</code> is not <i>DISABLED</i>.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>A PullRequestBuildPolicy object that defines comment-based approval requirements for triggering builds on pull requests. This policy helps control when automated builds are executed based on contributor permissions and approval workflows.</p>"
             }
         },
         "com.amazonaws.codebuild#PutResourcePolicy": {
@@ -9161,7 +9479,7 @@
                 "buildspecOverride": {
                     "target": "com.amazonaws.codebuild#String",
                     "traits": {
-                        "smithy.api#documentation": "<p>A buildspec file declaration that overrides the latest one defined \n            in the build project, for this build only. The buildspec defined on the project is not changed.</p>\n         <p>If this value is set, it can be either an inline buildspec definition, the path to an\n            alternate buildspec file relative to the value of the built-in\n                <code>CODEBUILD_SRC_DIR</code> environment variable, or the path to an S3 bucket.\n            The bucket must be in the same Amazon Web Services Region as the build project. Specify the buildspec\n            file using its ARN (for example,\n                <code>arn:aws:s3:::my-codebuild-sample2/buildspec.yml</code>). If this value is not\n            provided or is set to an empty string, the source code must contain a buildspec file in\n            its root directory. For more information, see <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage\">Buildspec File Name and Storage Location</a>.</p>\n         <note>\n            <p>Since this property allows you to change the build commands that will run in the container, \n            you should note that an IAM principal with the ability to call this API and set this parameter \n            can override the default settings. Moreover, we encourage that you use a trustworthy buildspec location \n            like a file in your source repository or a Amazon S3 bucket.</p>\n         </note>"
+                        "smithy.api#documentation": "<p>A buildspec file declaration that overrides the latest one defined \n            in the build project, for this build only. The buildspec defined on the project is not changed.</p>\n         <p>If this value is set, it can be either an inline buildspec definition, the path to an\n            alternate buildspec file relative to the value of the built-in\n                <code>CODEBUILD_SRC_DIR</code> environment variable, or the path to an S3 bucket.\n            The bucket must be in the same Amazon Web Services Region as the build project. Specify the buildspec\n            file using its ARN (for example,\n                <code>arn:aws:s3:::my-codebuild-sample2/buildspec.yml</code>). If this value is not\n            provided or is set to an empty string, the source code must contain a buildspec file in\n            its root directory. For more information, see <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage\">Buildspec File Name and Storage Location</a>.</p>\n         <note>\n            <p>Since this property allows you to change the build commands that will run in the container, \n            you should note that an IAM principal with the ability to call this API and set this parameter \n            can override the default settings. Moreover, we encourage that you use a trustworthy buildspec location \n            like a file in your source repository or a Amazon S3 bucket. Alternatively, you can restrict overrides \n            to the buildspec by using a condition key: <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/action-context-keys.html#action-context-keys-example-overridebuildspec.html\">Prevent unauthorized modifications to project buildspec</a>.</p>\n         </note>"
                     }
                 },
                 "insecureSslOverride": {
@@ -9282,6 +9600,12 @@
                     "target": "com.amazonaws.codebuild#WrapperInt",
                     "traits": {
                         "smithy.api#documentation": "<p>The maximum number of additional automatic retries after a failed build. For example, if the \n            auto-retry limit is set to 2, CodeBuild will call the <code>RetryBuild</code> API to automatically \n            retry your build for up to 2 additional times.</p>"
+                    }
+                },
+                "hostKernelOverride": {
+                    "target": "com.amazonaws.codebuild#HostKernel",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The host operating system kernel for this build that overrides the one specified in the\n            build project.</p>"
                     }
                 }
             },
@@ -10333,6 +10657,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>Specifies the type of build this webhook will trigger.</p>\n         <note>\n            <p>\n               <code>RUNNER_BUILDKITE_BUILD</code> is only available for <code>NO_SOURCE</code> source type projects \n        configured for Buildkite runner builds. For more information about CodeBuild-hosted Buildkite runner builds, see <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/sample-runner-buildkite.html\">Tutorial: Configure a CodeBuild-hosted Buildkite runner</a> in the <i>CodeBuild\n        user guide</i>.</p>\n         </note>"
                     }
+                },
+                "pullRequestBuildPolicy": {
+                    "target": "com.amazonaws.codebuild#PullRequestBuildPolicy",
+                    "traits": {
+                        "smithy.api#documentation": "<p>A PullRequestBuildPolicy object that defines comment-based approval requirements for triggering builds on pull requests. This policy helps control when automated builds are executed based on contributor permissions and approval workflows.</p>"
+                    }
                 }
             },
             "traits": {
@@ -10457,6 +10787,9 @@
                     "traits": {
                         "smithy.api#documentation": "<p>A message associated with the status of a webhook.</p>"
                     }
+                },
+                "pullRequestBuildPolicy": {
+                    "target": "com.amazonaws.codebuild#PullRequestBuildPolicy"
                 }
             },
             "traits": {

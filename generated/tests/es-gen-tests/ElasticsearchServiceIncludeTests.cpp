@@ -8,12 +8,12 @@
 
 #include <aws/es/ElasticsearchServiceClient.h>
 #include <aws/es/ElasticsearchServiceEndpointProvider.h>
-#include <aws/es/ElasticsearchServiceEndpointRules.h>
 #include <aws/es/ElasticsearchServiceErrorMarshaller.h>
 #include <aws/es/ElasticsearchServiceErrors.h>
 #include <aws/es/ElasticsearchServiceRequest.h>
 #include <aws/es/ElasticsearchServiceServiceClientModel.h>
 #include <aws/es/ElasticsearchService_EXPORTS.h>
+#include <aws/es/internal/ElasticsearchServiceEndpointRules.h>
 #include <aws/es/model/AcceptInboundCrossClusterSearchConnectionRequest.h>
 #include <aws/es/model/AcceptInboundCrossClusterSearchConnectionResult.h>
 #include <aws/es/model/AccessPoliciesStatus.h>
@@ -39,6 +39,9 @@
 #include <aws/es/model/AutoTuneState.h>
 #include <aws/es/model/AutoTuneStatus.h>
 #include <aws/es/model/AutoTuneType.h>
+#include <aws/es/model/AutomatedSnapshotPauseOptions.h>
+#include <aws/es/model/AutomatedSnapshotPauseOptionsStatus.h>
+#include <aws/es/model/AutomatedSnapshotPauseRequestOptions.h>
 #include <aws/es/model/CancelDomainConfigChangeRequest.h>
 #include <aws/es/model/CancelDomainConfigChangeResult.h>
 #include <aws/es/model/CancelElasticsearchServiceSoftwareUpdateRequest.h>
@@ -72,6 +75,9 @@
 #include <aws/es/model/DeleteVpcEndpointRequest.h>
 #include <aws/es/model/DeleteVpcEndpointResult.h>
 #include <aws/es/model/DeploymentStatus.h>
+#include <aws/es/model/DeploymentStrategy.h>
+#include <aws/es/model/DeploymentStrategyOptions.h>
+#include <aws/es/model/DeploymentStrategyOptionsStatus.h>
 #include <aws/es/model/DescribeDomainAutoTunesRequest.h>
 #include <aws/es/model/DescribeDomainAutoTunesResult.h>
 #include <aws/es/model/DescribeDomainChangeProgressRequest.h>
@@ -102,11 +108,13 @@
 #include <aws/es/model/DissociatePackageResult.h>
 #include <aws/es/model/DomainEndpointOptions.h>
 #include <aws/es/model/DomainEndpointOptionsStatus.h>
+#include <aws/es/model/DomainEngineMode.h>
 #include <aws/es/model/DomainInfo.h>
 #include <aws/es/model/DomainInformation.h>
 #include <aws/es/model/DomainPackageDetails.h>
 #include <aws/es/model/DomainPackageStatus.h>
 #include <aws/es/model/DomainProcessingStatusType.h>
+#include <aws/es/model/DomainUseCase.h>
 #include <aws/es/model/DryRunResults.h>
 #include <aws/es/model/Duration.h>
 #include <aws/es/model/EBSOptions.h>
@@ -120,6 +128,7 @@
 #include <aws/es/model/ElasticsearchVersionStatus.h>
 #include <aws/es/model/EncryptionAtRestOptions.h>
 #include <aws/es/model/EncryptionAtRestOptionsStatus.h>
+#include <aws/es/model/EngineModeStatus.h>
 #include <aws/es/model/EngineType.h>
 #include <aws/es/model/ErrorDetails.h>
 #include <aws/es/model/Filter.h>
@@ -174,6 +183,7 @@
 #include <aws/es/model/PackageStatus.h>
 #include <aws/es/model/PackageType.h>
 #include <aws/es/model/PackageVersionHistory.h>
+#include <aws/es/model/PauseState.h>
 #include <aws/es/model/PrincipalType.h>
 #include <aws/es/model/PropertyValueType.h>
 #include <aws/es/model/PurchaseReservedElasticsearchInstanceOfferingRequest.h>
@@ -216,6 +226,7 @@
 #include <aws/es/model/UpgradeStatus.h>
 #include <aws/es/model/UpgradeStep.h>
 #include <aws/es/model/UpgradeStepItem.h>
+#include <aws/es/model/UseCaseStatus.h>
 #include <aws/es/model/VPCDerivedInfo.h>
 #include <aws/es/model/VPCDerivedInfoStatus.h>
 #include <aws/es/model/VPCOptions.h>

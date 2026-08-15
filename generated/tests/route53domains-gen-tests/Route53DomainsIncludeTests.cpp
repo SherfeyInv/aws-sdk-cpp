@@ -8,12 +8,12 @@
 
 #include <aws/route53domains/Route53DomainsClient.h>
 #include <aws/route53domains/Route53DomainsEndpointProvider.h>
-#include <aws/route53domains/Route53DomainsEndpointRules.h>
 #include <aws/route53domains/Route53DomainsErrorMarshaller.h>
 #include <aws/route53domains/Route53DomainsErrors.h>
 #include <aws/route53domains/Route53DomainsRequest.h>
 #include <aws/route53domains/Route53DomainsServiceClientModel.h>
 #include <aws/route53domains/Route53Domains_EXPORTS.h>
+#include <aws/route53domains/internal/Route53DomainsEndpointRules.h>
 #include <aws/route53domains/model/AcceptDomainTransferFromAnotherAwsAccountRequest.h>
 #include <aws/route53domains/model/AcceptDomainTransferFromAnotherAwsAccountResult.h>
 #include <aws/route53domains/model/AssociateDelegationSignerToDomainRequest.h>
@@ -94,6 +94,7 @@
 #include <aws/route53domains/model/SortCondition.h>
 #include <aws/route53domains/model/SortOrder.h>
 #include <aws/route53domains/model/StatusFlag.h>
+#include <aws/route53domains/model/TLDInMaintenance.h>
 #include <aws/route53domains/model/Tag.h>
 #include <aws/route53domains/model/TransferDomainRequest.h>
 #include <aws/route53domains/model/TransferDomainResult.h>

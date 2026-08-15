@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 #include <aws/core/utils/logging/LogMacros.h>
-#include <aws/testing/AwsProtocolTestHelpers.h>
 #include <aws/rest-json-protocol/RestJsonProtocolClient.h>
 #include <aws/rest-json-protocol/model/TestPayloadStructureRequest.h>
+#include <aws/testing/AwsProtocolTestHelpers.h>
 
 using TestPayloadStructure = AWS_PROTOCOL_TEST_SUITE;
 using RestJsonProtocolClient = Aws::RestJsonProtocol::RestJsonProtocolClient;
@@ -65,7 +65,7 @@ AWS_PROTOCOL_TEST(TestPayloadStructure, RestJsonHttpWithHeadersButNoPayload) {
   expectedRq.method = "POST";
   expectedRq.body = "e30=";
   expectedRq.uri = "/payload";
-  expectedRq.headers = {{"Content-Type", R"(application/json)"}, {"X-Amz-Test-Id", R"(t-12345)"}};
+  expectedRq.headers = {{"X-Amz-Test-Id", R"(t-12345)"}, {"Content-Type", R"(application/json)"}};
   expectedRq.requireHeaders = {"Content-Length"};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();

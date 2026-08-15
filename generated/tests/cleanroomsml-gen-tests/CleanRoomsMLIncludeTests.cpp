@@ -8,12 +8,15 @@
 
 #include <aws/cleanroomsml/CleanRoomsMLClient.h>
 #include <aws/cleanroomsml/CleanRoomsMLEndpointProvider.h>
-#include <aws/cleanroomsml/CleanRoomsMLEndpointRules.h>
 #include <aws/cleanroomsml/CleanRoomsMLErrorMarshaller.h>
 #include <aws/cleanroomsml/CleanRoomsMLErrors.h>
 #include <aws/cleanroomsml/CleanRoomsMLRequest.h>
 #include <aws/cleanroomsml/CleanRoomsMLServiceClientModel.h>
 #include <aws/cleanroomsml/CleanRoomsML_EXPORTS.h>
+#include <aws/cleanroomsml/internal/CleanRoomsMLEndpointRules.h>
+#include <aws/cleanroomsml/model/AccessBudget.h>
+#include <aws/cleanroomsml/model/AccessBudgetDetails.h>
+#include <aws/cleanroomsml/model/AccessBudgetType.h>
 #include <aws/cleanroomsml/model/AudienceDestination.h>
 #include <aws/cleanroomsml/model/AudienceExportJobStatus.h>
 #include <aws/cleanroomsml/model/AudienceExportJobSummary.h>
@@ -26,6 +29,7 @@
 #include <aws/cleanroomsml/model/AudienceSize.h>
 #include <aws/cleanroomsml/model/AudienceSizeConfig.h>
 #include <aws/cleanroomsml/model/AudienceSizeType.h>
+#include <aws/cleanroomsml/model/AutoRefreshMode.h>
 #include <aws/cleanroomsml/model/CancelTrainedModelInferenceJobRequest.h>
 #include <aws/cleanroomsml/model/CancelTrainedModelRequest.h>
 #include <aws/cleanroomsml/model/CollaborationConfiguredModelAlgorithmAssociationSummary.h>
@@ -33,6 +37,7 @@
 #include <aws/cleanroomsml/model/CollaborationTrainedModelExportJobSummary.h>
 #include <aws/cleanroomsml/model/CollaborationTrainedModelInferenceJobSummary.h>
 #include <aws/cleanroomsml/model/CollaborationTrainedModelSummary.h>
+#include <aws/cleanroomsml/model/ColumnClassificationDetails.h>
 #include <aws/cleanroomsml/model/ColumnSchema.h>
 #include <aws/cleanroomsml/model/ColumnType.h>
 #include <aws/cleanroomsml/model/ComputeConfiguration.h>
@@ -56,6 +61,8 @@
 #include <aws/cleanroomsml/model/CreateTrainedModelResult.h>
 #include <aws/cleanroomsml/model/CreateTrainingDatasetRequest.h>
 #include <aws/cleanroomsml/model/CreateTrainingDatasetResult.h>
+#include <aws/cleanroomsml/model/CustomEntityConfig.h>
+#include <aws/cleanroomsml/model/DataPrivacyScores.h>
 #include <aws/cleanroomsml/model/DataSource.h>
 #include <aws/cleanroomsml/model/Dataset.h>
 #include <aws/cleanroomsml/model/DatasetInputConfig.h>
@@ -71,6 +78,7 @@
 #include <aws/cleanroomsml/model/DeleteTrainedModelOutputRequest.h>
 #include <aws/cleanroomsml/model/DeleteTrainingDatasetRequest.h>
 #include <aws/cleanroomsml/model/Destination.h>
+#include <aws/cleanroomsml/model/EntityType.h>
 #include <aws/cleanroomsml/model/GetAudienceGenerationJobRequest.h>
 #include <aws/cleanroomsml/model/GetAudienceGenerationJobResult.h>
 #include <aws/cleanroomsml/model/GetAudienceModelRequest.h>
@@ -100,6 +108,8 @@
 #include <aws/cleanroomsml/model/GetTrainingDatasetRequest.h>
 #include <aws/cleanroomsml/model/GetTrainingDatasetResult.h>
 #include <aws/cleanroomsml/model/GlueDataSource.h>
+#include <aws/cleanroomsml/model/IncrementalTrainingDataChannel.h>
+#include <aws/cleanroomsml/model/IncrementalTrainingDataChannelOutput.h>
 #include <aws/cleanroomsml/model/InferenceContainerConfig.h>
 #include <aws/cleanroomsml/model/InferenceContainerExecutionParameters.h>
 #include <aws/cleanroomsml/model/InferenceInstanceType.h>
@@ -137,22 +147,31 @@
 #include <aws/cleanroomsml/model/ListTagsForResourceResult.h>
 #include <aws/cleanroomsml/model/ListTrainedModelInferenceJobsRequest.h>
 #include <aws/cleanroomsml/model/ListTrainedModelInferenceJobsResult.h>
+#include <aws/cleanroomsml/model/ListTrainedModelVersionsRequest.h>
+#include <aws/cleanroomsml/model/ListTrainedModelVersionsResult.h>
 #include <aws/cleanroomsml/model/ListTrainedModelsRequest.h>
 #include <aws/cleanroomsml/model/ListTrainedModelsResult.h>
 #include <aws/cleanroomsml/model/ListTrainingDatasetsRequest.h>
 #include <aws/cleanroomsml/model/ListTrainingDatasetsResult.h>
+#include <aws/cleanroomsml/model/LogRedactionConfiguration.h>
+#include <aws/cleanroomsml/model/LogType.h>
 #include <aws/cleanroomsml/model/LogsConfigurationPolicy.h>
 #include <aws/cleanroomsml/model/LogsStatus.h>
 #include <aws/cleanroomsml/model/MLInputChannelStatus.h>
 #include <aws/cleanroomsml/model/MLInputChannelSummary.h>
 #include <aws/cleanroomsml/model/MLOutputConfiguration.h>
+#include <aws/cleanroomsml/model/MLSyntheticDataParameters.h>
+#include <aws/cleanroomsml/model/MembershipInferenceAttackScore.h>
+#include <aws/cleanroomsml/model/MembershipInferenceAttackVersion.h>
 #include <aws/cleanroomsml/model/MetricDefinition.h>
 #include <aws/cleanroomsml/model/MetricsConfigurationPolicy.h>
 #include <aws/cleanroomsml/model/MetricsStatus.h>
 #include <aws/cleanroomsml/model/ModelInferenceDataSource.h>
 #include <aws/cleanroomsml/model/ModelTrainingDataChannel.h>
 #include <aws/cleanroomsml/model/NoiseLevelType.h>
+#include <aws/cleanroomsml/model/PayerConfiguration.h>
 #include <aws/cleanroomsml/model/PolicyExistenceCondition.h>
+#include <aws/cleanroomsml/model/PrivacyBudgets.h>
 #include <aws/cleanroomsml/model/PrivacyConfiguration.h>
 #include <aws/cleanroomsml/model/PrivacyConfigurationPolicies.h>
 #include <aws/cleanroomsml/model/ProtectedQueryInputParameters.h>
@@ -162,7 +181,10 @@
 #include <aws/cleanroomsml/model/PutMLConfigurationRequest.h>
 #include <aws/cleanroomsml/model/RelevanceMetric.h>
 #include <aws/cleanroomsml/model/ResourceConfig.h>
+#include <aws/cleanroomsml/model/ResultFormat.h>
 #include <aws/cleanroomsml/model/S3ConfigMap.h>
+#include <aws/cleanroomsml/model/S3DataDistributionType.h>
+#include <aws/cleanroomsml/model/ServiceQuotaExceededException.h>
 #include <aws/cleanroomsml/model/SharedAudienceMetrics.h>
 #include <aws/cleanroomsml/model/StartAudienceExportJobRequest.h>
 #include <aws/cleanroomsml/model/StartAudienceGenerationJobRequest.h>
@@ -172,9 +194,15 @@
 #include <aws/cleanroomsml/model/StartTrainedModelInferenceJobResult.h>
 #include <aws/cleanroomsml/model/StatusDetails.h>
 #include <aws/cleanroomsml/model/StoppingCondition.h>
+#include <aws/cleanroomsml/model/SyntheticDataColumnProperties.h>
+#include <aws/cleanroomsml/model/SyntheticDataColumnType.h>
+#include <aws/cleanroomsml/model/SyntheticDataConfiguration.h>
+#include <aws/cleanroomsml/model/SyntheticDataEvaluationScores.h>
 #include <aws/cleanroomsml/model/TagOnCreatePolicy.h>
 #include <aws/cleanroomsml/model/TagResourceRequest.h>
 #include <aws/cleanroomsml/model/TagResourceResult.h>
+#include <aws/cleanroomsml/model/TrainedModelArtifactMaxSize.h>
+#include <aws/cleanroomsml/model/TrainedModelArtifactMaxSizeUnitType.h>
 #include <aws/cleanroomsml/model/TrainedModelExportFileType.h>
 #include <aws/cleanroomsml/model/TrainedModelExportJobStatus.h>
 #include <aws/cleanroomsml/model/TrainedModelExportOutputConfiguration.h>
@@ -192,11 +220,13 @@
 #include <aws/cleanroomsml/model/TrainedModelsConfigurationPolicy.h>
 #include <aws/cleanroomsml/model/TrainingDatasetStatus.h>
 #include <aws/cleanroomsml/model/TrainingDatasetSummary.h>
+#include <aws/cleanroomsml/model/TrainingInputMode.h>
 #include <aws/cleanroomsml/model/UntagResourceRequest.h>
 #include <aws/cleanroomsml/model/UntagResourceResult.h>
 #include <aws/cleanroomsml/model/UpdateConfiguredAudienceModelRequest.h>
 #include <aws/cleanroomsml/model/UpdateConfiguredAudienceModelResult.h>
 #include <aws/cleanroomsml/model/WorkerComputeConfiguration.h>
+#include <aws/cleanroomsml/model/WorkerComputeConfigurationProperties.h>
 #include <aws/cleanroomsml/model/WorkerComputeType.h>
 
 using CleanRoomsMLIncludeTest = ::testing::Test;

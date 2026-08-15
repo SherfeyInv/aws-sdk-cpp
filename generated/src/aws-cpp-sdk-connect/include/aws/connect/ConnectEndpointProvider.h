@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/connect/ConnectEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Connect
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Connect {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ConnectClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using ConnectDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CONNECT_API ConnectEndpointProvider : public ConnectDefaultEpProviderBase
-{
-public:
-    using ConnectResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CONNECT_API ConnectEndpointProvider : public ConnectDefaultEpProviderBase {
+ public:
+  using ConnectResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ConnectEndpointProvider()
-      : ConnectDefaultEpProviderBase(Aws::Connect::ConnectEndpointRules::GetRulesBlob(), Aws::Connect::ConnectEndpointRules::RulesBlobSize)
-    {}
+  ConnectEndpointProvider();
 
-    ~ConnectEndpointProvider()
-    {
-    }
+  ~ConnectEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Connect
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Connect
+}  // namespace Aws

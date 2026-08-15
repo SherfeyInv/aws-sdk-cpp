@@ -4,13 +4,15 @@
  */
 
 #include <aws/networkflowmonitor/NetworkFlowMonitorEndpointProvider.h>
+#include <aws/networkflowmonitor/internal/NetworkFlowMonitorEndpointRules.h>
 
-namespace Aws
-{
-namespace NetworkFlowMonitor
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace NetworkFlowMonitor
-} // namespace Aws
+namespace Aws {
+namespace NetworkFlowMonitor {
+namespace Endpoint {
+NetworkFlowMonitorEndpointProvider::NetworkFlowMonitorEndpointProvider()
+    : NetworkFlowMonitorDefaultEpProviderBase(Aws::NetworkFlowMonitor::NetworkFlowMonitorEndpointRules::GetRulesBlob(),
+                                              Aws::NetworkFlowMonitor::NetworkFlowMonitorEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace NetworkFlowMonitor
+}  // namespace Aws

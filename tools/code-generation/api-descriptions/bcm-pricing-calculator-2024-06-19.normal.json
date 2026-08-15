@@ -5,8 +5,11 @@
     "auth":["aws.auth#sigv4"],
     "endpointPrefix":"bcm-pricing-calculator",
     "jsonVersion":"1.0",
-    "protocol":"json",
-    "protocols":["json"],
+    "protocol":"smithy-rpc-v2-cbor",
+    "protocols":[
+      "smithy-rpc-v2-cbor",
+      "json"
+    ],
     "serviceFullName":"AWS Billing and Cost Management Pricing Calculator",
     "serviceId":"BCM Pricing Calculator",
     "signatureVersion":"v4",
@@ -331,7 +334,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Retrieves details of a specific bill estimate. </p>"
+      "documentation":"<p> Retrieves details of a specific bill estimate. </p>",
+      "readonly":true
     },
     "GetBillScenario":{
       "name":"GetBillScenario",
@@ -349,7 +353,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Retrieves details of a specific bill scenario. </p>"
+      "documentation":"<p> Retrieves details of a specific bill scenario. </p>",
+      "readonly":true
     },
     "GetPreferences":{
       "name":"GetPreferences",
@@ -366,7 +371,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Retrieves the current preferences for Pricing Calculator. </p>"
+      "documentation":"<p> Retrieves the current preferences for Pricing Calculator. </p>",
+      "readonly":true
     },
     "GetWorkloadEstimate":{
       "name":"GetWorkloadEstimate",
@@ -384,7 +390,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Retrieves details of a specific workload estimate. </p>"
+      "documentation":"<p> Retrieves details of a specific workload estimate. </p>",
+      "readonly":true
     },
     "ListBillEstimateCommitments":{
       "name":"ListBillEstimateCommitments",
@@ -402,7 +409,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the commitments associated with a bill estimate. </p>"
+      "documentation":"<p> Lists the commitments associated with a bill estimate. </p>",
+      "readonly":true
     },
     "ListBillEstimateInputCommitmentModifications":{
       "name":"ListBillEstimateInputCommitmentModifications",
@@ -420,7 +428,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the input commitment modifications associated with a bill estimate. </p>"
+      "documentation":"<p> Lists the input commitment modifications associated with a bill estimate. </p>",
+      "readonly":true
     },
     "ListBillEstimateInputUsageModifications":{
       "name":"ListBillEstimateInputUsageModifications",
@@ -438,7 +447,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the input usage modifications associated with a bill estimate. </p>"
+      "documentation":"<p> Lists the input usage modifications associated with a bill estimate. </p>",
+      "readonly":true
     },
     "ListBillEstimateLineItems":{
       "name":"ListBillEstimateLineItems",
@@ -456,7 +466,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the line items associated with a bill estimate. </p>"
+      "documentation":"<p> Lists the line items associated with a bill estimate. </p>",
+      "readonly":true
     },
     "ListBillEstimates":{
       "name":"ListBillEstimates",
@@ -473,7 +484,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists all bill estimates for the account. </p>"
+      "documentation":"<p> Lists all bill estimates for the account. </p>",
+      "readonly":true
     },
     "ListBillScenarioCommitmentModifications":{
       "name":"ListBillScenarioCommitmentModifications",
@@ -491,7 +503,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the commitment modifications associated with a bill scenario. </p>"
+      "documentation":"<p> Lists the commitment modifications associated with a bill scenario. </p>",
+      "readonly":true
     },
     "ListBillScenarioUsageModifications":{
       "name":"ListBillScenarioUsageModifications",
@@ -509,7 +522,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the usage modifications associated with a bill scenario. </p>"
+      "documentation":"<p> Lists the usage modifications associated with a bill scenario. </p>",
+      "readonly":true
     },
     "ListBillScenarios":{
       "name":"ListBillScenarios",
@@ -526,7 +540,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists all bill scenarios for the account. </p>"
+      "documentation":"<p> Lists all bill scenarios for the account. </p>",
+      "readonly":true
     },
     "ListTagsForResource":{
       "name":"ListTagsForResource",
@@ -543,7 +558,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists all tags associated with a specified resource. </p>"
+      "documentation":"<p> Lists all tags associated with a specified resource. </p>",
+      "readonly":true
     },
     "ListWorkloadEstimateUsage":{
       "name":"ListWorkloadEstimateUsage",
@@ -561,7 +577,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists the usage associated with a workload estimate. </p>"
+      "documentation":"<p> Lists the usage associated with a workload estimate. </p>",
+      "readonly":true
     },
     "ListWorkloadEstimates":{
       "name":"ListWorkloadEstimates",
@@ -578,7 +595,8 @@
         {"shape":"AccessDeniedException"},
         {"shape":"ThrottlingException"}
       ],
-      "documentation":"<p> Lists all workload estimates for the account. </p>"
+      "documentation":"<p> Lists all workload estimates for the account. </p>",
+      "readonly":true
     },
     "TagResource":{
       "name":"TagResource",
@@ -703,6 +721,10 @@
         "message":{"shape":"String"}
       },
       "documentation":"<p> You do not have sufficient access to perform this action. </p>",
+      "error":{
+        "httpStatusCode":403,
+        "senderFault":true
+      },
       "exception":true
     },
     "AccountId":{
@@ -2045,6 +2067,14 @@
         "failureMessage":{
           "shape":"String",
           "documentation":"<p> An error message if the bill scenario creation or processing failed. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
         }
       },
       "documentation":"<p> Provides a summary of a bill scenario. </p>"
@@ -2129,6 +2159,10 @@
         }
       },
       "documentation":"<p> The request could not be processed because of conflict in the current state of the resource. </p>",
+      "error":{
+        "httpStatusCode":409,
+        "senderFault":true
+      },
       "exception":true
     },
     "CostAmount":{
@@ -2144,6 +2178,12 @@
         }
       },
       "documentation":"<p> Represents a monetary amount with associated currency. </p>"
+    },
+    "CostCategoryArn":{
+      "type":"string",
+      "max":2048,
+      "min":20,
+      "pattern":"arn:aws[-a-z0-9]*:ce::[0-9]{12}:costcategory/[a-f0-9-]{36}"
     },
     "CostDifference":{
       "type":"structure",
@@ -2220,6 +2260,18 @@
         "expiresAt":{
           "shape":"Timestamp",
           "documentation":"<p> The timestamp of when the Bill estimate will expire. A Bill estimate becomes inaccessible after expiration. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
+        },
+        "costCategoryGroupSharingPreferenceEffectiveDate":{
+          "shape":"Timestamp",
+          "documentation":"<p>Timestamp of the effective date of the cost category used in the group sharing settings.</p>"
         }
       }
     },
@@ -2239,6 +2291,14 @@
         "tags":{
           "shape":"Tags",
           "documentation":"<p> The tags to apply to the bill scenario. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
         }
       }
     },
@@ -2273,6 +2333,14 @@
         "failureMessage":{
           "shape":"String",
           "documentation":"<p> An error message if the bill scenario creation failed. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
         }
       }
     },
@@ -2357,6 +2425,10 @@
         "message":{"shape":"String"}
       },
       "documentation":"<p> The requested data is currently unavailable. </p>",
+      "error":{
+        "httpStatusCode":400,
+        "senderFault":true
+      },
       "exception":true
     },
     "DeleteBillEstimateRequest":{
@@ -2371,8 +2443,7 @@
     },
     "DeleteBillEstimateResponse":{
       "type":"structure",
-      "members":{
-      }
+      "members":{}
     },
     "DeleteBillScenarioRequest":{
       "type":"structure",
@@ -2386,8 +2457,7 @@
     },
     "DeleteBillScenarioResponse":{
       "type":"structure",
-      "members":{
-      }
+      "members":{}
     },
     "DeleteWorkloadEstimateRequest":{
       "type":"structure",
@@ -2401,8 +2471,7 @@
     },
     "DeleteWorkloadEstimateResponse":{
       "type":"structure",
-      "members":{
-      }
+      "members":{}
     },
     "Double":{
       "type":"double",
@@ -2519,6 +2588,18 @@
         "expiresAt":{
           "shape":"Timestamp",
           "documentation":"<p> The timestamp when the bill estimate will expire. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
+        },
+        "costCategoryGroupSharingPreferenceEffectiveDate":{
+          "shape":"Timestamp",
+          "documentation":"<p>Timestamp of the effective date of the cost category used in the group sharing settings.</p>"
         }
       }
     },
@@ -2563,13 +2644,20 @@
         "failureMessage":{
           "shape":"String",
           "documentation":"<p> An error message if the bill scenario retrieval failed. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
         }
       }
     },
     "GetPreferencesRequest":{
       "type":"structure",
-      "members":{
-      }
+      "members":{}
     },
     "GetPreferencesResponse":{
       "type":"structure",
@@ -2645,6 +2733,14 @@
       },
       "documentation":"<p>Mixin for common fields returned by CRUD APIs</p>"
     },
+    "GroupSharingPreferenceEnum":{
+      "type":"string",
+      "enum":[
+        "OPEN",
+        "PRIORITIZED",
+        "RESTRICTED"
+      ]
+    },
     "HistoricalUsageEntity":{
       "type":"structure",
       "required":[
@@ -2702,6 +2798,7 @@
         }
       },
       "documentation":"<p> An internal error has occurred. Retry your request, but if the problem persists, contact Amazon Web Services support. </p>",
+      "error":{"httpStatusCode":500},
       "exception":true,
       "fault":true
     },
@@ -3051,7 +3148,9 @@
       "type":"string",
       "enum":[
         "STATUS",
-        "NAME"
+        "NAME",
+        "GROUP_SHARING_PREFERENCE",
+        "COST_CATEGORY_ARN"
       ]
     },
     "ListBillScenariosFilterValues":{
@@ -3372,6 +3471,10 @@
         }
       },
       "documentation":"<p> The specified resource was not found. </p>",
+      "error":{
+        "httpStatusCode":404,
+        "senderFault":true
+      },
       "exception":true
     },
     "ResourceTagKey":{
@@ -3440,6 +3543,10 @@
         }
       },
       "documentation":"<p> The request would cause you to exceed your service quota. </p>",
+      "error":{
+        "httpStatusCode":402,
+        "senderFault":true
+      },
       "exception":true
     },
     "String":{"type":"string"},
@@ -3466,8 +3573,7 @@
     },
     "TagResourceResponse":{
       "type":"structure",
-      "members":{
-      }
+      "members":{}
     },
     "Tags":{
       "type":"map",
@@ -3495,6 +3601,10 @@
         }
       },
       "documentation":"<p> The request was denied due to request throttling. </p>",
+      "error":{
+        "httpStatusCode":429,
+        "senderFault":true
+      },
       "exception":true
     },
     "Timestamp":{"type":"timestamp"},
@@ -3517,8 +3627,7 @@
     },
     "UntagResourceResponse":{
       "type":"structure",
-      "members":{
-      }
+      "members":{}
     },
     "UpdateBillEstimateRequest":{
       "type":"structure",
@@ -3573,6 +3682,18 @@
         "expiresAt":{
           "shape":"Timestamp",
           "documentation":"<p> The updated expiration timestamp for the bill estimate. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
+        },
+        "costCategoryGroupSharingPreferenceEffectiveDate":{
+          "shape":"Timestamp",
+          "documentation":"<p>Timestamp of the effective date of the cost category used in the group sharing settings.</p>"
         }
       }
     },
@@ -3591,6 +3712,14 @@
         "expiresAt":{
           "shape":"Timestamp",
           "documentation":"<p> The new expiration date for the bill scenario. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
         }
       }
     },
@@ -3625,6 +3754,14 @@
         "failureMessage":{
           "shape":"String",
           "documentation":"<p> An error message if the bill scenario update failed. </p>"
+        },
+        "groupSharingPreference":{
+          "shape":"GroupSharingPreferenceEnum",
+          "documentation":"<p>The setting for the reserved instance and savings plan group sharing used in this estimate.</p>"
+        },
+        "costCategoryGroupSharingPreferenceArn":{
+          "shape":"CostCategoryArn",
+          "documentation":"<p>The arn of the cost category used in the reserved and prioritized group sharing.</p>"
         }
       }
     },
@@ -3818,6 +3955,10 @@
         }
       },
       "documentation":"<p> The input provided fails to satisfy the constraints specified by an Amazon Web Services service. </p>",
+      "error":{
+        "httpStatusCode":400,
+        "senderFault":true
+      },
       "exception":true
     },
     "ValidationExceptionField":{

@@ -8,12 +8,12 @@
 
 #include <aws/eventbridge/EventBridgeClient.h>
 #include <aws/eventbridge/EventBridgeEndpointProvider.h>
-#include <aws/eventbridge/EventBridgeEndpointRules.h>
 #include <aws/eventbridge/EventBridgeErrorMarshaller.h>
 #include <aws/eventbridge/EventBridgeErrors.h>
 #include <aws/eventbridge/EventBridgeRequest.h>
 #include <aws/eventbridge/EventBridgeServiceClientModel.h>
 #include <aws/eventbridge/EventBridge_EXPORTS.h>
+#include <aws/eventbridge/internal/EventBridgeEndpointRules.h>
 #include <aws/eventbridge/model/ActivateEventSourceRequest.h>
 #include <aws/eventbridge/model/ApiDestination.h>
 #include <aws/eventbridge/model/ApiDestinationHttpMethod.h>
@@ -108,9 +108,11 @@
 #include <aws/eventbridge/model/EventSourceState.h>
 #include <aws/eventbridge/model/FailoverConfig.h>
 #include <aws/eventbridge/model/HttpParameters.h>
+#include <aws/eventbridge/model/IncludeDetail.h>
 #include <aws/eventbridge/model/InputTransformer.h>
 #include <aws/eventbridge/model/KinesisParameters.h>
 #include <aws/eventbridge/model/LaunchType.h>
+#include <aws/eventbridge/model/Level.h>
 #include <aws/eventbridge/model/ListApiDestinationsRequest.h>
 #include <aws/eventbridge/model/ListApiDestinationsResult.h>
 #include <aws/eventbridge/model/ListArchivesRequest.h>
@@ -137,6 +139,7 @@
 #include <aws/eventbridge/model/ListTagsForResourceResult.h>
 #include <aws/eventbridge/model/ListTargetsByRuleRequest.h>
 #include <aws/eventbridge/model/ListTargetsByRuleResult.h>
+#include <aws/eventbridge/model/LogConfig.h>
 #include <aws/eventbridge/model/NetworkConfiguration.h>
 #include <aws/eventbridge/model/PartnerEventSource.h>
 #include <aws/eventbridge/model/PartnerEventSourceAccount.h>

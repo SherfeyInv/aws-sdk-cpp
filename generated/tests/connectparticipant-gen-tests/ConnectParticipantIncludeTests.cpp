@@ -8,14 +8,16 @@
 
 #include <aws/connectparticipant/ConnectParticipantClient.h>
 #include <aws/connectparticipant/ConnectParticipantEndpointProvider.h>
-#include <aws/connectparticipant/ConnectParticipantEndpointRules.h>
 #include <aws/connectparticipant/ConnectParticipantErrorMarshaller.h>
 #include <aws/connectparticipant/ConnectParticipantErrors.h>
 #include <aws/connectparticipant/ConnectParticipantRequest.h>
 #include <aws/connectparticipant/ConnectParticipantServiceClientModel.h>
 #include <aws/connectparticipant/ConnectParticipant_EXPORTS.h>
+#include <aws/connectparticipant/internal/ConnectParticipantEndpointRules.h>
 #include <aws/connectparticipant/model/ArtifactStatus.h>
 #include <aws/connectparticipant/model/AttachmentItem.h>
+#include <aws/connectparticipant/model/Attendee.h>
+#include <aws/connectparticipant/model/AudioFeatures.h>
 #include <aws/connectparticipant/model/CancelParticipantAuthenticationRequest.h>
 #include <aws/connectparticipant/model/CancelParticipantAuthenticationResult.h>
 #include <aws/connectparticipant/model/ChatItemType.h>
@@ -36,7 +38,11 @@
 #include <aws/connectparticipant/model/GetTranscriptRequest.h>
 #include <aws/connectparticipant/model/GetTranscriptResult.h>
 #include <aws/connectparticipant/model/Item.h>
+#include <aws/connectparticipant/model/MeetingFeatureStatus.h>
+#include <aws/connectparticipant/model/MeetingFeaturesConfiguration.h>
 #include <aws/connectparticipant/model/MessageMetadata.h>
+#include <aws/connectparticipant/model/MessageProcessingMetadata.h>
+#include <aws/connectparticipant/model/MessageProcessingStatus.h>
 #include <aws/connectparticipant/model/ParticipantRole.h>
 #include <aws/connectparticipant/model/Receipt.h>
 #include <aws/connectparticipant/model/ResourceNotFoundException.h>
@@ -53,6 +59,9 @@
 #include <aws/connectparticipant/model/UploadMetadata.h>
 #include <aws/connectparticipant/model/View.h>
 #include <aws/connectparticipant/model/ViewContent.h>
+#include <aws/connectparticipant/model/WebRTCConnection.h>
+#include <aws/connectparticipant/model/WebRTCMediaPlacement.h>
+#include <aws/connectparticipant/model/WebRTCMeeting.h>
 #include <aws/connectparticipant/model/Websocket.h>
 
 using ConnectParticipantIncludeTest = ::testing::Test;

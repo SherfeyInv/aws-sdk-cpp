@@ -4,131 +4,236 @@
  */
 
 #pragma once
-#include <aws/healthlake/HealthLake_EXPORTS.h>
-#include <aws/healthlake/HealthLakeRequest.h>
+#include <aws/core/utils/UUID.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
+#include <aws/healthlake/HealthLakeRequest.h>
+#include <aws/healthlake/HealthLake_EXPORTS.h>
 #include <aws/healthlake/model/InputDataConfig.h>
 #include <aws/healthlake/model/OutputDataConfig.h>
+#include <aws/healthlake/model/ValidationLevel.h>
+
 #include <utility>
-#include <aws/core/utils/UUID.h>
 
-namespace Aws
-{
-namespace HealthLake
-{
-namespace Model
-{
+namespace Aws {
+namespace HealthLake {
+namespace Model {
 
+/**
+ */
+class StartFHIRImportJobRequest : public HealthLakeRequest {
+ public:
+  AWS_HEALTHLAKE_API StartFHIRImportJobRequest() = default;
+
+  // Service request name is the Operation name which will send this request out,
+  // each operation should has unique request name, so that we can get operation's name from this request.
+  // Note: this is not true for response, multiple operations may have the same response name,
+  // so we can not get operation's name from response.
+  inline virtual const char* GetServiceRequestName() const override { return "StartFHIRImportJob"; }
+
+  AWS_HEALTHLAKE_API Aws::String SerializePayload() const override;
+
+  AWS_HEALTHLAKE_API Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
+
+  ///@{
   /**
+   * <p>The import job name.</p>
    */
-  class StartFHIRImportJobRequest : public HealthLakeRequest
-  {
-  public:
-    AWS_HEALTHLAKE_API StartFHIRImportJobRequest() = default;
+  inline const Aws::String& GetJobName() const { return m_jobName; }
+  inline bool JobNameHasBeenSet() const { return m_jobNameHasBeenSet; }
+  template <typename JobNameT = Aws::String>
+  void SetJobName(JobNameT&& value) {
+    m_jobNameHasBeenSet = true;
+    m_jobName = std::forward<JobNameT>(value);
+  }
+  template <typename JobNameT = Aws::String>
+  StartFHIRImportJobRequest& WithJobName(JobNameT&& value) {
+    SetJobName(std::forward<JobNameT>(value));
+    return *this;
+  }
+  ///@}
 
-    // Service request name is the Operation name which will send this request out,
-    // each operation should has unique request name, so that we can get operation's name from this request.
-    // Note: this is not true for response, multiple operations may have the same response name,
-    // so we can not get operation's name from response.
-    inline virtual const char* GetServiceRequestName() const override { return "StartFHIRImportJob"; }
+  ///@{
+  /**
+   * <p>The input properties for the import job request.</p>
+   */
+  inline const InputDataConfig& GetInputDataConfig() const { return m_inputDataConfig; }
+  inline bool InputDataConfigHasBeenSet() const { return m_inputDataConfigHasBeenSet; }
+  template <typename InputDataConfigT = InputDataConfig>
+  void SetInputDataConfig(InputDataConfigT&& value) {
+    m_inputDataConfigHasBeenSet = true;
+    m_inputDataConfig = std::forward<InputDataConfigT>(value);
+  }
+  template <typename InputDataConfigT = InputDataConfig>
+  StartFHIRImportJobRequest& WithInputDataConfig(InputDataConfigT&& value) {
+    SetInputDataConfig(std::forward<InputDataConfigT>(value));
+    return *this;
+  }
+  ///@}
 
-    AWS_HEALTHLAKE_API Aws::String SerializePayload() const override;
+  ///@{
 
-    AWS_HEALTHLAKE_API Aws::Http::HeaderValueCollection GetRequestSpecificHeaders() const override;
+  inline const OutputDataConfig& GetJobOutputDataConfig() const { return m_jobOutputDataConfig; }
+  inline bool JobOutputDataConfigHasBeenSet() const { return m_jobOutputDataConfigHasBeenSet; }
+  template <typename JobOutputDataConfigT = OutputDataConfig>
+  void SetJobOutputDataConfig(JobOutputDataConfigT&& value) {
+    m_jobOutputDataConfigHasBeenSet = true;
+    m_jobOutputDataConfig = std::forward<JobOutputDataConfigT>(value);
+  }
+  template <typename JobOutputDataConfigT = OutputDataConfig>
+  StartFHIRImportJobRequest& WithJobOutputDataConfig(JobOutputDataConfigT&& value) {
+    SetJobOutputDataConfig(std::forward<JobOutputDataConfigT>(value));
+    return *this;
+  }
+  ///@}
 
+  ///@{
+  /**
+   * <p>The data store identifier.</p>
+   */
+  inline const Aws::String& GetDatastoreId() const { return m_datastoreId; }
+  inline bool DatastoreIdHasBeenSet() const { return m_datastoreIdHasBeenSet; }
+  template <typename DatastoreIdT = Aws::String>
+  void SetDatastoreId(DatastoreIdT&& value) {
+    m_datastoreIdHasBeenSet = true;
+    m_datastoreId = std::forward<DatastoreIdT>(value);
+  }
+  template <typename DatastoreIdT = Aws::String>
+  StartFHIRImportJobRequest& WithDatastoreId(DatastoreIdT&& value) {
+    SetDatastoreId(std::forward<DatastoreIdT>(value));
+    return *this;
+  }
+  ///@}
 
-    ///@{
-    /**
-     * <p>The name of the FHIR Import job in the StartFHIRImport job request.</p>
-     */
-    inline const Aws::String& GetJobName() const { return m_jobName; }
-    inline bool JobNameHasBeenSet() const { return m_jobNameHasBeenSet; }
-    template<typename JobNameT = Aws::String>
-    void SetJobName(JobNameT&& value) { m_jobNameHasBeenSet = true; m_jobName = std::forward<JobNameT>(value); }
-    template<typename JobNameT = Aws::String>
-    StartFHIRImportJobRequest& WithJobName(JobNameT&& value) { SetJobName(std::forward<JobNameT>(value)); return *this;}
-    ///@}
+  ///@{
+  /**
+   * <p>The Amazon Resource Name (ARN) that grants access permission to AWS
+   * HealthLake.</p>
+   */
+  inline const Aws::String& GetDataAccessRoleArn() const { return m_dataAccessRoleArn; }
+  inline bool DataAccessRoleArnHasBeenSet() const { return m_dataAccessRoleArnHasBeenSet; }
+  template <typename DataAccessRoleArnT = Aws::String>
+  void SetDataAccessRoleArn(DataAccessRoleArnT&& value) {
+    m_dataAccessRoleArnHasBeenSet = true;
+    m_dataAccessRoleArn = std::forward<DataAccessRoleArnT>(value);
+  }
+  template <typename DataAccessRoleArnT = Aws::String>
+  StartFHIRImportJobRequest& WithDataAccessRoleArn(DataAccessRoleArnT&& value) {
+    SetDataAccessRoleArn(std::forward<DataAccessRoleArnT>(value));
+    return *this;
+  }
+  ///@}
 
-    ///@{
-    /**
-     * <p>The input properties of the FHIR Import job in the StartFHIRImport job
-     * request.</p>
-     */
-    inline const InputDataConfig& GetInputDataConfig() const { return m_inputDataConfig; }
-    inline bool InputDataConfigHasBeenSet() const { return m_inputDataConfigHasBeenSet; }
-    template<typename InputDataConfigT = InputDataConfig>
-    void SetInputDataConfig(InputDataConfigT&& value) { m_inputDataConfigHasBeenSet = true; m_inputDataConfig = std::forward<InputDataConfigT>(value); }
-    template<typename InputDataConfigT = InputDataConfig>
-    StartFHIRImportJobRequest& WithInputDataConfig(InputDataConfigT&& value) { SetInputDataConfig(std::forward<InputDataConfigT>(value)); return *this;}
-    ///@}
+  ///@{
+  /**
+   * <p>The optional user-provided token used for ensuring API idempotency.</p>
+   */
+  inline const Aws::String& GetClientToken() const { return m_clientToken; }
+  inline bool ClientTokenHasBeenSet() const { return m_clientTokenHasBeenSet; }
+  template <typename ClientTokenT = Aws::String>
+  void SetClientToken(ClientTokenT&& value) {
+    m_clientTokenHasBeenSet = true;
+    m_clientToken = std::forward<ClientTokenT>(value);
+  }
+  template <typename ClientTokenT = Aws::String>
+  StartFHIRImportJobRequest& WithClientToken(ClientTokenT&& value) {
+    SetClientToken(std::forward<ClientTokenT>(value));
+    return *this;
+  }
+  ///@}
 
-    ///@{
-    
-    inline const OutputDataConfig& GetJobOutputDataConfig() const { return m_jobOutputDataConfig; }
-    inline bool JobOutputDataConfigHasBeenSet() const { return m_jobOutputDataConfigHasBeenSet; }
-    template<typename JobOutputDataConfigT = OutputDataConfig>
-    void SetJobOutputDataConfig(JobOutputDataConfigT&& value) { m_jobOutputDataConfigHasBeenSet = true; m_jobOutputDataConfig = std::forward<JobOutputDataConfigT>(value); }
-    template<typename JobOutputDataConfigT = OutputDataConfig>
-    StartFHIRImportJobRequest& WithJobOutputDataConfig(JobOutputDataConfigT&& value) { SetJobOutputDataConfig(std::forward<JobOutputDataConfigT>(value)); return *this;}
-    ///@}
+  ///@{
+  /**
+   * <p>The validation level of the import job.</p>
+   */
+  inline ValidationLevel GetValidationLevel() const { return m_validationLevel; }
+  inline bool ValidationLevelHasBeenSet() const { return m_validationLevelHasBeenSet; }
+  inline void SetValidationLevel(ValidationLevel value) {
+    m_validationLevelHasBeenSet = true;
+    m_validationLevel = value;
+  }
+  inline StartFHIRImportJobRequest& WithValidationLevel(ValidationLevel value) {
+    SetValidationLevel(value);
+    return *this;
+  }
+  ///@}
 
-    ///@{
-    /**
-     * <p>The AWS-generated data store ID.</p>
-     */
-    inline const Aws::String& GetDatastoreId() const { return m_datastoreId; }
-    inline bool DatastoreIdHasBeenSet() const { return m_datastoreIdHasBeenSet; }
-    template<typename DatastoreIdT = Aws::String>
-    void SetDatastoreId(DatastoreIdT&& value) { m_datastoreIdHasBeenSet = true; m_datastoreId = std::forward<DatastoreIdT>(value); }
-    template<typename DatastoreIdT = Aws::String>
-    StartFHIRImportJobRequest& WithDatastoreId(DatastoreIdT&& value) { SetDatastoreId(std::forward<DatastoreIdT>(value)); return *this;}
-    ///@}
+  ///@{
 
-    ///@{
-    /**
-     * <p>The Amazon Resource Name (ARN) that gives AWS HealthLake access
-     * permission.</p>
-     */
-    inline const Aws::String& GetDataAccessRoleArn() const { return m_dataAccessRoleArn; }
-    inline bool DataAccessRoleArnHasBeenSet() const { return m_dataAccessRoleArnHasBeenSet; }
-    template<typename DataAccessRoleArnT = Aws::String>
-    void SetDataAccessRoleArn(DataAccessRoleArnT&& value) { m_dataAccessRoleArnHasBeenSet = true; m_dataAccessRoleArn = std::forward<DataAccessRoleArnT>(value); }
-    template<typename DataAccessRoleArnT = Aws::String>
-    StartFHIRImportJobRequest& WithDataAccessRoleArn(DataAccessRoleArnT&& value) { SetDataAccessRoleArn(std::forward<DataAccessRoleArnT>(value)); return *this;}
-    ///@}
+  inline const Aws::String& GetProfileId() const { return m_profileId; }
+  inline bool ProfileIdHasBeenSet() const { return m_profileIdHasBeenSet; }
+  template <typename ProfileIdT = Aws::String>
+  void SetProfileId(ProfileIdT&& value) {
+    m_profileIdHasBeenSet = true;
+    m_profileId = std::forward<ProfileIdT>(value);
+  }
+  template <typename ProfileIdT = Aws::String>
+  StartFHIRImportJobRequest& WithProfileId(ProfileIdT&& value) {
+    SetProfileId(std::forward<ProfileIdT>(value));
+    return *this;
+  }
+  ///@}
 
-    ///@{
-    /**
-     * <p>Optional user provided token used for ensuring idempotency.</p>
-     */
-    inline const Aws::String& GetClientToken() const { return m_clientToken; }
-    inline bool ClientTokenHasBeenSet() const { return m_clientTokenHasBeenSet; }
-    template<typename ClientTokenT = Aws::String>
-    void SetClientToken(ClientTokenT&& value) { m_clientTokenHasBeenSet = true; m_clientToken = std::forward<ClientTokenT>(value); }
-    template<typename ClientTokenT = Aws::String>
-    StartFHIRImportJobRequest& WithClientToken(ClientTokenT&& value) { SetClientToken(std::forward<ClientTokenT>(value)); return *this;}
-    ///@}
-  private:
+  ///@{
 
-    Aws::String m_jobName;
-    bool m_jobNameHasBeenSet = false;
+  inline const Aws::String& GetInputFormat() const { return m_inputFormat; }
+  inline bool InputFormatHasBeenSet() const { return m_inputFormatHasBeenSet; }
+  template <typename InputFormatT = Aws::String>
+  void SetInputFormat(InputFormatT&& value) {
+    m_inputFormatHasBeenSet = true;
+    m_inputFormat = std::forward<InputFormatT>(value);
+  }
+  template <typename InputFormatT = Aws::String>
+  StartFHIRImportJobRequest& WithInputFormat(InputFormatT&& value) {
+    SetInputFormat(std::forward<InputFormatT>(value));
+    return *this;
+  }
+  ///@}
 
-    InputDataConfig m_inputDataConfig;
-    bool m_inputDataConfigHasBeenSet = false;
+  ///@{
 
-    OutputDataConfig m_jobOutputDataConfig;
-    bool m_jobOutputDataConfigHasBeenSet = false;
+  inline bool GetDriftDetectionEnabled() const { return m_driftDetectionEnabled; }
+  inline bool DriftDetectionEnabledHasBeenSet() const { return m_driftDetectionEnabledHasBeenSet; }
+  inline void SetDriftDetectionEnabled(bool value) {
+    m_driftDetectionEnabledHasBeenSet = true;
+    m_driftDetectionEnabled = value;
+  }
+  inline StartFHIRImportJobRequest& WithDriftDetectionEnabled(bool value) {
+    SetDriftDetectionEnabled(value);
+    return *this;
+  }
+  ///@}
+ private:
+  Aws::String m_jobName;
 
-    Aws::String m_datastoreId;
-    bool m_datastoreIdHasBeenSet = false;
+  InputDataConfig m_inputDataConfig;
 
-    Aws::String m_dataAccessRoleArn;
-    bool m_dataAccessRoleArnHasBeenSet = false;
+  OutputDataConfig m_jobOutputDataConfig;
 
-    Aws::String m_clientToken{Aws::Utils::UUID::PseudoRandomUUID()};
-    bool m_clientTokenHasBeenSet = true;
-  };
+  Aws::String m_datastoreId;
 
-} // namespace Model
-} // namespace HealthLake
-} // namespace Aws
+  Aws::String m_dataAccessRoleArn;
+
+  Aws::String m_clientToken{Aws::Utils::UUID::PseudoRandomUUID()};
+
+  ValidationLevel m_validationLevel{ValidationLevel::NOT_SET};
+
+  Aws::String m_profileId;
+
+  Aws::String m_inputFormat;
+
+  bool m_driftDetectionEnabled{false};
+  bool m_jobNameHasBeenSet = false;
+  bool m_inputDataConfigHasBeenSet = false;
+  bool m_jobOutputDataConfigHasBeenSet = false;
+  bool m_datastoreIdHasBeenSet = false;
+  bool m_dataAccessRoleArnHasBeenSet = false;
+  bool m_clientTokenHasBeenSet = true;
+  bool m_validationLevelHasBeenSet = false;
+  bool m_profileIdHasBeenSet = false;
+  bool m_inputFormatHasBeenSet = false;
+  bool m_driftDetectionEnabledHasBeenSet = false;
+};
+
+}  // namespace Model
+}  // namespace HealthLake
+}  // namespace Aws

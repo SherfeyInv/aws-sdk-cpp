@@ -17,12 +17,10 @@
 #include <smithy/client/serializer/JsonOutcomeSerializer.h>
 #include <smithy/identity/auth/AuthSchemeOption.h>
 #include <smithy/identity/auth/built-in/BearerTokenAuthScheme.h>
-#include <smithy/identity/auth/built-in/BearerTokenAuthSchemeResolver.h>
 #include <smithy/identity/auth/built-in/SigV4AuthScheme.h>
-#include <smithy/identity/auth/built-in/SigV4AuthSchemeResolver.h>
 #include <smithy/identity/auth/built-in/SigV4aAuthScheme.h>
-#include <smithy/identity/auth/built-in/SigV4aAuthSchemeResolver.h>
 #include <smithy/identity/resolver/AwsBearerTokenIdentityResolver.h>
+#include <smithy/identity/auth/built-in/GenericAuthSchemeResolver.h>
 
 namespace {
   const char* ALLOC_TAG = "SmithyClientTest";
@@ -232,7 +230,7 @@ class TestClient : public MySmithyClient
 
 TEST_F(SmithyClientTest, testSigV4) {
 
-    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::SigV4AuthSchemeResolver<> >(ALLOCATION_TAG);
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption}));
 
     Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
 
@@ -277,9 +275,58 @@ TEST_F(SmithyClientTest, testSigV4) {
 }
 
 
+TEST_F(SmithyClientTest, testSigV4WithLongTermCredentials) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    Aws::String key{"aws.auth#sigv4"};
+
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    SigVariant val{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+
+    // Long-term credentials: no session token, no expiration
+    ctx.m_awsIdentity = Aws::MakeShared<smithy::AwsCredentialIdentity>(ALLOCATION_TAG,
+        "longTermAccessKey",
+        "longTermSecretKey",
+        Aws::Crt::Optional<Aws::String>{},
+        Aws::Crt::Optional<Aws::Utils::DateTime>{},
+        Aws::Crt::Optional<Aws::String>{});
+
+    Aws::String uri{"https://treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(Aws::Http::CreateHttpRequest(uri, Aws::Http::HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+    EXPECT_EQ(res2.GetResult()->GetSigningAccessKey(), "longTermAccessKey");
+}
+
+
 TEST_F(SmithyClientTest, testSigV4a) {
 
-    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::SigV4aAuthSchemeResolver<>>(ALLOCATION_TAG);
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<>>(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption}));
 
     Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
 
@@ -324,12 +371,60 @@ TEST_F(SmithyClientTest, testSigV4a) {
     EXPECT_FALSE(res2.GetResult()->GetUri().GetURIString(true).empty());
 }
 
+TEST_F(SmithyClientTest, testSigV4aWithLongTermCredentials) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<>>(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    Aws::String key{"aws.auth#sigv4a"};
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    SigVariant val{smithy::SigV4aAuthScheme(credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyAuthaService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+
+    // Long-term credentials: no session token, no expiration
+    ctx.m_awsIdentity = Aws::MakeShared<smithy::AwsCredentialIdentity>(ALLOCATION_TAG,
+        "longTermAccessKey",
+        "longTermSecretKey",
+        Aws::Crt::Optional<Aws::String>{},
+        Aws::Crt::Optional<Aws::Utils::DateTime>{},
+        Aws::Crt::Optional<Aws::String>{});
+
+    Aws::String uri{"https://treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(Aws::Http::CreateHttpRequest(uri, Aws::Http::HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+    EXPECT_EQ(res2.GetResult()->GetSigningAccessKey(), "longTermAccessKey");
+    EXPECT_FALSE(res2.GetResult()->GetUri().GetURIString(true).empty());
+}
+
 TEST_F(SmithyClientTest, bearer)
 {
 
     std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver =
-        Aws::MakeShared<smithy::BearerTokenAuthSchemeResolver<>>(
-            ALLOCATION_TAG);
+        Aws::MakeShared<smithy::GenericAuthSchemeResolver<>>(
+            ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
 
     Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
 
@@ -360,6 +455,372 @@ TEST_F(SmithyClientTest, bearer)
     Aws::String uri{
         "https://"
         "treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(
+        Aws::Http::CreateHttpRequest(
+            uri, Aws::Http::HttpMethod::HTTP_GET,
+            Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+
+    EXPECT_TRUE(!res2.GetResult()->GetHeaderValue("authorization").empty());
+    EXPECT_EQ(res2.GetResult()->GetHeaderValue("authorization"),
+              "Bearer testBearerToken");
+}
+
+TEST_F(SmithyClientTest, testSigV4aPreference) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption, smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption, smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    //add mock credentials provider for the test to the credentials provider chain
+    AddCredentialsProvider(Aws::MakeShared<TestCredentialsProvider>("TestCredentialsProviderChain"));
+
+    //create resolver with the credentials provider chain
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    Aws::String key{smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption.schemeId};
+    SigVariant val{smithy::SigV4aAuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    Aws::String key2{smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption.schemeId};
+    SigVariant val2{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key2, val2);
+
+    Aws::String key3{smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption.schemeId};
+    SigVariant val3{smithy::BearerTokenAuthScheme( Aws::MakeShared<TestAwsBearerTokenIdentityResolver>(ALLOCATION_TAG), "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key3, val3);
+
+    clientConfig.authPreferences = {smithy::SIGV4A_PREFERENCE};
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    EXPECT_EQ(res.GetResult().schemeId, key);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+    ctx.m_awsIdentity = ptr->ResolveIdentity(ctx).GetResultWithOwnership();
+
+    Aws::String uri{"https://treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(Aws::Http::CreateHttpRequest(uri, Aws::Http::HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+    EXPECT_TRUE(!res2.GetResult()->GetSigningAccessKey().empty());
+    EXPECT_FALSE(res2.GetResult()->GetUri().GetURIString(true).empty());
+}
+
+TEST_F(SmithyClientTest, testSigV4aPreferenceWithSigv4aSignerRegionSet) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption, smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption, smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    //add mock credentials provider for the test to the credentials provider chain
+    AddCredentialsProvider(Aws::MakeShared<TestCredentialsProvider>("TestCredentialsProviderChain"));
+
+    //create resolver with the credentials provider chain
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    Aws::String key{smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption.schemeId};
+    SigVariant val{smithy::SigV4aAuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    Aws::String key2{smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption.schemeId};
+    SigVariant val2{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key2, val2);
+
+    Aws::String key3{smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption.schemeId};
+    SigVariant val3{smithy::BearerTokenAuthScheme( Aws::MakeShared<TestAwsBearerTokenIdentityResolver>(ALLOCATION_TAG), "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key3, val3);
+
+    clientConfig.authPreferences = {smithy::SIGV4A_PREFERENCE};
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    EXPECT_EQ(res.GetResult().schemeId, key);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+    ctx.m_awsIdentity = ptr->ResolveIdentity(ctx).GetResultWithOwnership();
+
+    //Set Sigv4ASigning Region Set
+    ctx.m_authSchemeOption.putSignerProperty(smithy::SIGNER_REGION_PROPERTY, Aws::Crt::Variant<Aws::String, bool>(Aws::String("foo1,foo2")));
+
+    Aws::String uri{"https://treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(Aws::Http::CreateHttpRequest(uri, Aws::Http::HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+    EXPECT_EQ(res2.GetResult()->GetSigningRegion(), "foo1,foo2");
+    EXPECT_EQ(res2.IsSuccess(), true);
+    EXPECT_TRUE(!res2.GetResult()->GetSigningAccessKey().empty());
+    EXPECT_FALSE(res2.GetResult()->GetUri().GetURIString(true).empty());
+}
+
+TEST_F(SmithyClientTest, testSigV4Preference) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption, smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption, smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    //add mock credentials provider for the test to the credentials provider chain
+    AddCredentialsProvider(Aws::MakeShared<TestCredentialsProvider>("TestCredentialsProviderChain"));
+
+    //create resolver with the credentials provider chain
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    Aws::String key{smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption.schemeId};
+    SigVariant val{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    Aws::String key2{smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption.schemeId};
+    SigVariant val2{smithy::SigV4aAuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key2, val2);
+
+    Aws::String key3{smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption.schemeId};
+    SigVariant val3{smithy::BearerTokenAuthScheme( Aws::MakeShared<TestAwsBearerTokenIdentityResolver>(ALLOCATION_TAG), "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key3, val3);
+
+    clientConfig.authPreferences = {smithy::SIGV4_PREFERENCE};
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    EXPECT_EQ(res.GetResult().schemeId, key);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+    ctx.m_awsIdentity = ptr->ResolveIdentity(ctx).GetResultWithOwnership();
+
+    Aws::String uri{"https://treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(Aws::Http::CreateHttpRequest(uri, Aws::Http::HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+    EXPECT_EQ(res2.GetResult()->GetSigningAccessKey(), "dummyAccessId");
+}
+
+TEST_F(SmithyClientTest, testBearerPreference) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption, smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption, smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    //add mock credentials provider for the test to the credentials provider chain
+    AddCredentialsProvider(Aws::MakeShared<TestCredentialsProvider>("TestCredentialsProviderChain"));
+
+    //create resolver with the credentials provider chain
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    Aws::String key{smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption.schemeId};
+    SigVariant val{smithy::BearerTokenAuthScheme( Aws::MakeShared<TestAwsBearerTokenIdentityResolver>(ALLOCATION_TAG), "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    Aws::String key2{smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption.schemeId};
+    SigVariant val2{smithy::SigV4aAuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key2, val2);
+
+    Aws::String key3{smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption.schemeId};
+    SigVariant val3{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key3, val3);
+
+    clientConfig.authPreferences = {smithy::BEARER_PREFERENCE};
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    EXPECT_EQ(res.GetResult().schemeId, key);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+    ctx.m_awsIdentity = ptr->ResolveIdentity(ctx).GetResultWithOwnership();
+
+    Aws::String uri{
+      "https://"
+      "treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(
+        Aws::Http::CreateHttpRequest(
+            uri, Aws::Http::HttpMethod::HTTP_GET,
+            Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+
+    EXPECT_TRUE(!res2.GetResult()->GetHeaderValue("authorization").empty());
+    EXPECT_EQ(res2.GetResult()->GetHeaderValue("authorization"),
+              "Bearer testBearerToken");
+}
+
+TEST_F(SmithyClientTest, testOperationOnlySupportsSigV4aPreferenceBearer) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption, smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption, smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    //add mock credentials provider for the test to the credentials provider chain
+    AddCredentialsProvider(Aws::MakeShared<TestCredentialsProvider>("TestCredentialsProviderChain"));
+
+    //create resolver with the credentials provider chain
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    Aws::String key{smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption.schemeId};
+    SigVariant val{smithy::SigV4aAuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    Aws::String key2{smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption.schemeId};
+    SigVariant val2{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key2, val2);
+
+    Aws::String key3{smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption.schemeId};
+    SigVariant val3{smithy::BearerTokenAuthScheme( Aws::MakeShared<TestAwsBearerTokenIdentityResolver>(ALLOCATION_TAG), "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key3, val3);
+
+    clientConfig.authPreferences = {smithy::BEARER_PREFERENCE};
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    //Operation/Request only supports sigv4a while client supports all 3
+    std::shared_ptr<MyServiceAuthSchemeResolver> requestAuthSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption }));
+    ctx.m_authResolver = requestAuthSchemeResolver;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    EXPECT_EQ(res.GetResult().schemeId, key);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+    ctx.m_awsIdentity = ptr->ResolveIdentity(ctx).GetResultWithOwnership();
+
+    Aws::String uri{"https://treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
+
+    std::shared_ptr<Aws::Http::HttpRequest> httpRequest(Aws::Http::CreateHttpRequest(uri, Aws::Http::HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod));
+
+    auto res2 = ptr->SignRequest(httpRequest, ctx);
+
+    EXPECT_EQ(res2.IsSuccess(), true);
+    EXPECT_TRUE(!res2.GetResult()->GetSigningAccessKey().empty());
+    EXPECT_FALSE(res2.GetResult()->GetUri().GetURIString(true).empty());
+}
+
+TEST_F(SmithyClientTest, testOperationOnlySupportsBearerPreferenceSigV4a) {
+
+    std::shared_ptr<MyServiceAuthSchemeResolver> authSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption, smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption, smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption}));
+
+    Aws::UnorderedMap<Aws::String, SigVariant> authSchemesMap;
+
+    //add mock credentials provider for the test to the credentials provider chain
+    AddCredentialsProvider(Aws::MakeShared<TestCredentialsProvider>("TestCredentialsProviderChain"));
+
+    //create resolver with the credentials provider chain
+    auto credentialsResolver = Aws::MakeShared<smithy::DefaultAwsCredentialIdentityResolver>(ALLOCATION_TAG, credsProviderChain);
+
+    Aws::String key{smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption.schemeId};
+    SigVariant val{smithy::BearerTokenAuthScheme( Aws::MakeShared<TestAwsBearerTokenIdentityResolver>(ALLOCATION_TAG), "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key, val);
+
+    Aws::String key2{smithy::SigV4aAuthSchemeOption::sigV4aAuthSchemeOption.schemeId};
+    SigVariant val2{smithy::SigV4aAuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key2, val2);
+
+    Aws::String key3{smithy::SigV4AuthSchemeOption::sigV4AuthSchemeOption.schemeId};
+    SigVariant val3{smithy::SigV4AuthScheme( credentialsResolver, "MyService", "us-west-2")};
+
+    authSchemesMap.emplace(key3, val3);
+
+    clientConfig.authPreferences = {smithy::SIGV4A_PREFERENCE};
+    std::shared_ptr<TestClient> ptr = Aws::MakeShared<TestClient>(
+        ALLOCATION_TAG,
+        clientConfig,
+        "MyService",
+        httpClient,
+        errorMarshaller,
+        endPointProvider,
+        authSchemeResolver,
+        authSchemesMap);
+    smithy::client::AwsSmithyClientAsyncRequestContext ctx;
+    ctx.m_pRequest = nullptr;
+
+    //Operation/Request only supports sigv4a while client supports all 3
+    std::shared_ptr<MyServiceAuthSchemeResolver> requestAuthSchemeResolver = Aws::MakeShared<smithy::GenericAuthSchemeResolver<> >(ALLOCATION_TAG, Aws::Vector<smithy::AuthSchemeOption>({smithy::BearerTokenAuthSchemeOption::bearerTokenAuthSchemeOption }));
+    ctx.m_authResolver = requestAuthSchemeResolver;
+
+    auto res = ptr->SelectAuthSchemeOption(ctx);
+    EXPECT_EQ(res.IsSuccess(), true);
+    EXPECT_EQ(res.GetResult().schemeId, key);
+    ctx.m_authSchemeOption = res.GetResultWithOwnership();
+    ctx.m_awsIdentity = ptr->ResolveIdentity(ctx).GetResultWithOwnership();
+
+    Aws::String uri{
+      "https://"
+      "treasureisland-cb93079d-24a0-4862-8es2-88456ead.xyz.amazonaws.com"};
 
     std::shared_ptr<Aws::Http::HttpRequest> httpRequest(
         Aws::Http::CreateHttpRequest(
@@ -407,7 +868,7 @@ private:
 static constexpr char SampleServiceName[] = "SampleService";
 class SampleClient: public smithy::client::AwsSmithyClientT<SampleServiceName,
   SampleConfiguration,
-  smithy::SigV4AuthSchemeResolver<>,
+  smithy::GenericAuthSchemeResolver<>,
   Aws::Crt::Variant<smithy::SigV4aAuthScheme>,
   SampleEndpointProvider,
   smithy::client::JsonOutcomeSerializer,
@@ -421,7 +882,7 @@ public:
     Aws::MakeShared<MockHttpClient>(SampleServiceName),
     Aws::MakeShared<Aws::Client::JsonErrorMarshaller>(SampleServiceName),
     Aws::MakeShared<SampleEndpointProvider>(SampleServiceName),
-    Aws::MakeShared<smithy::SigV4AuthSchemeResolver<>>(SampleServiceName),
+    Aws::MakeShared<smithy::GenericAuthSchemeResolver<>>(SampleServiceName),
     Aws::UnorderedMap<Aws::String, Aws::Crt::Variant<smithy::SigV4aAuthScheme>>())
   {}
 };
@@ -438,7 +899,7 @@ TEST_F(SmithyClientTest, SmithyClientShouldCopyAssignAndMove) {
   AWS_UNREFERENCED_PARAM(assign);
 }
 
-class TestAuthSchemeResolver : public smithy::SigV4AuthSchemeResolver<>
+class TestAuthSchemeResolver : public smithy::GenericAuthSchemeResolver<>
 {
 public:
   virtual Aws::String GetTestId() const { return "BaseClass"; }

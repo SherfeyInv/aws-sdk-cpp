@@ -7,6 +7,7 @@
 This is a wrapper on top of legacy CPP client generator written in java from c2j models
 """
 import io
+import json
 import os
 import re
 import shutil
@@ -21,7 +22,14 @@ from codegen.model_utils import ServiceModel
 
 SMITHY_SUPPORTED_CLIENTS = [
     "dynamodb",
-    #"s3"
+    "bedrock",
+    "bedrock-runtime",
+    "bedrock-agent",
+    "bedrock-agent-runtime",
+    "bedrock-data-automation",
+    "bedrock-data-automation-runtime",
+    "sts"
+    #"s3",
 ]
 
 # Default configuration variables
@@ -48,9 +56,10 @@ class LegacyC2jCppGen(object):
     """
     GENERATOR_JAR = "target/aws-client-generator-1.0-SNAPSHOT-jar-with-dependencies.jar"
 
-    def __init__(self, args: dict, c2j_models: dict):
+    def __init__(self, args: dict, c2j_models: dict, skip_model_services: set = None):
         self.debug = args.get("debug", False)
         self.c2j_models = c2j_models
+        self.skip_model_services = skip_model_services or set()
 
         generator_location = args["path_to_generator"] or DEFAULT_GENERATOR_LOCATION
         generator_location = str(Path(generator_location).absolute())
@@ -76,6 +85,8 @@ class LegacyC2jCppGen(object):
 
         self.raw_generator_arguments = args["raw_generator_arguments"]
         self.output_location = args["output_location"]
+        self.disable_virtual_operations = args.get("disable_virtual_operations", False)
+        self.disable_smithy_generation = args.get("disable_smithy_generation", False)
 
     def generate(self, executor: ProcessPoolExecutor, max_workers: int, args: dict) -> int:
         """
@@ -140,7 +151,10 @@ class LegacyC2jCppGen(object):
         if len(failures):
             return -1
 
+        self._create_smithy_namespace_mapping(self.c2j_models)
+
         print(f"Code generation done, (re)generated {len(done)} packages.")  # Including defaults and partitions
+        
         return 0
 
     def _init_common_java_cli(self,
@@ -153,8 +167,10 @@ class LegacyC2jCppGen(object):
         # raw arguments to be passed from Py wrapper to the actual generator
         if not kwargs.get("language-binding"):
             kwargs["language-binding"] = "cpp"  # Always cpp by default in the current code gen
-        if not kwargs.get("enable-virtual-operations"):
+        if not self.disable_virtual_operations:
             kwargs["enable-virtual-operations"] = ""  # Historically always set by default in this project
+        if self.disable_smithy_generation:
+            kwargs["disable-smithy-generation"] = ""  # Disables smithy-based generation in c2j generator
 
         if tmp_dir:
             output_filename = f"{tmp_dir}/{model_files.c2j_model.replace('.normal.json', '.zip')}"
@@ -176,6 +192,11 @@ class LegacyC2jCppGen(object):
 
         if service_name in SMITHY_SUPPORTED_CLIENTS or model_files.use_smithy:
             run_command += ["--use-smithy-client"]
+
+        if service_name in self.skip_model_services:
+            run_command += ["--skip-model-generation"]
+            if self.debug:
+                print(f"  Skipping C2J model generation for {service_name} (using Smithy models)")
 
         for key, val in kwargs.items():
             run_command += [f"--{key}", val]
@@ -348,3 +369,20 @@ class LegacyC2jCppGen(object):
         output_zip_file = self.run_generator_once(f"core/{component_name}", run_command, output_filename)
 
         return self.extract_zip(output_zip_file, f"core/{component_name}", output_dir, None)
+
+    def _create_smithy_namespace_mapping(self, c2j_models: dict):
+        mapping = {}
+        for service, model_files in c2j_models.items():
+            full_model_file_path = f"{self.path_to_api_definitions}/{model_files.c2j_model}"
+            with open(full_model_file_path, 'r') as f:
+                model = json.load(f)
+            abbreviation = model.get("metadata", {}).get("serviceAbbreviation")
+            if abbreviation:
+                mapping[service] = abbreviation
+        # add customization for s3-crt
+        mapping["s3-crt"] = "S3Crt"
+        output_path = f"{self.path_to_api_definitions}/../smithy/mapping/smithy-namespace-mapping.json"
+        tmp_path = output_path + ".tmp"
+        with open(tmp_path, 'w') as f:
+            json.dump(mapping, f, indent=2)
+        os.replace(tmp_path, output_path)

@@ -18,7 +18,7 @@
 #set($cppType = "${metadata.classNamePrefix}Error")
 #set($isStream = false)
 #else
-#set($cppType = $CppViewHelper.computeCppType($member.value.shape))
+#set($cppType = $CppViewHelper.computeResultCppType($member.value.shape, $protocol))
 #set($isStream = false)
 #end
 #set($subShape = $member.value.shape)
@@ -52,7 +52,7 @@
 #elseif($member.value.shape.isMutuallyReferencedWith($shape) || $member.value.shape.getName() == $shape.getName())
 #set($getterBody = "{$nl      return *${memberVariableName};$nl    }")
 #set($setterWithCopy = ";")
-#set($setterWithMove = " {$nl      ${setHasBeenSet}$nl      ${memberVariableName} = Aws::MakeShared<$CppViewHelper.computeCppType($member.value.shape)>(" + '"' + "${typeInfo.className}" + '"' + ", std::forward<${memberKeyWithFirstLetterCapitalized}T>(value));$nl    }")
+#set($setterWithMove = " {$nl      ${setHasBeenSet}$nl      ${memberVariableName} = Aws::MakeShared<$CppViewHelper.computeResultCppType($member.value.shape, $protocol)>(" + '"' + "${typeInfo.className}" + '"' + ", std::forward<${memberKeyWithFirstLetterCapitalized}T>(value));$nl    }")
 #elseif($member.value.isChecksumMember())
 #set($getterBody = " { return ${memberVariableName}; }")
 #set($setterWithCopy = " { ${setHasBeenSet}${memberVariableName} = value; SetChecksumAlgorithm(ChecksumAlgorithm::${member.value.getChecksumEnumMember()}); }")
@@ -63,7 +63,7 @@
 #set($setterWithMove = " { ${setHasBeenSet}${memberVariableName} = std::forward<${memberKeyWithFirstLetterCapitalized}T>(value); }")
 #end
 #set($getterFunctionName = "Get${memberKeyWithFirstLetterCapitalized}")
-#if($getterFunctionName == ${member.value.shape.name})
+#if($getterFunctionName == ${member.value.shape.name} || $getterFunctionName == ${typeInfo.className})
 #set($getterFunctionName = "Get${getterFunctionName}")
 #end
 #if($shape.request)
@@ -109,8 +109,26 @@
 #end
 #if($member.value.shape.map)
 #set($mapMember = $member.value.shape)
-#set($keyType = $CppViewHelper.computeCppType($mapMember.mapKey.shape))
-#set($valueType = $CppViewHelper.computeCppType($mapMember.mapValue.shape))
+#set($keyType = $CppViewHelper.computeResultCppType($mapMember.mapKey.shape, $protocol))
+#set($valueType = $CppViewHelper.computeResultCppType($mapMember.mapValue.shape, $protocol))
+#if($mapMember.sparse)
+#set($optionalValueType = "Aws::Crt::Optional<${valueType}>")
+#if(!$mapMember.mapKey.shape.primitive && !$mapMember.mapKey.shape.enum && !$mapMember.mapValue.shape.primitive && !$mapMember.mapValue.shape.enum)
+#set($keyTemplType = "${memberKeyWithFirstLetterCapitalized}KeyT")
+#set($valueTemplType = "${memberKeyWithFirstLetterCapitalized}ValueT")
+    template<typename ${keyTemplType} = $keyType, typename ${valueTemplType} = $optionalValueType>
+    ${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${keyTemplType}&& key, ${valueTemplType}&& value) {
+      ${setHasBeenSet}${memberVariableName}.emplace(std::forward<${keyTemplType}>(key), std::forward<${valueTemplType}>(value)); return *this;
+    }
+#else
+    ${inline}${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${keyType} key, ${valueType} value) {
+      ${setHasBeenSet}${memberVariableName}.emplace(key, value); return *this;
+    }
+#end
+    ${inline}${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${keyType} key, ${optionalValueType} value) {
+      ${setHasBeenSet}${memberVariableName}.emplace(key, value); return *this;
+    }
+#else
 #if(!$mapMember.mapKey.shape.primitive && !$mapMember.mapKey.shape.enum && !$mapMember.mapValue.shape.primitive && !$mapMember.mapValue.shape.enum)
 #set($keyTemplType = "${memberKeyWithFirstLetterCapitalized}KeyT")
 #set($valueTemplType = "${memberKeyWithFirstLetterCapitalized}ValueT")
@@ -124,9 +142,21 @@
     }
 #end
 #end
+#end
 #if($member.value.shape.list)
 #set($listMember = $member.value.shape)
-#set($valueType = $CppViewHelper.computeCppType($listMember.listMember.shape))
+#set($valueType = $CppViewHelper.computeResultCppType($listMember.listMember.shape, $protocol))
+#if($listMember.sparse)
+#set($optionalValueType = "Aws::Crt::Optional<${valueType}>")
+#if(!$listMember.listMember.shape.primitive && !$listMember.listMember.shape.enum)
+#set($valueTemplType = "${memberKeyWithFirstLetterCapitalized}T")
+    template<typename ${valueTemplType} = $valueType>
+    ${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${valueTemplType}&& value) { ${setHasBeenSet}${memberVariableName}.emplace_back(std::forward<${valueTemplType}>(value)); return *this; }
+#else
+    ${inline}${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${valueType} value)$adderWithCopy
+#end
+    ${inline}${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${optionalValueType} value)$adderWithCopy
+#else
 #if(!$listMember.listMember.shape.primitive && !$listMember.listMember.shape.enum)
 #set($valueTemplType = "${memberKeyWithFirstLetterCapitalized}T")
     template<typename ${valueTemplType} = $valueType>
@@ -135,10 +165,14 @@
     ${inline}${classNameRef} Add${memberKeyWithFirstLetterCapitalized}(${valueType} value)$adderWithCopy
 #end
 #end
+#end
     ///@}
 #end##if(!($CppViewHelper.isStreamingPayloadMember($shape, $member.key) && $shape.request))
 #end##foreach($member in $shape.members.entrySet())
-#if($shape.members.size() > 0)##next contains private only
+#if ($shape.result)
+    inline Aws::Http::HttpResponseCode GetHttpResponseCode() const { return m_HttpResponseCode; }
+#end
+#if($shape.members.size() > 0 || $operation.result.shape.hasEventStreamMembers() || $shape.result)##next contains private only
   private:
 #foreach($member in $shape.members.entrySet())
 
@@ -153,5 +187,19 @@
     ${operation.name}Handler m_handler;
     Aws::Utils::Event::EventStreamDecoder m_decoder{Utils::Event::EventStreamDecoder(&m_handler)};
 
+#end
+#if ($shape.result)
+    Aws::Http::HttpResponseCode m_HttpResponseCode;
+#end
+#end##if($shape.members.size() > 0)
+#foreach($member in $shape.members.entrySet())
+#if(!($CppViewHelper.isStreamingPayloadMember($shape, $member.key) && $shape.request))
+#set($isStreamingMember = ($shape.payload && ($shape.payload == $entry.key && !$entry.value.shape.structure)))
+#set($isRequired = $useRequiredField && $member.value.required)
+#if(($isRequired || $member.value.idempotencyToken) && !$isStreamingMember && !$member.value.shape.isEventStream())
+    bool ${CppViewHelper.computeVariableHasBeenSetName($member.key)} = true;
+#else
+    bool ${CppViewHelper.computeVariableHasBeenSetName($member.key)} = false;
+#end
 #end
 #end##if($shape.members.size() > 0)

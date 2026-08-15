@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/cloudfront/CloudFrontEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CloudFront
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CloudFront {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CloudFrontClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CloudFrontDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CLOUDFRONT_API CloudFrontEndpointProvider : public CloudFrontDefaultEpProviderBase
-{
-public:
-    using CloudFrontResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CLOUDFRONT_API CloudFrontEndpointProvider : public CloudFrontDefaultEpProviderBase {
+ public:
+  using CloudFrontResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CloudFrontEndpointProvider()
-      : CloudFrontDefaultEpProviderBase(Aws::CloudFront::CloudFrontEndpointRules::GetRulesBlob(), Aws::CloudFront::CloudFrontEndpointRules::RulesBlobSize)
-    {}
+  CloudFrontEndpointProvider();
 
-    ~CloudFrontEndpointProvider()
-    {
-    }
+  ~CloudFrontEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CloudFront
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CloudFront
+}  // namespace Aws

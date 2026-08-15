@@ -8,12 +8,12 @@
 
 #include <aws/dax/DAXClient.h>
 #include <aws/dax/DAXEndpointProvider.h>
-#include <aws/dax/DAXEndpointRules.h>
 #include <aws/dax/DAXErrorMarshaller.h>
 #include <aws/dax/DAXErrors.h>
 #include <aws/dax/DAXRequest.h>
 #include <aws/dax/DAXServiceClientModel.h>
 #include <aws/dax/DAX_EXPORTS.h>
+#include <aws/dax/internal/DAXEndpointRules.h>
 #include <aws/dax/model/ChangeType.h>
 #include <aws/dax/model/Cluster.h>
 #include <aws/dax/model/ClusterEndpointEncryptionType.h>
@@ -50,6 +50,7 @@
 #include <aws/dax/model/IsModifiable.h>
 #include <aws/dax/model/ListTagsRequest.h>
 #include <aws/dax/model/ListTagsResult.h>
+#include <aws/dax/model/NetworkType.h>
 #include <aws/dax/model/Node.h>
 #include <aws/dax/model/NodeTypeSpecificValue.h>
 #include <aws/dax/model/NotificationConfiguration.h>

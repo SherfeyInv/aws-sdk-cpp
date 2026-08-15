@@ -8,12 +8,12 @@
 
 #include <aws/iot/IoTClient.h>
 #include <aws/iot/IoTEndpointProvider.h>
-#include <aws/iot/IoTEndpointRules.h>
 #include <aws/iot/IoTErrorMarshaller.h>
 #include <aws/iot/IoTErrors.h>
 #include <aws/iot/IoTRequest.h>
 #include <aws/iot/IoTServiceClientModel.h>
 #include <aws/iot/IoT_EXPORTS.h>
+#include <aws/iot/internal/IoTEndpointRules.h>
 #include <aws/iot/model/AbortAction.h>
 #include <aws/iot/model/AbortConfig.h>
 #include <aws/iot/model/AbortCriteria.h>
@@ -80,6 +80,8 @@
 #include <aws/iot/model/AwsJobPresignedUrlConfig.h>
 #include <aws/iot/model/AwsJobRateIncreaseCriteria.h>
 #include <aws/iot/model/AwsJobTimeoutConfig.h>
+#include <aws/iot/model/AwsJsonSubstitutionCommandPreprocessorConfig.h>
+#include <aws/iot/model/BatchConfig.h>
 #include <aws/iot/model/Behavior.h>
 #include <aws/iot/model/BehaviorCriteria.h>
 #include <aws/iot/model/BehaviorCriteriaType.h>
@@ -124,16 +126,25 @@
 #include <aws/iot/model/CommandExecutionSummary.h>
 #include <aws/iot/model/CommandNamespace.h>
 #include <aws/iot/model/CommandParameter.h>
+#include <aws/iot/model/CommandParameterType.h>
 #include <aws/iot/model/CommandParameterValue.h>
+#include <aws/iot/model/CommandParameterValueComparisonOperand.h>
+#include <aws/iot/model/CommandParameterValueComparisonOperator.h>
+#include <aws/iot/model/CommandParameterValueCondition.h>
+#include <aws/iot/model/CommandParameterValueNumberRange.h>
 #include <aws/iot/model/CommandPayload.h>
+#include <aws/iot/model/CommandPreprocessor.h>
 #include <aws/iot/model/CommandSummary.h>
 #include <aws/iot/model/ComparisonOperator.h>
 #include <aws/iot/model/ConfidenceLevel.h>
 #include <aws/iot/model/ConfigName.h>
 #include <aws/iot/model/Configuration.h>
+#include <aws/iot/model/ConfigurationDetails.h>
+#include <aws/iot/model/ConfigurationStatus.h>
 #include <aws/iot/model/ConfirmTopicRuleDestinationRequest.h>
 #include <aws/iot/model/ConfirmTopicRuleDestinationResult.h>
 #include <aws/iot/model/ConflictException.h>
+#include <aws/iot/model/ConnectivityFilter.h>
 #include <aws/iot/model/CreateAuditSuppressionRequest.h>
 #include <aws/iot/model/CreateAuditSuppressionResult.h>
 #include <aws/iot/model/CreateAuthorizerRequest.h>
@@ -296,6 +307,8 @@
 #include <aws/iot/model/DescribeDimensionResult.h>
 #include <aws/iot/model/DescribeDomainConfigurationRequest.h>
 #include <aws/iot/model/DescribeDomainConfigurationResult.h>
+#include <aws/iot/model/DescribeEncryptionConfigurationRequest.h>
+#include <aws/iot/model/DescribeEncryptionConfigurationResult.h>
 #include <aws/iot/model/DescribeEndpointRequest.h>
 #include <aws/iot/model/DescribeEndpointResult.h>
 #include <aws/iot/model/DescribeEventConfigurationsRequest.h>
@@ -366,6 +379,7 @@
 #include <aws/iot/model/ElasticsearchAction.h>
 #include <aws/iot/model/EnableIoTLoggingParams.h>
 #include <aws/iot/model/EnableTopicRuleRequest.h>
+#include <aws/iot/model/EncryptionType.h>
 #include <aws/iot/model/ErrorInfo.h>
 #include <aws/iot/model/EventType.h>
 #include <aws/iot/model/ExplicitDeny.h>
@@ -374,6 +388,7 @@
 #include <aws/iot/model/FieldType.h>
 #include <aws/iot/model/FileLocation.h>
 #include <aws/iot/model/FirehoseAction.h>
+#include <aws/iot/model/FleetIndexingApi.h>
 #include <aws/iot/model/FleetMetricNameAndArn.h>
 #include <aws/iot/model/FleetMetricUnit.h>
 #include <aws/iot/model/GeoLocationTarget.h>
@@ -584,6 +599,7 @@
 #include <aws/iot/model/ListViolationEventsResult.h>
 #include <aws/iot/model/LocationAction.h>
 #include <aws/iot/model/LocationTimestamp.h>
+#include <aws/iot/model/LogEventConfiguration.h>
 #include <aws/iot/model/LogLevel.h>
 #include <aws/iot/model/LogTarget.h>
 #include <aws/iot/model/LogTargetConfiguration.h>
@@ -614,6 +630,7 @@
 #include <aws/iot/model/OTAUpdateSummary.h>
 #include <aws/iot/model/OpenSearchAction.h>
 #include <aws/iot/model/OutgoingCertificate.h>
+#include <aws/iot/model/OutputFormat.h>
 #include <aws/iot/model/PackageSummary.h>
 #include <aws/iot/model/PackageVersionAction.h>
 #include <aws/iot/model/PackageVersionArtifact.h>
@@ -786,6 +803,8 @@
 #include <aws/iot/model/UpdateDomainConfigurationResult.h>
 #include <aws/iot/model/UpdateDynamicThingGroupRequest.h>
 #include <aws/iot/model/UpdateDynamicThingGroupResult.h>
+#include <aws/iot/model/UpdateEncryptionConfigurationRequest.h>
+#include <aws/iot/model/UpdateEncryptionConfigurationResult.h>
 #include <aws/iot/model/UpdateEventConfigurationsRequest.h>
 #include <aws/iot/model/UpdateEventConfigurationsResult.h>
 #include <aws/iot/model/UpdateFleetMetricRequest.h>

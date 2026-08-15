@@ -9,12 +9,12 @@
 #include <aws/dynamodb/DynamoDBClient.h>
 #include <aws/dynamodb/DynamoDBClientConfiguration.h>
 #include <aws/dynamodb/DynamoDBEndpointProvider.h>
-#include <aws/dynamodb/DynamoDBEndpointRules.h>
 #include <aws/dynamodb/DynamoDBErrorMarshaller.h>
 #include <aws/dynamodb/DynamoDBErrors.h>
 #include <aws/dynamodb/DynamoDBRequest.h>
 #include <aws/dynamodb/DynamoDBServiceClientModel.h>
 #include <aws/dynamodb/DynamoDB_EXPORTS.h>
+#include <aws/dynamodb/internal/DynamoDBEndpointRules.h>
 #include <aws/dynamodb/model/ApproximateCreationDateTimePrecision.h>
 #include <aws/dynamodb/model/ArchivalSummary.h>
 #include <aws/dynamodb/model/AttributeAction.h>
@@ -57,6 +57,7 @@
 #include <aws/dynamodb/model/ContinuousBackupsDescription.h>
 #include <aws/dynamodb/model/ContinuousBackupsStatus.h>
 #include <aws/dynamodb/model/ContributorInsightsAction.h>
+#include <aws/dynamodb/model/ContributorInsightsMode.h>
 #include <aws/dynamodb/model/ContributorInsightsStatus.h>
 #include <aws/dynamodb/model/ContributorInsightsSummary.h>
 #include <aws/dynamodb/model/CreateBackupRequest.h>
@@ -64,6 +65,7 @@
 #include <aws/dynamodb/model/CreateGlobalSecondaryIndexAction.h>
 #include <aws/dynamodb/model/CreateGlobalTableRequest.h>
 #include <aws/dynamodb/model/CreateGlobalTableResult.h>
+#include <aws/dynamodb/model/CreateGlobalTableWitnessGroupMemberAction.h>
 #include <aws/dynamodb/model/CreateReplicaAction.h>
 #include <aws/dynamodb/model/CreateReplicationGroupMemberAction.h>
 #include <aws/dynamodb/model/CreateTableRequest.h>
@@ -73,6 +75,7 @@
 #include <aws/dynamodb/model/DeleteBackupRequest.h>
 #include <aws/dynamodb/model/DeleteBackupResult.h>
 #include <aws/dynamodb/model/DeleteGlobalSecondaryIndexAction.h>
+#include <aws/dynamodb/model/DeleteGlobalTableWitnessGroupMemberAction.h>
 #include <aws/dynamodb/model/DeleteItemRequest.h>
 #include <aws/dynamodb/model/DeleteItemResult.h>
 #include <aws/dynamodb/model/DeleteReplicaAction.h>
@@ -143,7 +146,10 @@
 #include <aws/dynamodb/model/GlobalTable.h>
 #include <aws/dynamodb/model/GlobalTableDescription.h>
 #include <aws/dynamodb/model/GlobalTableGlobalSecondaryIndexSettingsUpdate.h>
+#include <aws/dynamodb/model/GlobalTableSettingsReplicationMode.h>
 #include <aws/dynamodb/model/GlobalTableStatus.h>
+#include <aws/dynamodb/model/GlobalTableWitnessDescription.h>
+#include <aws/dynamodb/model/GlobalTableWitnessGroupUpdate.h>
 #include <aws/dynamodb/model/ImportStatus.h>
 #include <aws/dynamodb/model/ImportSummary.h>
 #include <aws/dynamodb/model/ImportTableDescription.h>
@@ -188,6 +194,7 @@
 #include <aws/dynamodb/model/ProjectionType.h>
 #include <aws/dynamodb/model/ProvisionedThroughput.h>
 #include <aws/dynamodb/model/ProvisionedThroughputDescription.h>
+#include <aws/dynamodb/model/ProvisionedThroughputExceededException.h>
 #include <aws/dynamodb/model/ProvisionedThroughputOverride.h>
 #include <aws/dynamodb/model/Put.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
@@ -212,6 +219,7 @@
 #include <aws/dynamodb/model/ReplicaStatus.h>
 #include <aws/dynamodb/model/ReplicaUpdate.h>
 #include <aws/dynamodb/model/ReplicationGroupUpdate.h>
+#include <aws/dynamodb/model/RequestLimitExceeded.h>
 #include <aws/dynamodb/model/RestoreSummary.h>
 #include <aws/dynamodb/model/RestoreTableFromBackupRequest.h>
 #include <aws/dynamodb/model/RestoreTableFromBackupResult.h>
@@ -244,6 +252,8 @@
 #include <aws/dynamodb/model/TableWarmThroughputDescription.h>
 #include <aws/dynamodb/model/Tag.h>
 #include <aws/dynamodb/model/TagResourceRequest.h>
+#include <aws/dynamodb/model/ThrottlingException.h>
+#include <aws/dynamodb/model/ThrottlingReason.h>
 #include <aws/dynamodb/model/TimeToLiveDescription.h>
 #include <aws/dynamodb/model/TimeToLiveSpecification.h>
 #include <aws/dynamodb/model/TimeToLiveStatus.h>
@@ -278,6 +288,7 @@
 #include <aws/dynamodb/model/UpdateTimeToLiveRequest.h>
 #include <aws/dynamodb/model/UpdateTimeToLiveResult.h>
 #include <aws/dynamodb/model/WarmThroughput.h>
+#include <aws/dynamodb/model/WitnessStatus.h>
 #include <aws/dynamodb/model/WriteRequest.h>
 
 using DynamoDBIncludeTest = ::testing::Test;

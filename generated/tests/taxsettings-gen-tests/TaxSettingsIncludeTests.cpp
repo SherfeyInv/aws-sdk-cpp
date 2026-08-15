@@ -8,12 +8,12 @@
 
 #include <aws/taxsettings/TaxSettingsClient.h>
 #include <aws/taxsettings/TaxSettingsEndpointProvider.h>
-#include <aws/taxsettings/TaxSettingsEndpointRules.h>
 #include <aws/taxsettings/TaxSettingsErrorMarshaller.h>
 #include <aws/taxsettings/TaxSettingsErrors.h>
 #include <aws/taxsettings/TaxSettingsRequest.h>
 #include <aws/taxsettings/TaxSettingsServiceClientModel.h>
 #include <aws/taxsettings/TaxSettings_EXPORTS.h>
+#include <aws/taxsettings/internal/TaxSettingsEndpointRules.h>
 #include <aws/taxsettings/model/AccountDetails.h>
 #include <aws/taxsettings/model/AccountMetaData.h>
 #include <aws/taxsettings/model/AdditionalInfoRequest.h>
@@ -29,9 +29,13 @@
 #include <aws/taxsettings/model/BatchPutTaxRegistrationError.h>
 #include <aws/taxsettings/model/BatchPutTaxRegistrationRequest.h>
 #include <aws/taxsettings/model/BatchPutTaxRegistrationResult.h>
+#include <aws/taxsettings/model/BelgiumAdditionalInfo.h>
 #include <aws/taxsettings/model/BrazilAdditionalInfo.h>
 #include <aws/taxsettings/model/CanadaAdditionalInfo.h>
+#include <aws/taxsettings/model/ChileAdditionalInfo.h>
+#include <aws/taxsettings/model/ChileDocumentType.h>
 #include <aws/taxsettings/model/ConflictException.h>
+#include <aws/taxsettings/model/CustomerType.h>
 #include <aws/taxsettings/model/DeleteSupplementalTaxRegistrationRequest.h>
 #include <aws/taxsettings/model/DeleteSupplementalTaxRegistrationResult.h>
 #include <aws/taxsettings/model/DeleteTaxRegistrationRequest.h>
@@ -41,6 +45,7 @@
 #include <aws/taxsettings/model/EntityExemptionAccountStatus.h>
 #include <aws/taxsettings/model/EstoniaAdditionalInfo.h>
 #include <aws/taxsettings/model/ExemptionCertificate.h>
+#include <aws/taxsettings/model/FranceAdditionalInfo.h>
 #include <aws/taxsettings/model/GeorgiaAdditionalInfo.h>
 #include <aws/taxsettings/model/GetTaxExemptionTypesRequest.h>
 #include <aws/taxsettings/model/GetTaxExemptionTypesResult.h>
@@ -72,7 +77,9 @@
 #include <aws/taxsettings/model/MalaysiaAdditionalInfo.h>
 #include <aws/taxsettings/model/MalaysiaServiceTaxCode.h>
 #include <aws/taxsettings/model/PersonType.h>
+#include <aws/taxsettings/model/PhilippinesAdditionalInfo.h>
 #include <aws/taxsettings/model/PolandAdditionalInfo.h>
+#include <aws/taxsettings/model/PolandTaxRegistrationNumberType.h>
 #include <aws/taxsettings/model/PutSupplementalTaxRegistrationRequest.h>
 #include <aws/taxsettings/model/PutSupplementalTaxRegistrationResult.h>
 #include <aws/taxsettings/model/PutTaxExemptionRequest.h>

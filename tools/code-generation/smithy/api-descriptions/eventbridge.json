@@ -222,6 +222,336 @@
                 "smithy.api#xmlNamespace": {
                     "uri": "http://events.amazonaws.com/doc/2015-10-07"
                 },
+                "smithy.rules#endpointBdd": {
+                    "version": "1.1",
+                    "parameters": {
+                        "Region": {
+                            "builtIn": "AWS::Region",
+                            "required": false,
+                            "documentation": "The AWS region used to dispatch the request.",
+                            "type": "string"
+                        },
+                        "UseDualStack": {
+                            "builtIn": "AWS::UseDualStack",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
+                            "type": "boolean"
+                        },
+                        "UseFIPS": {
+                            "builtIn": "AWS::UseFIPS",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
+                            "type": "boolean"
+                        },
+                        "Endpoint": {
+                            "builtIn": "SDK::Endpoint",
+                            "required": false,
+                            "documentation": "Override the endpoint used to send this request",
+                            "type": "string"
+                        },
+                        "EndpointId": {
+                            "required": false,
+                            "documentation": "Operation parameter for EndpointId",
+                            "type": "string"
+                        }
+                    },
+                    "conditions": [
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Endpoint"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "EndpointId"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "aws.partition",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ],
+                            "assign": "PartitionResult"
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseFIPS"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseDualStack"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "stringEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "name"
+                                    ]
+                                },
+                                "aws-us-gov"
+                            ]
+                        },
+                        {
+                            "fn": "isValidHostLabel",
+                            "argv": [
+                                {
+                                    "ref": "EndpointId"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsFIPS"
+                                    ]
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsDualStack"
+                                    ]
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "stringEquals",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                },
+                                "us-gov-east-1"
+                            ]
+                        },
+                        {
+                            "fn": "stringEquals",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                },
+                                "us-gov-west-1"
+                            ]
+                        }
+                    ],
+                    "results": [
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://events.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": {
+                                    "ref": "Endpoint"
+                                },
+                                "properties": {
+                                    "authSchemes": [
+                                        {
+                                            "name": "sigv4a",
+                                            "signingName": "events",
+                                            "signingRegionSet": [
+                                                "*"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://{EndpointId}.endpoint.events.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {
+                                    "authSchemes": [
+                                        {
+                                            "name": "sigv4a",
+                                            "signingName": "events",
+                                            "signingRegionSet": [
+                                                "*"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "DualStack is enabled but this partition does not support DualStack",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://{EndpointId}.endpoint.events.{PartitionResult#dnsSuffix}",
+                                "properties": {
+                                    "authSchemes": [
+                                        {
+                                            "name": "sigv4a",
+                                            "signingName": "events",
+                                            "signingRegionSet": [
+                                                "*"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: FIPS is not supported with EventBridge multi-region endpoints.",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "EndpointId must be a valid host label.",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: FIPS and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Dualstack and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": {
+                                    "ref": "Endpoint"
+                                },
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://events-fips.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS and DualStack are enabled, but this partition does not support one or both",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://events.us-gov-east-1.amazonaws.com",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://events.us-gov-west-1.amazonaws.com",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://events-fips.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS is enabled but this partition does not support FIPS",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://events.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Missing Region",
+                            "type": "error"
+                        }
+                    ],
+                    "root": 2,
+                    "nodeCount": 31,
+                    "nodes": "/////wAAAAH/////AAAAAAAAAAQAAAADAAAAAQAAABsF9eESAAAAAQAAABkAAAAFAAAAAgAAABEAAAAGAAAAAwAAAAcF9eESAAAABAAAAAoAAAAIAAAABQAAAAkF9eERAAAACQX14QEF9eEEAAAABQAAAA4AAAALAAAACAAAAAwF9eEQAAAACgX14Q0AAAANAAAACwX14Q4F9eEPAAAABgX14QEAAAAPAAAACAAAABAF9eEMAAAACQX14QsF9eEMAAAAAwAAABIF9eESAAAABAAAABcAAAATAAAABQAAABUAAAAUAAAABwX14QUF9eEHAAAABwAAABYF9eEHAAAACQX14QMF9eEEAAAABQAAABgAAAAfAAAABgX14QEAAAAfAAAAAgAAABoAAAAbAAAAAwAAAB0AAAAbAAAABAX14QgAAAAcAAAABQX14QkF9eEKAAAABAAAAB8AAAAeAAAABwX14QIF9eEHAAAABwX14QYF9eEH"
+                },
                 "smithy.rules#endpointRuleSet": {
                     "version": "1.0",
                     "parameters": {
@@ -229,35 +559,108 @@
                             "builtIn": "AWS::Region",
                             "required": false,
                             "documentation": "The AWS region used to dispatch the request.",
-                            "type": "String"
+                            "type": "string"
                         },
                         "UseDualStack": {
                             "builtIn": "AWS::UseDualStack",
                             "required": true,
                             "default": false,
                             "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "UseFIPS": {
                             "builtIn": "AWS::UseFIPS",
                             "required": true,
                             "default": false,
                             "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "Endpoint": {
                             "builtIn": "SDK::Endpoint",
                             "required": false,
                             "documentation": "Override the endpoint used to send this request",
-                            "type": "String"
+                            "type": "string"
                         },
                         "EndpointId": {
                             "required": false,
                             "documentation": "Operation parameter for EndpointId",
-                            "type": "String"
+                            "type": "string"
                         }
                     },
                     "rules": [
+                        {
+                            "conditions": [
+                                {
+                                    "fn": "not",
+                                    "argv": [
+                                        {
+                                            "fn": "isSet",
+                                            "argv": [
+                                                {
+                                                    "ref": "Endpoint"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fn": "isSet",
+                                    "argv": [
+                                        {
+                                            "ref": "Region"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "fn": "aws.partition",
+                                    "argv": [
+                                        {
+                                            "ref": "Region"
+                                        }
+                                    ],
+                                    "assign": "PartitionResult"
+                                },
+                                {
+                                    "fn": "stringEquals",
+                                    "argv": [
+                                        {
+                                            "fn": "getAttr",
+                                            "argv": [
+                                                {
+                                                    "ref": "PartitionResult"
+                                                },
+                                                "name"
+                                            ]
+                                        },
+                                        "aws-us-gov"
+                                    ]
+                                },
+                                {
+                                    "fn": "booleanEquals",
+                                    "argv": [
+                                        {
+                                            "ref": "UseFIPS"
+                                        },
+                                        true
+                                    ]
+                                },
+                                {
+                                    "fn": "booleanEquals",
+                                    "argv": [
+                                        {
+                                            "ref": "UseDualStack"
+                                        },
+                                        true
+                                    ]
+                                }
+                            ],
+                            "endpoint": {
+                                "url": "https://events.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
                         {
                             "conditions": [
                                 {
@@ -1209,19 +1612,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-gov-east-1 with FIPS enabled and DualStack disabled",
-                            "expect": {
-                                "endpoint": {
-                                    "url": "https://events.us-gov-east-1.amazonaws.com"
-                                }
-                            },
-                            "params": {
-                                "Region": "us-gov-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": false
-                            }
-                        },
-                        {
                             "documentation": "For region us-gov-west-1 with FIPS disabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -1232,32 +1622,6 @@
                                 "Region": "us-gov-west-1",
                                 "UseFIPS": false,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-gov-west-1 with FIPS enabled and DualStack disabled",
-                            "expect": {
-                                "endpoint": {
-                                    "url": "https://events.us-gov-west-1.amazonaws.com"
-                                }
-                            },
-                            "params": {
-                                "Region": "us-gov-west-1",
-                                "UseFIPS": true,
-                                "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-gov-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "endpoint": {
-                                    "url": "https://events-fips.us-gov-east-1.api.aws"
-                                }
-                            },
-                            "params": {
-                                "Region": "us-gov-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -1300,17 +1664,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -1321,17 +1674,6 @@
                                 "Region": "us-iso-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-iso-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -1348,17 +1690,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -1369,17 +1700,6 @@
                                 "Region": "us-isob-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-isob-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -1582,15 +1902,107 @@
                             }
                         },
                         {
-                            "documentation": "Valid EndpointId with DualStack enabled and partition does not support DualStack",
+                            "documentation": "legacy fips endpoint @ us-gov-east-1",
                             "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
+                                "endpoint": {
+                                    "url": "https://events.us-gov-east-1.amazonaws.com"
+                                }
                             },
                             "params": {
-                                "EndpointId": "abc123.456def",
+                                "Region": "us-gov-east-1",
+                                "UseDualStack": false,
+                                "UseFIPS": true
+                            }
+                        },
+                        {
+                            "documentation": "legacy non-fips endpoint @ us-gov-east-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-east-1.amazonaws.com"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-east-1",
+                                "UseDualStack": false,
+                                "UseFIPS": false
+                            }
+                        },
+                        {
+                            "documentation": "Dualstack fips endpoint @ us-gov-east-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-east-1.api.aws"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-east-1",
                                 "UseDualStack": true,
-                                "UseFIPS": false,
-                                "Region": "us-isob-east-1"
+                                "UseFIPS": true
+                            }
+                        },
+                        {
+                            "documentation": "Dualstack non-fips endpoint @ us-gov-east-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-east-1.api.aws"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-east-1",
+                                "UseDualStack": true,
+                                "UseFIPS": false
+                            }
+                        },
+                        {
+                            "documentation": "legacy fips endpoint @ us-gov-west-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-west-1.amazonaws.com"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-west-1",
+                                "UseDualStack": false,
+                                "UseFIPS": true
+                            }
+                        },
+                        {
+                            "documentation": "legacy non-fips endpoint @ us-gov-west-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-west-1.amazonaws.com"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-west-1",
+                                "UseDualStack": false,
+                                "UseFIPS": false
+                            }
+                        },
+                        {
+                            "documentation": "Dualstack fips endpoint @ us-gov-west-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-west-1.api.aws"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-west-1",
+                                "UseDualStack": true,
+                                "UseFIPS": true
+                            }
+                        },
+                        {
+                            "documentation": "Dualstack non-fips endpoint @ us-gov-west-1",
+                            "expect": {
+                                "endpoint": {
+                                    "url": "https://events.us-gov-west-1.api.aws"
+                                }
+                            },
+                            "params": {
+                                "Region": "us-gov-west-1",
+                                "UseDualStack": true,
+                                "UseFIPS": false
                             }
                         }
                     ],
@@ -3469,6 +3881,12 @@
                 "DeadLetterConfig": {
                     "target": "com.amazonaws.eventbridge#DeadLetterConfig"
                 },
+                "LogConfig": {
+                    "target": "com.amazonaws.eventbridge#LogConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The logging configuration settings for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eb-event-bus-logs.html\">Configuring logs for event buses</a> in the <i>EventBridge User Guide</i>.</p>"
+                    }
+                },
                 "Tags": {
                     "target": "com.amazonaws.eventbridge#TagList",
                     "traits": {
@@ -3503,6 +3921,12 @@
                 },
                 "DeadLetterConfig": {
                     "target": "com.amazonaws.eventbridge#DeadLetterConfig"
+                },
+                "LogConfig": {
+                    "target": "com.amazonaws.eventbridge#LogConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The logging configuration settings for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eb-event-bus-logs.html\">Configuring logs for event buses</a> in the <i>EventBridge User Guide</i>.</p>"
+                    }
                 }
             },
             "traits": {
@@ -4658,6 +5082,12 @@
                     "target": "com.amazonaws.eventbridge#String",
                     "traits": {
                         "smithy.api#documentation": "<p>The policy that enables the external account to send events to your account.</p>"
+                    }
+                },
+                "LogConfig": {
+                    "target": "com.amazonaws.eventbridge#LogConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The logging configuration settings for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eb-event-bus-logs.html\">Configuring logs for event buses</a> in the <i>EventBridge User Guide</i>.</p>"
                     }
                 },
                 "CreationTime": {
@@ -5845,6 +6275,23 @@
                 "smithy.api#error": "client"
             }
         },
+        "com.amazonaws.eventbridge#IncludeDetail": {
+            "type": "enum",
+            "members": {
+                "NONE": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "NONE"
+                    }
+                },
+                "FULL": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "FULL"
+                    }
+                }
+            }
+        },
         "com.amazonaws.eventbridge#InputTransformer": {
             "type": "structure",
             "members": {
@@ -5962,6 +6409,35 @@
                     "target": "smithy.api#Unit",
                     "traits": {
                         "smithy.api#enumValue": "EXTERNAL"
+                    }
+                }
+            }
+        },
+        "com.amazonaws.eventbridge#Level": {
+            "type": "enum",
+            "members": {
+                "OFF": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "OFF"
+                    }
+                },
+                "ERROR": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "ERROR"
+                    }
+                },
+                "INFO": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "INFO"
+                    }
+                },
+                "TRACE": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "TRACE"
                     }
                 }
             }
@@ -6899,6 +7375,26 @@
             },
             "traits": {
                 "smithy.api#output": {}
+            }
+        },
+        "com.amazonaws.eventbridge#LogConfig": {
+            "type": "structure",
+            "members": {
+                "IncludeDetail": {
+                    "target": "com.amazonaws.eventbridge#IncludeDetail",
+                    "traits": {
+                        "smithy.api#documentation": "<p>Whether EventBridge include detailed event information in the records it generates. \n      Detailed data can be useful for troubleshooting and debugging. This information includes details of the event itself, as well as target details.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-bus-logs.html#eb-event-logs-data\">Including detail data in event bus logs</a> in the <i>EventBridge User Guide</i>.</p>"
+                    }
+                },
+                "Level": {
+                    "target": "com.amazonaws.eventbridge#Level",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The level of logging detail to include. This applies to all log destinations for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-event-bus-logs.html#eb-event-bus-logs-level\">Specifying event bus log level</a> in the <i>EventBridge User Guide</i>.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>The logging configuration settings for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eb-event-bus-logs.html\">Configuring logs for event buses</a> in the <i>EventBridge User Guide</i>.</p>"
             }
         },
         "com.amazonaws.eventbridge#Long": {
@@ -10023,6 +10519,12 @@
                 },
                 "DeadLetterConfig": {
                     "target": "com.amazonaws.eventbridge#DeadLetterConfig"
+                },
+                "LogConfig": {
+                    "target": "com.amazonaws.eventbridge#LogConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The logging configuration settings for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eb-event-bus-logs.html\">Configuring logs for event buses</a> in the <i>EventBridge User Guide</i>.</p>"
+                    }
                 }
             },
             "traits": {
@@ -10058,6 +10560,12 @@
                 },
                 "DeadLetterConfig": {
                     "target": "com.amazonaws.eventbridge#DeadLetterConfig"
+                },
+                "LogConfig": {
+                    "target": "com.amazonaws.eventbridge#LogConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The logging configuration settings for the event bus.</p>\n         <p>For more information, see <a href=\"https://docs.aws.amazon.com/eb-event-bus-logs.html\">Configuring logs for event buses</a> in the <i>EventBridge User Guide</i>.</p>"
+                    }
                 }
             },
             "traits": {

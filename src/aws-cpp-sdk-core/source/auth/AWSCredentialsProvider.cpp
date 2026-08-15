@@ -7,6 +7,7 @@
 #include <aws/core/auth/AWSCredentialsProvider.h>
 
 #include <aws/core/config/AWSProfileConfigLoader.h>
+#include <aws/core/client/ClientConfiguration.h>
 #include <aws/core/platform/Environment.h>
 #include <aws/core/platform/FileSystem.h>
 #include <aws/core/platform/OSVersionInfo.h>
@@ -17,6 +18,7 @@
 #include <aws/core/client/AWSError.h>
 #include <aws/core/utils/StringUtils.h>
 #include <aws/core/utils/xml/XmlSerializer.h>
+#include <aws/core/client/UserAgent.h>
 #include <cstdlib>
 #include <fstream>
 #include <string.h>
@@ -100,6 +102,10 @@ AWSCredentials EnvironmentAWSCredentialsProvider::GetAWSCredentials()
             credentials.SetAccountId(accountId);
             AWS_LOGSTREAM_DEBUG(ENVIRONMENT_LOG_TAG, "Found accountId");
         }
+    }
+
+    if (!credentials.IsEmpty()) {
+      credentials.AddUserAgentFeature(UserAgentFeature::CREDENTIALS_ENV_VARS);
     }
 
     return credentials;
@@ -195,7 +201,11 @@ AWSCredentials ProfileConfigFileAWSCredentialsProvider::GetAWSCredentials()
 
     if(credsFileProfileIter != profiles.end())
     {
-        return credsFileProfileIter->second.GetCredentials();
+        AWSCredentials credentials = credsFileProfileIter->second.GetCredentials();
+        if (!credentials.IsEmpty()) {
+            credentials.AddUserAgentFeature(UserAgentFeature::CREDENTIALS_PROFILE);
+        }
+        return credentials;
     }
 
     return AWSCredentials();
@@ -242,6 +252,12 @@ InstanceProfileCredentialsProvider::InstanceProfileCredentialsProvider(const std
     AWS_LOGSTREAM_INFO(INSTANCE_LOG_TAG, "Creating Instance with injected EC2MetadataClient and refresh rate " << refreshRateMs);
 }
 
+InstanceProfileCredentialsProvider::InstanceProfileCredentialsProvider(const Aws::Client::ClientConfiguration::CredentialProviderConfiguration& credentialConfig, long refreshRateMs) :
+    m_ec2MetadataConfigLoader(Aws::MakeShared<Aws::Config::EC2InstanceProfileConfigLoader>(INSTANCE_LOG_TAG, credentialConfig)),
+    m_loadFrequencyMs(refreshRateMs)
+{
+    AWS_LOGSTREAM_INFO(INSTANCE_LOG_TAG, "Creating Instance with IMDS timeout: " << credentialConfig.imdsConfig.metadataServiceTimeout << "s, attempts: " << credentialConfig.imdsConfig.metadataServiceNumAttempts);
+}
 
 AWSCredentials InstanceProfileCredentialsProvider::GetAWSCredentials()
 {
@@ -253,7 +269,11 @@ AWSCredentials InstanceProfileCredentialsProvider::GetAWSCredentials()
         auto profileIter = profiles.find(Aws::Config::INSTANCE_PROFILE_KEY);
 
         if (profileIter != profiles.end()) {
-            return profileIter->second.GetCredentials();
+            AWSCredentials credentials = profileIter->second.GetCredentials();
+            if (!credentials.IsEmpty()) {
+                credentials.AddUserAgentFeature(UserAgentFeature::CREDENTIALS_IMDS);
+            }
+            return credentials;
         }
     }
     else
@@ -345,6 +365,9 @@ void ProcessCredentialsProvider::Reload()
         return;
     }
     m_credentials = GetCredentialsFromProcess(command);
+    if (!m_credentials.IsEmpty()) {
+        m_credentials.AddUserAgentFeature(UserAgentFeature::CREDENTIALS_PROFILE_PROCESS);
+    }
 }
 
 void ProcessCredentialsProvider::RefreshIfExpired()

@@ -3,54 +3,62 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 
+#include <aws/crt/cbor/Cbor.h>
 #include <aws/mailmanager/model/ListMembersOfAddressListRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
 
 #include <utility>
 
 using namespace Aws::MailManager::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String ListMembersOfAddressListRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String ListMembersOfAddressListRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_addressListIdHasBeenSet)
-  {
-   payload.WithString("AddressListId", m_addressListId);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_addressListIdHasBeenSet) {
+    mapSize++;
+  }
+  if (m_filterHasBeenSet) {
+    mapSize++;
+  }
+  if (m_nextTokenHasBeenSet) {
+    mapSize++;
+  }
+  if (m_pageSizeHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_filterHasBeenSet)
-  {
-   payload.WithObject("Filter", m_filter.Jsonize());
+  encoder.WriteMapStart(mapSize);
 
+  if (m_addressListIdHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("AddressListId"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_addressListId.c_str()));
   }
 
-  if(m_nextTokenHasBeenSet)
-  {
-   payload.WithString("NextToken", m_nextToken);
-
+  if (m_filterHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("Filter"));
+    m_filter.CborEncode(encoder);
   }
 
-  if(m_pageSizeHasBeenSet)
-  {
-   payload.WithInteger("PageSize", m_pageSize);
-
+  if (m_nextTokenHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("NextToken"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_nextToken.c_str()));
   }
 
-  return payload.View().WriteReadable();
+  if (m_pageSizeHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("PageSize"));
+    (m_pageSize >= 0) ? encoder.WriteUInt(m_pageSize) : encoder.WriteNegInt(m_pageSize);
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection ListMembersOfAddressListRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection ListMembersOfAddressListRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "MailManagerSvc.ListMembersOfAddressList"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

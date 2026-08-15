@@ -8,16 +8,17 @@
 
 #include <aws/imagebuilder/ImagebuilderClient.h>
 #include <aws/imagebuilder/ImagebuilderEndpointProvider.h>
-#include <aws/imagebuilder/ImagebuilderEndpointRules.h>
 #include <aws/imagebuilder/ImagebuilderErrorMarshaller.h>
 #include <aws/imagebuilder/ImagebuilderErrors.h>
 #include <aws/imagebuilder/ImagebuilderRequest.h>
 #include <aws/imagebuilder/ImagebuilderServiceClientModel.h>
 #include <aws/imagebuilder/Imagebuilder_EXPORTS.h>
+#include <aws/imagebuilder/internal/ImagebuilderEndpointRules.h>
 #include <aws/imagebuilder/model/AccountAggregation.h>
 #include <aws/imagebuilder/model/AdditionalInstanceConfiguration.h>
 #include <aws/imagebuilder/model/Ami.h>
 #include <aws/imagebuilder/model/AmiDistributionConfiguration.h>
+#include <aws/imagebuilder/model/AutoDisablePolicy.h>
 #include <aws/imagebuilder/model/BuildType.h>
 #include <aws/imagebuilder/model/CancelImageCreationRequest.h>
 #include <aws/imagebuilder/model/CancelImageCreationResult.h>
@@ -79,6 +80,8 @@
 #include <aws/imagebuilder/model/DeleteWorkflowRequest.h>
 #include <aws/imagebuilder/model/DeleteWorkflowResult.h>
 #include <aws/imagebuilder/model/DiskImageFormat.h>
+#include <aws/imagebuilder/model/DistributeImageRequest.h>
+#include <aws/imagebuilder/model/DistributeImageResult.h>
 #include <aws/imagebuilder/model/Distribution.h>
 #include <aws/imagebuilder/model/DistributionConfiguration.h>
 #include <aws/imagebuilder/model/DistributionConfigurationSummary.h>
@@ -125,6 +128,7 @@
 #include <aws/imagebuilder/model/GetWorkflowStepExecutionResult.h>
 #include <aws/imagebuilder/model/Image.h>
 #include <aws/imagebuilder/model/ImageAggregation.h>
+#include <aws/imagebuilder/model/ImageLoggingConfiguration.h>
 #include <aws/imagebuilder/model/ImagePackage.h>
 #include <aws/imagebuilder/model/ImagePipeline.h>
 #include <aws/imagebuilder/model/ImagePipelineAggregation.h>
@@ -155,6 +159,7 @@
 #include <aws/imagebuilder/model/InstanceBlockDeviceMapping.h>
 #include <aws/imagebuilder/model/InstanceConfiguration.h>
 #include <aws/imagebuilder/model/InstanceMetadataOptions.h>
+#include <aws/imagebuilder/model/LatestVersionReferences.h>
 #include <aws/imagebuilder/model/LaunchPermissionConfiguration.h>
 #include <aws/imagebuilder/model/LaunchTemplateConfiguration.h>
 #include <aws/imagebuilder/model/LifecycleExecution.h>
@@ -234,6 +239,7 @@
 #include <aws/imagebuilder/model/Ownership.h>
 #include <aws/imagebuilder/model/PackageVulnerabilityDetails.h>
 #include <aws/imagebuilder/model/PipelineExecutionStartCondition.h>
+#include <aws/imagebuilder/model/PipelineLoggingConfiguration.h>
 #include <aws/imagebuilder/model/PipelineStatus.h>
 #include <aws/imagebuilder/model/Placement.h>
 #include <aws/imagebuilder/model/Platform.h>
@@ -247,12 +253,15 @@
 #include <aws/imagebuilder/model/PutImagePolicyResult.h>
 #include <aws/imagebuilder/model/PutImageRecipePolicyRequest.h>
 #include <aws/imagebuilder/model/PutImageRecipePolicyResult.h>
+#include <aws/imagebuilder/model/RegisterImageOptions.h>
 #include <aws/imagebuilder/model/Remediation.h>
 #include <aws/imagebuilder/model/RemediationRecommendation.h>
 #include <aws/imagebuilder/model/ResourceState.h>
 #include <aws/imagebuilder/model/ResourceStateUpdateExclusionRules.h>
 #include <aws/imagebuilder/model/ResourceStateUpdateIncludeResources.h>
 #include <aws/imagebuilder/model/ResourceStatus.h>
+#include <aws/imagebuilder/model/RetryImageRequest.h>
+#include <aws/imagebuilder/model/RetryImageResult.h>
 #include <aws/imagebuilder/model/S3ExportConfiguration.h>
 #include <aws/imagebuilder/model/S3Logs.h>
 #include <aws/imagebuilder/model/Schedule.h>
@@ -282,6 +291,7 @@
 #include <aws/imagebuilder/model/UpdateLifecyclePolicyResult.h>
 #include <aws/imagebuilder/model/VulnerabilityIdAggregation.h>
 #include <aws/imagebuilder/model/VulnerablePackage.h>
+#include <aws/imagebuilder/model/WindowsConfiguration.h>
 #include <aws/imagebuilder/model/Workflow.h>
 #include <aws/imagebuilder/model/WorkflowConfiguration.h>
 #include <aws/imagebuilder/model/WorkflowExecutionMetadata.h>

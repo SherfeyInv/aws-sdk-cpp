@@ -1559,8 +1559,7 @@
   "shapes":{
     "APICallRateForCustomerExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The customer has exceeded the allowed rate of API calls.</p>",
       "error":{
         "code":"APICallRateForCustomerExceeded",
@@ -1671,8 +1670,7 @@
     },
     "AuthorizationAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The specified Amazon EC2 security group is already authorized for the specified cache security group.</p>",
       "error":{
         "code":"AuthorizationAlreadyExists",
@@ -1683,8 +1681,7 @@
     },
     "AuthorizationNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The specified Amazon EC2 security group is not authorized for the specified cache security group.</p>",
       "error":{
         "code":"AuthorizationNotFound",
@@ -1926,8 +1923,7 @@
     },
     "CacheClusterAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>You already have a cluster with the given identifier.</p>",
       "error":{
         "code":"CacheClusterAlreadyExists",
@@ -1964,8 +1960,7 @@
     },
     "CacheClusterNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cluster ID does not refer to an existing cluster.</p>",
       "error":{
         "code":"CacheClusterNotFound",
@@ -2217,8 +2212,7 @@
     },
     "CacheParameterGroupAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>A cache parameter group with the requested name already exists.</p>",
       "error":{
         "code":"CacheParameterGroupAlreadyExists",
@@ -2264,8 +2258,7 @@
     },
     "CacheParameterGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache parameter group name does not refer to an existing cache parameter group.</p>",
       "error":{
         "code":"CacheParameterGroupNotFound",
@@ -2276,8 +2269,7 @@
     },
     "CacheParameterGroupQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the maximum number of cache security groups.</p>",
       "error":{
         "code":"CacheParameterGroupQuotaExceeded",
@@ -2347,8 +2339,7 @@
     },
     "CacheSecurityGroupAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>A cache security group with the specified name already exists.</p>",
       "error":{
         "code":"CacheSecurityGroupAlreadyExists",
@@ -2401,8 +2392,7 @@
     },
     "CacheSecurityGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache security group name does not refer to an existing cache security group.</p>",
       "error":{
         "code":"CacheSecurityGroupNotFound",
@@ -2413,8 +2403,7 @@
     },
     "CacheSecurityGroupQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the allowed number of cache security groups.</p>",
       "error":{
         "code":"QuotaExceeded.CacheSecurityGroup",
@@ -2463,8 +2452,7 @@
     },
     "CacheSubnetGroupAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache subnet group name is already in use by an existing cache subnet group.</p>",
       "error":{
         "code":"CacheSubnetGroupAlreadyExists",
@@ -2475,8 +2463,7 @@
     },
     "CacheSubnetGroupInUse":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache subnet group is currently in use.</p>",
       "error":{
         "code":"CacheSubnetGroupInUse",
@@ -2501,8 +2488,7 @@
     },
     "CacheSubnetGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache subnet group name does not refer to an existing cache subnet group.</p>",
       "error":{
         "code":"CacheSubnetGroupNotFoundFault",
@@ -2513,8 +2499,7 @@
     },
     "CacheSubnetGroupQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the allowed number of cache subnet groups.</p>",
       "error":{
         "code":"CacheSubnetGroupQuotaExceeded",
@@ -2532,8 +2517,7 @@
     },
     "CacheSubnetQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the allowed number of subnets in a cache subnet group.</p>",
       "error":{
         "code":"CacheSubnetQuotaExceededFault",
@@ -2587,8 +2571,7 @@
     },
     "ClusterQuotaForCustomerExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the allowed number of clusters per customer.</p>",
       "error":{
         "code":"ClusterQuotaForCustomerExceeded",
@@ -2656,7 +2639,7 @@
         },
         "TargetServerlessCacheSnapshotName":{
           "shape":"String",
-          "documentation":"<p>The identifier for the snapshot to be created. Available for Valkey, Redis OSS and Serverless Memcached only.</p>"
+          "documentation":"<p>The identifier for the snapshot to be created. Available for Valkey, Redis OSS and Serverless Memcached only. This value is stored as a lowercase string.</p>"
         },
         "KmsKeyId":{
           "shape":"String",
@@ -2690,7 +2673,7 @@
         },
         "TargetSnapshotName":{
           "shape":"String",
-          "documentation":"<p>A name for the snapshot copy. ElastiCache does not permit overwriting a snapshot, therefore this name must be unique within its context - ElastiCache or an Amazon S3 bucket if exporting.</p>"
+          "documentation":"<p>A name for the snapshot copy. ElastiCache does not permit overwriting a snapshot, therefore this name must be unique within its context - ElastiCache or an Amazon S3 bucket if exporting. This value is stored as a lowercase string.</p>"
         },
         "TargetBucket":{
           "shape":"String",
@@ -2856,7 +2839,7 @@
       "members":{
         "CacheParameterGroupName":{
           "shape":"String",
-          "documentation":"<p>A user-specified name for the cache parameter group.</p>"
+          "documentation":"<p>A user-specified name for the cache parameter group. This value is stored as a lowercase string.</p>"
         },
         "CacheParameterGroupFamily":{
           "shape":"String",
@@ -2957,7 +2940,7 @@
         },
         "PrimaryReplicationGroupId":{
           "shape":"String",
-          "documentation":"<p>The name of the primary cluster that accepts writes and will replicate updates to the secondary cluster.</p>"
+          "documentation":"<p>The name of the primary cluster that accepts writes and will replicate updates to the secondary cluster. This value is stored as a lowercase string.</p>"
         }
       }
     },
@@ -3092,7 +3075,7 @@
         },
         "AtRestEncryptionEnabled":{
           "shape":"BooleanOptional",
-          "documentation":"<p>A flag that enables encryption at rest when set to <code>true</code>.</p> <p>You cannot modify the value of <code>AtRestEncryptionEnabled</code> after the replication group is created. To enable encryption at rest on a replication group you must set <code>AtRestEncryptionEnabled</code> to <code>true</code> when you create the replication group. </p> <p> <b>Required:</b> Only available when creating a replication group in an Amazon VPC using Valkey 7.2 and later, Redis OSS version <code>3.2.6</code>, or Redis OSS <code>4.x</code> and later.</p> <p>Default: <code>true</code> when using Valkey, <code>false</code> when using Redis OSS</p>"
+          "documentation":"<p>A flag that enables encryption at-rest on the replication group when set to <code>true</code>. In some cases, encryption at-rest may be enabled even when this value is false. Use <code>StorageEncryptionType</code> to view the effective encryption state of a cluster.</p> <p>You cannot modify the value of <code>AtRestEncryptionEnabled</code> after the replication group is created.</p> <p>Default: <code>true</code> when using Valkey, <code>false</code> when using Redis OSS</p>"
         },
         "KmsKeyId":{
           "shape":"String",
@@ -3129,6 +3112,10 @@
         "ServerlessCacheSnapshotName":{
           "shape":"String",
           "documentation":"<p>The name of the snapshot used to create a replication group. Available for Valkey, Redis OSS only.</p>"
+        },
+        "Durability":{
+          "shape":"Durability",
+          "documentation":"<p>Specifies the durability setting for the replication group. When set to <code>default</code>, the service determines the effective durability based on the engine version, cluster mode, and other parameters. The resolved setting is reflected in the <code>EffectiveDurability</code> property of the replication group. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/durability.html\">Durability</a>.</p>"
         }
       },
       "documentation":"<p>Represents the input of a <code>CreateReplicationGroup</code> operation.</p>"
@@ -3192,11 +3179,15 @@
         },
         "SnapshotRetentionLimit":{
           "shape":"IntegerOptional",
-          "documentation":"<p>The number of snapshots that will be retained for the serverless cache that is being created. As new snapshots beyond this limit are added, the oldest snapshots will be deleted on a rolling basis. Available for Valkey, Redis OSS and Serverless Memcached only.</p>"
+          "documentation":"<p>The number of days for which ElastiCache retains automatic snapshots before deleting them. Available for Valkey, Redis OSS and Serverless Memcached only. The maximum value allowed is 35 days.</p>"
         },
         "DailySnapshotTime":{
           "shape":"String",
           "documentation":"<p>The daily time that snapshots will be created from the new serverless cache. By default this number is populated with 0, i.e. no snapshots will be created on an automatic daily basis. Available for Valkey, Redis OSS and Serverless Memcached only.</p>"
+        },
+        "NetworkType":{
+          "shape":"NetworkType",
+          "documentation":"<p>The IP protocol version used by the serverless cache. Must be either <code>ipv4</code> | <code>ipv6</code> | <code>dual_stack</code>. <code>ipv6</code> is only supported with IPv6-only subnets. If not specified, defaults to <code>ipv4</code>, unless all provided subnets are IPv6-only, in which case it defaults to <code>ipv6</code>. </p>"
         }
       }
     },
@@ -3218,7 +3209,7 @@
       "members":{
         "ServerlessCacheSnapshotName":{
           "shape":"String",
-          "documentation":"<p>The name for the snapshot being created. Must be unique for the customer account. Available for Valkey, Redis OSS and Serverless Memcached only. Must be between 1 and 255 characters.</p>"
+          "documentation":"<p>The name for the snapshot being created. Must be unique for the customer account. Available for Valkey, Redis OSS and Serverless Memcached only. Must be between 1 and 255 characters. This value is stored as a lowercase string.</p>"
         },
         "ServerlessCacheName":{
           "shape":"String",
@@ -3257,7 +3248,7 @@
         },
         "SnapshotName":{
           "shape":"String",
-          "documentation":"<p>A name for the snapshot being created.</p>"
+          "documentation":"<p>A name for the snapshot being created. This value is stored as a lowercase string.</p>"
         },
         "KmsKeyId":{
           "shape":"String",
@@ -3285,7 +3276,7 @@
       "members":{
         "UserGroupId":{
           "shape":"String",
-          "documentation":"<p>The ID of the user group.</p>"
+          "documentation":"<p>The ID of the user group. This value is stored as a lowercase string.</p>"
         },
         "Engine":{
           "shape":"EngineType",
@@ -3312,7 +3303,7 @@
       "members":{
         "UserId":{
           "shape":"UserId",
-          "documentation":"<p>The ID of the user.</p>"
+          "documentation":"<p>The ID of the user. This value is stored as a lowercase string.</p>"
         },
         "UserName":{
           "shape":"UserName",
@@ -3465,8 +3456,7 @@
     },
     "DefaultUserAssociatedToUserGroupFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The default user assigned to the user group.</p>",
       "error":{
         "code":"DefaultUserAssociatedToUserGroup",
@@ -3477,8 +3467,7 @@
     },
     "DefaultUserRequired":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>You must add default user to a user group.</p>",
       "error":{
         "code":"DefaultUserRequired",
@@ -4286,8 +4275,7 @@
     "Double":{"type":"double"},
     "DuplicateUserNameFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>A user with this username already exists.</p>",
       "error":{
         "code":"DuplicateUserName",
@@ -4295,6 +4283,15 @@
         "senderFault":true
       },
       "exception":true
+    },
+    "Durability":{
+      "type":"string",
+      "enum":[
+        "default",
+        "async",
+        "sync",
+        "disabled"
+      ]
     },
     "EC2SecurityGroup":{
       "type":"structure",
@@ -4334,6 +4331,14 @@
         }
       },
       "documentation":"<p>The configuration for the number of ElastiCache Processing Units (ECPU) the cache can consume per second.</p>"
+    },
+    "EffectiveDurability":{
+      "type":"string",
+      "enum":[
+        "async",
+        "sync",
+        "disabled"
+      ]
     },
     "Endpoint":{
       "type":"structure",
@@ -4597,8 +4602,7 @@
     },
     "GlobalReplicationGroupAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The Global datastore name already exists.</p>",
       "error":{
         "code":"GlobalReplicationGroupAlreadyExistsFault",
@@ -4664,8 +4668,7 @@
     },
     "GlobalReplicationGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The Global datastore does not exist</p>",
       "error":{
         "code":"GlobalReplicationGroupNotFoundFault",
@@ -4747,8 +4750,7 @@
     },
     "InsufficientCacheClusterCapacityFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache node type is not available in the specified Availability Zone. For more information, see <a href=\"http://docs.aws.amazon.com/AmazonElastiCache/latest/dg/ErrorMessages.html#ErrorMessages.INSUFFICIENT_CACHE_CLUSTER_CAPACITY\">InsufficientCacheClusterCapacity</a> in the ElastiCache User Guide.</p>",
       "error":{
         "code":"InsufficientCacheClusterCapacity",
@@ -4761,8 +4763,7 @@
     "IntegerOptional":{"type":"integer"},
     "InvalidARNFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested Amazon Resource Name (ARN) does not refer to an existing resource.</p>",
       "error":{
         "code":"InvalidARN",
@@ -4773,8 +4774,7 @@
     },
     "InvalidCacheClusterStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cluster is not in the <code>available</code> state.</p>",
       "error":{
         "code":"InvalidCacheClusterState",
@@ -4785,8 +4785,7 @@
     },
     "InvalidCacheParameterGroupStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The current state of the cache parameter group does not allow the requested operation to occur.</p>",
       "error":{
         "code":"InvalidCacheParameterGroupState",
@@ -4797,8 +4796,7 @@
     },
     "InvalidCacheSecurityGroupStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The current state of the cache security group does not allow deletion.</p>",
       "error":{
         "code":"InvalidCacheSecurityGroupState",
@@ -4809,8 +4807,7 @@
     },
     "InvalidCredentialsException":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>You must enter valid credentials.</p>",
       "error":{
         "code":"InvalidCredentialsException",
@@ -4821,8 +4818,7 @@
     },
     "InvalidGlobalReplicationGroupStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The Global datastore is not available or in primary-only state.</p>",
       "error":{
         "code":"InvalidGlobalReplicationGroupState",
@@ -4833,8 +4829,7 @@
     },
     "InvalidKMSKeyFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The KMS key supplied is not valid.</p>",
       "error":{
         "code":"InvalidKMSKeyFault",
@@ -4879,8 +4874,7 @@
     },
     "InvalidReplicationGroupStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested replication group is not in the <code>available</code> state.</p>",
       "error":{
         "code":"InvalidReplicationGroupState",
@@ -4891,8 +4885,7 @@
     },
     "InvalidServerlessCacheSnapshotStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The state of the serverless cache snapshot was not received. Available for Valkey, Redis OSS and Serverless Memcached only.</p>",
       "error":{
         "code":"InvalidServerlessCacheSnapshotStateFault",
@@ -4903,8 +4896,7 @@
     },
     "InvalidServerlessCacheStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The account for these credentials is not currently active.</p>",
       "error":{
         "code":"InvalidServerlessCacheStateFault",
@@ -4915,8 +4907,7 @@
     },
     "InvalidSnapshotStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The current state of the snapshot does not allow the requested operation to occur.</p>",
       "error":{
         "code":"InvalidSnapshotState",
@@ -4927,8 +4918,7 @@
     },
     "InvalidSubnet":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>An invalid subnet identifier was specified.</p>",
       "error":{
         "code":"InvalidSubnet",
@@ -4939,8 +4929,7 @@
     },
     "InvalidUserGroupStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The user group is not in an active state.</p>",
       "error":{
         "code":"InvalidUserGroupState",
@@ -4951,8 +4940,7 @@
     },
     "InvalidUserStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The user is not in active state.</p>",
       "error":{
         "code":"InvalidUserState",
@@ -4963,8 +4951,7 @@
     },
     "InvalidVPCNetworkStateFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The VPC network is in an invalid state.</p>",
       "error":{
         "code":"InvalidVPCNetworkStateFault",
@@ -5163,7 +5150,7 @@
         },
         "ApplyImmediately":{
           "shape":"Boolean",
-          "documentation":"<p>If <code>true</code>, this parameter causes the modifications in this request and any pending modifications to be applied, asynchronously and as soon as possible, regardless of the <code>PreferredMaintenanceWindow</code> setting for the cluster.</p> <p>If <code>false</code>, changes to the cluster are applied on the next maintenance reboot, or the next failure reboot, whichever occurs first.</p> <important> <p>If you perform a <code>ModifyCacheCluster</code> before a pending modification is applied, the pending modification is replaced by the newer modification.</p> </important> <p>Valid values: <code>true</code> | <code>false</code> </p> <p>Default: <code>false</code> </p>"
+          "documentation":"<p>If <code>true</code>, this parameter causes the modifications in this request and any pending modifications to be applied, asynchronously and as soon as possible, regardless of the <code>PreferredMaintenanceWindow</code> setting for the cluster.</p> <p>If <code>false</code>, changes to the cluster are applied on the next maintenance reboot, or the next failure reboot, whichever occurs first.</p> <important> <p>If you perform a <code>ModifyCacheCluster</code> before a pending modification is applied, the pending modification is replaced by the newer modification. However, a pending node-count increase on Memcached clusters cannot be superseded by a request to add fewer nodes. To change a pending node addition, first cancel it by setting <code>NumCacheNodes</code> equal to the current number of nodes in the cluster, then submit the new request. See the <code>NumCacheNodes</code> parameter for details on node scaling behavior.</p> </important> <p>Valid values: <code>true</code> | <code>false</code> </p> <p>Default: <code>false</code> </p>"
         },
         "Engine":{
           "shape":"String",
@@ -5282,7 +5269,7 @@
         },
         "Engine":{
           "shape":"String",
-          "documentation":"<p>Modifies the engine listed in a global replication group message. The options are redis, memcached or valkey.</p>"
+          "documentation":"<p>Modifies the engine listed in a global replication group message. The options are valkey, memcached or redis.</p>"
         },
         "EngineVersion":{
           "shape":"String",
@@ -5371,7 +5358,7 @@
         },
         "Engine":{
           "shape":"String",
-          "documentation":"<p>Modifies the engine listed in a replication group message. The options are redis, memcached or valkey.</p>"
+          "documentation":"<p>Modifies the engine listed in a replication group message. The options are valkey, memcached or redis.</p>"
         },
         "EngineVersion":{
           "shape":"String",
@@ -5432,6 +5419,10 @@
         "ClusterMode":{
           "shape":"ClusterMode",
           "documentation":"<p>Enabled or Disabled. To modify cluster mode from Disabled to Enabled, you must first set the cluster mode to Compatible. Compatible mode allows your Valkey or Redis OSS clients to connect using both cluster mode enabled and cluster mode disabled. After you migrate all Valkey or Redis OSS clients to use cluster mode enabled, you can then complete cluster mode configuration and set the cluster mode to Enabled.</p>"
+        },
+        "Durability":{
+          "shape":"Durability",
+          "documentation":"<p>Specifies the durability setting for the replication group. Use this parameter to change the durability mode of an existing replication group, for example from <code>sync</code> to <code>async</code> or vice versa. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/durability.html\">Durability</a>.</p>"
         }
       },
       "documentation":"<p>Represents the input of a <code>ModifyReplicationGroups</code> operation.</p>"
@@ -5521,7 +5512,7 @@
         },
         "Engine":{
           "shape":"String",
-          "documentation":"<p>Modifies the engine listed in a serverless cache request. The options are redis, memcached or valkey.</p>"
+          "documentation":"<p>Modifies the engine listed in a serverless cache request. The options are valkey, memcached or redis.</p>"
         },
         "MajorEngineVersion":{
           "shape":"String",
@@ -5615,8 +5606,7 @@
     },
     "NoOperationFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The operation was not performed because no changes were required.</p>",
       "error":{
         "code":"NoOperationFault",
@@ -5791,8 +5781,7 @@
     },
     "NodeGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The node group specified by the <code>NodeGroupId</code> parameter could not be found. Please verify that the node group exists and that you spelled the <code>NodeGroupId</code> value correctly.</p>",
       "error":{
         "code":"NodeGroupNotFoundFault",
@@ -5824,8 +5813,7 @@
     },
     "NodeGroupsPerReplicationGroupQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the maximum allowed number of node groups (shards) in a single replication group. The default maximum is 90</p>",
       "error":{
         "code":"NodeGroupsPerReplicationGroupQuotaExceeded",
@@ -5850,8 +5838,7 @@
     },
     "NodeQuotaForClusterExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the allowed number of cache nodes in a single cluster.</p>",
       "error":{
         "code":"NodeQuotaForClusterExceeded",
@@ -5862,8 +5849,7 @@
     },
     "NodeQuotaForCustomerExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the allowed number of cache nodes per customer.</p>",
       "error":{
         "code":"NodeQuotaForCustomerExceeded",
@@ -6392,7 +6378,7 @@
         },
         "AtRestEncryptionEnabled":{
           "shape":"BooleanOptional",
-          "documentation":"<p>A flag that enables encryption at-rest when set to <code>true</code>.</p> <p>You cannot modify the value of <code>AtRestEncryptionEnabled</code> after the cluster is created. To enable encryption at-rest on a cluster you must set <code>AtRestEncryptionEnabled</code> to <code>true</code> when you create a cluster.</p> <p> <b>Required:</b> Only available when creating a replication group in an Amazon VPC using Redis OSS version <code>3.2.6</code>, <code>4.x</code> or later.</p> <p>Default: <code>false</code> </p>"
+          "documentation":"<p>A flag that enables encryption at-rest on the cluster when set to <code>true</code>. In some cases, encryption at-rest may be enabled even when this value is false. Use <code>StorageEncryptionType</code> to view the effective encryption state of a cluster.</p> <p>You cannot modify the value of <code>AtRestEncryptionEnabled</code> after the cluster is created.</p> <p>Default: <code>true</code> when using Valkey, <code>false</code> when using Redis OSS</p>"
         },
         "MemberClustersOutpostArns":{
           "shape":"ReplicationGroupOutpostArnList",
@@ -6401,6 +6387,10 @@
         "KmsKeyId":{
           "shape":"String",
           "documentation":"<p>The ID of the KMS key used to encrypt the disk in the cluster.</p>"
+        },
+        "StorageEncryptionType":{
+          "shape":"StorageEncryptionType",
+          "documentation":"<p>Indicates the type of encryption for data stored at rest in the replication group. The value is <code>none</code> if at-rest encryption is not enabled, <code>sse-elasticache</code> if an ElastiCache service-managed key is used, or <code>sse-kms</code> if a customer-managed KMS key is used.</p>"
         },
         "ARN":{
           "shape":"String",
@@ -6444,7 +6434,15 @@
         },
         "Engine":{
           "shape":"String",
-          "documentation":"<p>The engine used in a replication group. The options are redis, memcached or valkey.</p>"
+          "documentation":"<p>The engine used in a replication group. The options are valkey, memcached or redis.</p>"
+        },
+        "Durability":{
+          "shape":"Durability",
+          "documentation":"<p>The durability setting of the replication group. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/durability.html\">Durability</a>.</p>"
+        },
+        "EffectiveDurability":{
+          "shape":"EffectiveDurability",
+          "documentation":"<p>The effective durability of the replication group. When <code>Durability</code> is set to <code>default</code>, the service resolves the actual durability based on the engine version, cluster mode, and other parameters. This field reflects the resolved value. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/Durability.Configuring.html\">Configuring Durability</a>.</p>"
         }
       },
       "documentation":"<p>Contains all of the attributes of a specific Valkey or Redis OSS replication group.</p>",
@@ -6452,8 +6450,7 @@
     },
     "ReplicationGroupAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The specified replication group already exists.</p>",
       "error":{
         "code":"ReplicationGroupAlreadyExists",
@@ -6464,8 +6461,7 @@
     },
     "ReplicationGroupAlreadyUnderMigrationFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The targeted replication group is not available. </p>",
       "error":{
         "code":"ReplicationGroupAlreadyUnderMigrationFault",
@@ -6502,8 +6498,7 @@
     },
     "ReplicationGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The specified replication group does not exist.</p>",
       "error":{
         "code":"ReplicationGroupNotFoundFault",
@@ -6514,8 +6509,7 @@
     },
     "ReplicationGroupNotUnderMigrationFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The designated replication group is not available for data migration.</p>",
       "error":{
         "code":"ReplicationGroupNotUnderMigrationFault",
@@ -6634,8 +6628,7 @@
     },
     "ReservedCacheNodeAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>You already have a reservation with the given identifier.</p>",
       "error":{
         "code":"ReservedCacheNodeAlreadyExists",
@@ -6667,8 +6660,7 @@
     },
     "ReservedCacheNodeNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested reserved cache node was not found.</p>",
       "error":{
         "code":"ReservedCacheNodeNotFound",
@@ -6679,8 +6671,7 @@
     },
     "ReservedCacheNodeQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the user's cache node quota.</p>",
       "error":{
         "code":"ReservedCacheNodeQuotaExceeded",
@@ -6751,8 +6742,7 @@
     },
     "ReservedCacheNodesOfferingNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested cache node offering does not exist.</p>",
       "error":{
         "code":"ReservedCacheNodesOfferingNotFound",
@@ -6918,6 +6908,10 @@
           "shape":"String",
           "documentation":"<p>The ID of the Amazon Web Services Key Management Service (KMS) key that is used to encrypt data at rest in the serverless cache.</p>"
         },
+        "StorageEncryptionType":{
+          "shape":"StorageEncryptionType",
+          "documentation":"<p>Indicates the type of encryption for data stored at rest in the serverless cache. Serverless caches are always encrypted at rest. The value is <code>sse-elasticache</code> if an ElastiCache service-managed key is used, or <code>sse-kms</code> if a customer-managed KMS key is used.</p>"
+        },
         "SecurityGroupIds":{
           "shape":"SecurityGroupIdsList",
           "documentation":"<p>The IDs of the EC2 security groups associated with the serverless cache.</p>"
@@ -6938,19 +6932,22 @@
         },
         "SnapshotRetentionLimit":{
           "shape":"IntegerOptional",
-          "documentation":"<p>The current setting for the number of serverless cache snapshots the system will retain. Available for Valkey, Redis OSS and Serverless Memcached only.</p>"
+          "documentation":"<p>The number of days for which ElastiCache retains automatic snapshots before deleting them. Available for Valkey, Redis OSS and Serverless Memcached only. The maximum value allowed is 35 days.</p>"
         },
         "DailySnapshotTime":{
           "shape":"String",
           "documentation":"<p>The daily time that a cache snapshot will be created. Default is NULL, i.e. snapshots will not be created at a specific time on a daily basis. Available for Valkey, Redis OSS and Serverless Memcached only.</p>"
+        },
+        "NetworkType":{
+          "shape":"NetworkType",
+          "documentation":"<p>The type of IP address protocol used by the serverless cache. Must be either <code>ipv4</code> | <code>ipv6</code> | <code>dual_stack</code>. <code>ipv6</code> is only supported with IPv6-only subnets. If not specified, defaults to <code>ipv4</code>, unless all provided subnets are IPv6-only, in which case it defaults to <code>ipv6</code>.</p>"
         }
       },
       "documentation":"<p>The resource representing a serverless cache.</p>"
     },
     "ServerlessCacheAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>A serverless cache with this name already exists.</p>",
       "error":{
         "code":"ServerlessCacheAlreadyExistsFault",
@@ -6983,8 +6980,7 @@
     },
     "ServerlessCacheNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The serverless cache was not found or does not exist.</p>",
       "error":{
         "code":"ServerlessCacheNotFoundFault",
@@ -6995,8 +6991,7 @@
     },
     "ServerlessCacheQuotaForCustomerExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The number of serverless caches exceeds the customer quota.</p>",
       "error":{
         "code":"ServerlessCacheQuotaForCustomerExceededFault",
@@ -7049,8 +7044,7 @@
     },
     "ServerlessCacheSnapshotAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>A serverless cache snapshot with this name already exists. Available for Valkey, Redis OSS and Serverless Memcached only.</p>",
       "error":{
         "code":"ServerlessCacheSnapshotAlreadyExistsFault",
@@ -7068,8 +7062,7 @@
     },
     "ServerlessCacheSnapshotNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>This serverless cache snapshot could not be found or does not exist. Available for Valkey, Redis OSS and Serverless Memcached only.</p>",
       "error":{
         "code":"ServerlessCacheSnapshotNotFoundFault",
@@ -7080,8 +7073,7 @@
     },
     "ServerlessCacheSnapshotQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The number of serverless cache snapshots exceeds the customer snapshot quota. Available for Valkey, Redis OSS and Serverless Memcached only.</p>",
       "error":{
         "code":"ServerlessCacheSnapshotQuotaExceededFault",
@@ -7092,8 +7084,7 @@
     },
     "ServiceLinkedRoleNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The specified service linked role (SLR) was not found.</p>",
       "error":{
         "code":"ServiceLinkedRoleNotFoundFault",
@@ -7165,8 +7156,7 @@
     },
     "ServiceUpdateNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The service update doesn't exist</p>",
       "error":{
         "code":"ServiceUpdateNotFoundFault",
@@ -7346,6 +7336,10 @@
         "DataTiering":{
           "shape":"DataTieringStatus",
           "documentation":"<p>Enables data tiering. Data tiering is only supported for replication groups using the r6gd node type. This parameter must be set to true when using r6gd nodes. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/data-tiering.html\">Data tiering</a>.</p>"
+        },
+        "Durability":{
+          "shape":"Durability",
+          "documentation":"<p>The durability setting of the cluster when the snapshot was taken. When restoring from this snapshot, the cluster uses this durability setting unless overridden in the restore request. For more information, see <a href=\"https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/durability.html\">Durability</a>.</p>"
         }
       },
       "documentation":"<p>Represents a copy of an entire Valkey or Redis OSS cluster as of the time when the snapshot was taken.</p>",
@@ -7353,8 +7347,7 @@
     },
     "SnapshotAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>You already have a snapshot with the given name.</p>",
       "error":{
         "code":"SnapshotAlreadyExistsFault",
@@ -7372,8 +7365,7 @@
     },
     "SnapshotFeatureNotSupportedFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>You attempted one of the following operations:</p> <ul> <li> <p>Creating a snapshot of a Valkey or Redis OSS cluster running on a <code>cache.t1.micro</code> cache node.</p> </li> <li> <p>Creating a snapshot of a cluster that is running Memcached rather than Valkey or Redis OSS.</p> </li> </ul> <p>Neither of these are supported by ElastiCache.</p>",
       "error":{
         "code":"SnapshotFeatureNotSupportedFault",
@@ -7391,8 +7383,7 @@
     },
     "SnapshotNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested snapshot name does not refer to an existing snapshot.</p>",
       "error":{
         "code":"SnapshotNotFoundFault",
@@ -7403,8 +7394,7 @@
     },
     "SnapshotQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would exceed the maximum number of snapshots.</p>",
       "error":{
         "code":"SnapshotQuotaExceededFault",
@@ -7450,6 +7440,14 @@
         "ReplicationGroup":{"shape":"ReplicationGroup"}
       }
     },
+    "StorageEncryptionType":{
+      "type":"string",
+      "enum":[
+        "none",
+        "sse-elasticache",
+        "sse-kms"
+      ]
+    },
     "String":{"type":"string"},
     "Subnet":{
       "type":"structure",
@@ -7489,8 +7487,7 @@
     },
     "SubnetInUse":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested subnet is being used by another cache subnet group.</p>",
       "error":{
         "code":"SubnetInUse",
@@ -7508,8 +7505,7 @@
     },
     "SubnetNotAllowedFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>At least one subnet ID does not match the other subnet IDs. This mismatch typically occurs when a user sets one subnet ID to a regional Availability Zone and a different one to an outpost. Or when a user sets the subnet ID to an Outpost when not subscribed on this service.</p>",
       "error":{
         "code":"SubnetNotAllowedFault",
@@ -7562,8 +7558,7 @@
     },
     "TagNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The requested tag was not found on this resource.</p>",
       "error":{
         "code":"TagNotFound",
@@ -7574,8 +7569,7 @@
     },
     "TagQuotaPerResourceExceeded":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The request cannot be processed because it would cause the resource to have more than the allowed number of tags. The maximum number of tags permitted on a resource is 50.</p>",
       "error":{
         "code":"TagQuotaPerResourceExceeded",
@@ -7603,8 +7597,7 @@
     },
     "TestFailoverNotAvailableFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The <code>TestFailover</code> action is not available.</p>",
       "error":{
         "code":"TestFailoverNotAvailableFault",
@@ -7873,8 +7866,7 @@
     },
     "UserAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>A user with this ID already exists.</p>",
       "error":{
         "code":"UserAlreadyExists",
@@ -7926,8 +7918,7 @@
     },
     "UserGroupAlreadyExistsFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The user group with this ID already exists.</p>",
       "error":{
         "code":"UserGroupAlreadyExists",
@@ -7956,8 +7947,7 @@
     },
     "UserGroupNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The user group was not found or does not exist</p>",
       "error":{
         "code":"UserGroupNotFound",
@@ -7982,8 +7972,7 @@
     },
     "UserGroupQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The number of users exceeds the user group limit.</p>",
       "error":{
         "code":"UserGroupQuotaExceeded",
@@ -8030,8 +8019,7 @@
     },
     "UserNotFoundFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The user does not exist or could not be found.</p>",
       "error":{
         "code":"UserNotFound",
@@ -8042,8 +8030,7 @@
     },
     "UserQuotaExceededFault":{
       "type":"structure",
-      "members":{
-      },
+      "members":{},
       "documentation":"<p>The quota of users has been exceeded.</p>",
       "error":{
         "code":"UserQuotaExceeded",

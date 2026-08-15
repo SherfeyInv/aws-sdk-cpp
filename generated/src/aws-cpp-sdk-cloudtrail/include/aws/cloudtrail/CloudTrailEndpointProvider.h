@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/cloudtrail/CloudTrailEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CloudTrail
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CloudTrail {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CloudTrailClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CloudTrailDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CLOUDTRAIL_API CloudTrailEndpointProvider : public CloudTrailDefaultEpProviderBase
-{
-public:
-    using CloudTrailResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CLOUDTRAIL_API CloudTrailEndpointProvider : public CloudTrailDefaultEpProviderBase {
+ public:
+  using CloudTrailResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CloudTrailEndpointProvider()
-      : CloudTrailDefaultEpProviderBase(Aws::CloudTrail::CloudTrailEndpointRules::GetRulesBlob(), Aws::CloudTrail::CloudTrailEndpointRules::RulesBlobSize)
-    {}
+  CloudTrailEndpointProvider();
 
-    ~CloudTrailEndpointProvider()
-    {
-    }
+  ~CloudTrailEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CloudTrail
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CloudTrail
+}  // namespace Aws

@@ -14,7 +14,6 @@
 #include <aws/core/utils/crypto/Hash.h>
 #include <aws/core/utils/logging/LogMacros.h>
 #include <aws/core/utils/ratelimiter/RateLimiterInterface.h>
-#include <aws/core/utils/stream/AwsChunkedStream.h>
 #include <aws/core/utils/stream/ConcurrentStreamBuf.h>
 
 #include <algorithm>
@@ -155,21 +154,16 @@ static const char* CURL_HTTP_CLIENT_TAG = "CurlHttpClient";
 struct CurlReadCallbackContext
 {
   CurlReadCallbackContext(const CurlHttpClient* client, CURL* curlHandle, HttpRequest* request,
-                          Aws::Utils::RateLimits::RateLimiterInterface* limiter,
-                          std::shared_ptr<AwsChunkedStream<>> chunkedStream = nullptr)
+                          Aws::Utils::RateLimits::RateLimiterInterface* limiter)
       : m_client(client),
         m_curlHandle(curlHandle),
         m_rateLimiter(limiter),
-        m_request(request),
-        m_chunkEnd(false),
-        m_chunkedStream{std::move(chunkedStream)} {}
+        m_request(request) {}
 
   const CurlHttpClient* m_client;
   CURL* m_curlHandle;
   Aws::Utils::RateLimits::RateLimiterInterface* m_rateLimiter;
   HttpRequest* m_request;
-  bool m_chunkEnd;
-  std::shared_ptr<Stream::AwsChunkedStream<>> m_chunkedStream;
 };
 
 static int64_t GetContentLengthFromHeader(CURL* connectionHandle,
@@ -200,11 +194,6 @@ static size_t WriteData(char* ptr, size_t size, size_t nmemb, void* userdata)
         }
 
         HttpResponse* response = context->m_response;
-        auto& headersHandler = context->m_request->GetHeadersReceivedEventHandler();
-        if (context->m_numBytesResponseReceived == 0 && headersHandler)
-        {
-            headersHandler(context->m_request, context->m_response);
-        }
 
         size_t sizeToWrite = size * nmemb;
         if (context->m_rateLimiter)
@@ -290,6 +279,11 @@ static size_t WriteHeader(char* ptr, size_t size, size_t nmemb, void* userdata)
             curl_easy_getinfo(context->m_curlHandle, CURLINFO_RESPONSE_CODE, &responseCode);
             response->SetResponseCode(static_cast<HttpResponseCode>(responseCode));
             AWS_LOGSTREAM_DEBUG(CURL_HTTP_CLIENT_TAG, "Returned http response code " << responseCode);
+            auto& headersHandler = context->m_request->GetHeadersReceivedEventHandler();
+            if (headersHandler)
+            {
+                headersHandler(context->m_request, context->m_response);
+            }
         }
 
         return size * nmemb;
@@ -315,8 +309,6 @@ static size_t ReadBody(char* ptr, size_t size, size_t nmemb, void* userdata, boo
     const std::shared_ptr<Aws::IOStream>& ioStream = request->GetContentBody();
 
     size_t amountToRead = size * nmemb;
-    bool isAwsChunked = request->HasHeader(Aws::Http::CONTENT_ENCODING_HEADER) &&
-                        request->GetHeaderValue(Aws::Http::CONTENT_ENCODING_HEADER).find(Aws::Http::AWS_CHUNKED_VALUE) != Aws::String::npos;
 
     if (ioStream != nullptr && amountToRead > 0)
     {
@@ -334,8 +326,6 @@ static size_t ReadBody(char* ptr, size_t size, size_t nmemb, void* userdata, boo
             return 0;
           }
           amountRead = (size_t)ioStream->readsome(ptr, amountToRead);
-        } else if (isAwsChunked && context->m_chunkedStream != nullptr) {
-          amountRead = context->m_chunkedStream->BufferedRead(ptr, amountToRead);
         } else {
           ioStream->read(ptr, amountToRead);
           amountRead = static_cast<size_t>(ioStream->gcount());
@@ -380,13 +370,14 @@ static size_t SeekBody(void* userdata, curl_off_t offset, int origin)
         return CURL_SEEKFUNC_FAIL;
     }
 
-    // fail seek for aws-chunk encoded body as the length and offset is unknown
+    // Fail seek for aws-chunk encoded body as the length and offset is unknown
     if (context->m_request &&
         context->m_request->HasHeader(Aws::Http::CONTENT_ENCODING_HEADER) &&
         context->m_request->GetHeaderValue(Aws::Http::CONTENT_ENCODING_HEADER).find(Aws::Http::AWS_CHUNKED_VALUE) != Aws::String::npos)
     {
         return CURL_SEEKFUNC_FAIL;
     }
+
 
     HttpRequest* request = context->m_request;
     const std::shared_ptr<Aws::IOStream>& ioStream = request->GetContentBody();
@@ -617,9 +608,8 @@ CurlHttpClient::CurlHttpClient(const ClientConfiguration& clientConfig) :
     m_proxySSLCertPath(clientConfig.proxySSLCertPath), m_proxySSLCertType(clientConfig.proxySSLCertType),
     m_proxySSLKeyPath(clientConfig.proxySSLKeyPath), m_proxySSLKeyType(clientConfig.proxySSLKeyType),
     m_proxyKeyPasswd(clientConfig.proxySSLKeyPassword),
-    m_proxyPort(clientConfig.proxyPort), m_verifySSL(clientConfig.verifySSL), m_caPath(clientConfig.caPath),
+    m_proxyPort(clientConfig.proxyPort), m_verifySSL(clientConfig.verifySSL), m_revokeBestEffort(clientConfig.curlOptions.revokeBestEffort), m_caPath(clientConfig.caPath),
     m_caFile(clientConfig.caFile), m_proxyCaPath(clientConfig.proxyCaPath), m_proxyCaFile(clientConfig.proxyCaFile),
-    m_disableExpectHeader(clientConfig.disableExpectHeader),
     m_enableHttpClientTrace(clientConfig.enableHttpClientTrace || FORCE_ENABLE_CURL_LOGGING),
     m_perfMode(clientConfig.httpLibPerfMode),
     m_telemetryProvider(clientConfig.telemetryProvider)
@@ -694,8 +684,7 @@ std::shared_ptr<HttpResponse> CurlHttpClient::MakeRequest(const std::shared_ptr<
         headers = curl_slist_append(headers, "content-type:");
     }
 
-    // Discard Expect header so as to avoid using multiple payloads to send a http request (header + body)
-    if (m_disableExpectHeader)
+    if (!request->HasHeader(Http::EXPECT_HEADER))
     {
         headers = curl_slist_append(headers, "Expect:");
     }
@@ -713,13 +702,7 @@ std::shared_ptr<HttpResponse> CurlHttpClient::MakeRequest(const std::shared_ptr<
 
         CurlWriteCallbackContext writeContext(this, connectionHandle ,request.get(), response.get(), readLimiter);
 
-        const auto readContext = [this, &connectionHandle, &request, &writeLimiter]() -> CurlReadCallbackContext {
-          if (request->GetContentBody() != nullptr) {
-            auto chunkedBodyPtr = Aws::MakeShared<AwsChunkedStream<>>(CURL_HTTP_CLIENT_TAG, request.get(), request->GetContentBody());
-            return {this, connectionHandle, request.get(), writeLimiter, std::move(chunkedBodyPtr)};
-          }
-          return {this, connectionHandle, request.get(), writeLimiter};
-        }();
+        CurlReadCallbackContext readContext(this, connectionHandle, request.get(), writeLimiter);
 
         SetOptCodeForHttpMethod(connectionHandle, request);
 
@@ -758,6 +741,19 @@ std::shared_ptr<HttpResponse> CurlHttpClient::MakeRequest(const std::shared_ptr<
             curl_easy_setopt(connectionHandle, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 #else
             curl_easy_setopt(connectionHandle, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+#endif
+
+#if LIBCURL_VERSION_NUM >= 0x074600 // 7.70.0
+            if (m_revokeBestEffort)
+            {
+                curl_easy_setopt(connectionHandle, CURLOPT_SSL_OPTIONS, CURLSSLOPT_REVOKE_BEST_EFFORT);
+            }
+#else
+            if (m_revokeBestEffort)
+            {
+                AWS_LOGSTREAM_WARN(CURL_HTTP_CLIENT_TAG,
+                    "curlOptions.revokeBestEffort requires libcurl >= 7.70.0");
+            }
 #endif
         }
         else

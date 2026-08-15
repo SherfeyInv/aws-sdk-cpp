@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/cognito-identity/CognitoIdentityEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CognitoIdentity
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CognitoIdentity {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CognitoIdentityClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CognitoIdentityDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_COGNITOIDENTITY_API CognitoIdentityEndpointProvider : public CognitoIdentityDefaultEpProviderBase
-{
-public:
-    using CognitoIdentityResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_COGNITOIDENTITY_API CognitoIdentityEndpointProvider : public CognitoIdentityDefaultEpProviderBase {
+ public:
+  using CognitoIdentityResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CognitoIdentityEndpointProvider()
-      : CognitoIdentityDefaultEpProviderBase(Aws::CognitoIdentity::CognitoIdentityEndpointRules::GetRulesBlob(), Aws::CognitoIdentity::CognitoIdentityEndpointRules::RulesBlobSize)
-    {}
+  CognitoIdentityEndpointProvider();
 
-    ~CognitoIdentityEndpointProvider()
-    {
-    }
+  ~CognitoIdentityEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CognitoIdentity
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CognitoIdentity
+}  // namespace Aws

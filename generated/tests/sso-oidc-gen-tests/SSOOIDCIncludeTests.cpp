@@ -8,13 +8,14 @@
 
 #include <aws/sso-oidc/SSOOIDCClient.h>
 #include <aws/sso-oidc/SSOOIDCEndpointProvider.h>
-#include <aws/sso-oidc/SSOOIDCEndpointRules.h>
 #include <aws/sso-oidc/SSOOIDCErrorMarshaller.h>
 #include <aws/sso-oidc/SSOOIDCErrors.h>
 #include <aws/sso-oidc/SSOOIDCRequest.h>
 #include <aws/sso-oidc/SSOOIDCServiceClientModel.h>
 #include <aws/sso-oidc/SSOOIDC_EXPORTS.h>
+#include <aws/sso-oidc/internal/SSOOIDCEndpointRules.h>
 #include <aws/sso-oidc/model/AccessDeniedException.h>
+#include <aws/sso-oidc/model/AccessDeniedExceptionReason.h>
 #include <aws/sso-oidc/model/AuthorizationPendingException.h>
 #include <aws/sso-oidc/model/AwsAdditionalDetails.h>
 #include <aws/sso-oidc/model/CreateTokenRequest.h>
@@ -28,6 +29,7 @@
 #include <aws/sso-oidc/model/InvalidGrantException.h>
 #include <aws/sso-oidc/model/InvalidRedirectUriException.h>
 #include <aws/sso-oidc/model/InvalidRequestException.h>
+#include <aws/sso-oidc/model/InvalidRequestExceptionReason.h>
 #include <aws/sso-oidc/model/InvalidRequestRegionException.h>
 #include <aws/sso-oidc/model/InvalidScopeException.h>
 #include <aws/sso-oidc/model/RegisterClientRequest.h>

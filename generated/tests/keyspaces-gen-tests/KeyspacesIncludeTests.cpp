@@ -8,17 +8,21 @@
 
 #include <aws/keyspaces/KeyspacesClient.h>
 #include <aws/keyspaces/KeyspacesEndpointProvider.h>
-#include <aws/keyspaces/KeyspacesEndpointRules.h>
 #include <aws/keyspaces/KeyspacesErrorMarshaller.h>
 #include <aws/keyspaces/KeyspacesErrors.h>
 #include <aws/keyspaces/KeyspacesRequest.h>
 #include <aws/keyspaces/KeyspacesServiceClientModel.h>
 #include <aws/keyspaces/Keyspaces_EXPORTS.h>
+#include <aws/keyspaces/internal/KeyspacesEndpointRules.h>
 #include <aws/keyspaces/model/AutoScalingPolicy.h>
 #include <aws/keyspaces/model/AutoScalingSettings.h>
 #include <aws/keyspaces/model/AutoScalingSpecification.h>
 #include <aws/keyspaces/model/CapacitySpecification.h>
 #include <aws/keyspaces/model/CapacitySpecificationSummary.h>
+#include <aws/keyspaces/model/CdcPropagateTags.h>
+#include <aws/keyspaces/model/CdcSpecification.h>
+#include <aws/keyspaces/model/CdcSpecificationSummary.h>
+#include <aws/keyspaces/model/CdcStatus.h>
 #include <aws/keyspaces/model/ClientSideTimestamps.h>
 #include <aws/keyspaces/model/ClientSideTimestampsStatus.h>
 #include <aws/keyspaces/model/ClusteringKey.h>
@@ -89,6 +93,10 @@
 #include <aws/keyspaces/model/UpdateKeyspaceResult.h>
 #include <aws/keyspaces/model/UpdateTableRequest.h>
 #include <aws/keyspaces/model/UpdateTableResult.h>
+#include <aws/keyspaces/model/ViewType.h>
+#include <aws/keyspaces/model/WarmThroughputSpecification.h>
+#include <aws/keyspaces/model/WarmThroughputSpecificationSummary.h>
+#include <aws/keyspaces/model/WarmThroughputStatus.h>
 
 using KeyspacesIncludeTest = ::testing::Test;
 

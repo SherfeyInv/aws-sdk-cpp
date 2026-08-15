@@ -19,12 +19,18 @@ ${macro.spaces}{
   ${macro.spaces}const Aws::Utils::DocumentView& ${macro.innerStructVarName} = ${dstObject}.${macro.fieldGetter}();
   ${macro.spaces}EXPECT_STREQ(R"j(${testValidateParam.value})j", ${macro.innerStructVarName}.WriteCompact().c_str());
 ${macro.spaces}}
+#elseif(($macro.memberToGet.shape.type == "float" || $macro.memberToGet.shape.type == "double") && $testValidateParam.value == '"NaN"')
+${macro.spaces}EXPECT_TRUE(std::isnan(${dstObject}.${macro.fieldGetter}()));
 #elseif($macro.memberToGet.shape.structure)
 ${macro.spaces}{
 #set($macro.innerStructVarName = "${dstObject}${CppViewHelper.capitalizeFirstChar(${CppViewHelper.computeVariableName($testValidateParam.key)})}")
+#if($testValidateParam.value.isNull())
+  ${macro.spaces}(void)${dstObject}.${macro.fieldGetter}();
+#else
   ${macro.spaces}const ${macro.memberToGet.shape.name}& $macro.innerStructVarName = ${dstObject}.${macro.fieldGetter}();
 #foreach($innerParam in $testValidateParam.value.fields())
 #ValidateParamsMacro("${macro.spaces}  ", $macro.innerStructVarName, $macro.memberToGet.shape, $innerParam)
+#end
 #end
 ${macro.spaces}}
 #elseif($testValidateParam.key != "contentType" && $currentShape.members.containsKey($testValidateParam.key) && $CppViewHelper.isStreamingPayloadMember($currentShape, $testValidateParam.key))

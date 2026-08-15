@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/application-autoscaling/ApplicationAutoScalingEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ApplicationAutoScaling
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ApplicationAutoScaling {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ApplicationAutoScalingClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -35,27 +29,24 @@ using ApplicationAutoScalingBuiltInParameters = Aws::Endpoint::BuiltInParameters
  * The SDK must use service-specific type for each service per specification.
  */
 using ApplicationAutoScalingEndpointProviderBase =
-    EndpointProviderBase<ApplicationAutoScalingClientConfiguration, ApplicationAutoScalingBuiltInParameters, ApplicationAutoScalingClientContextParameters>;
+    EndpointProviderBase<ApplicationAutoScalingClientConfiguration, ApplicationAutoScalingBuiltInParameters,
+                         ApplicationAutoScalingClientContextParameters>;
 
 using ApplicationAutoScalingDefaultEpProviderBase =
-    DefaultEndpointProvider<ApplicationAutoScalingClientConfiguration, ApplicationAutoScalingBuiltInParameters, ApplicationAutoScalingClientContextParameters>;
+    DefaultEndpointProvider<ApplicationAutoScalingClientConfiguration, ApplicationAutoScalingBuiltInParameters,
+                            ApplicationAutoScalingClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_APPLICATIONAUTOSCALING_API ApplicationAutoScalingEndpointProvider : public ApplicationAutoScalingDefaultEpProviderBase
-{
-public:
-    using ApplicationAutoScalingResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_APPLICATIONAUTOSCALING_API ApplicationAutoScalingEndpointProvider : public ApplicationAutoScalingDefaultEpProviderBase {
+ public:
+  using ApplicationAutoScalingResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ApplicationAutoScalingEndpointProvider()
-      : ApplicationAutoScalingDefaultEpProviderBase(Aws::ApplicationAutoScaling::ApplicationAutoScalingEndpointRules::GetRulesBlob(), Aws::ApplicationAutoScaling::ApplicationAutoScalingEndpointRules::RulesBlobSize)
-    {}
+  ApplicationAutoScalingEndpointProvider();
 
-    ~ApplicationAutoScalingEndpointProvider()
-    {
-    }
+  ~ApplicationAutoScalingEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ApplicationAutoScaling
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ApplicationAutoScaling
+}  // namespace Aws

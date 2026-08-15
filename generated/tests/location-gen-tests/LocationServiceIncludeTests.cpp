@@ -8,14 +8,16 @@
 
 #include <aws/location/LocationServiceClient.h>
 #include <aws/location/LocationServiceEndpointProvider.h>
-#include <aws/location/LocationServiceEndpointRules.h>
 #include <aws/location/LocationServiceErrorMarshaller.h>
 #include <aws/location/LocationServiceErrors.h>
 #include <aws/location/LocationServiceRequest.h>
 #include <aws/location/LocationServiceServiceClientModel.h>
 #include <aws/location/LocationService_EXPORTS.h>
+#include <aws/location/internal/LocationServiceEndpointRules.h>
+#include <aws/location/model/AndroidApp.h>
 #include <aws/location/model/ApiKeyFilter.h>
 #include <aws/location/model/ApiKeyRestrictions.h>
+#include <aws/location/model/AppleApp.h>
 #include <aws/location/model/AssociateTrackerConsumerRequest.h>
 #include <aws/location/model/AssociateTrackerConsumerResult.h>
 #include <aws/location/model/BatchDeleteDevicePositionHistoryError.h>
@@ -48,6 +50,8 @@
 #include <aws/location/model/CalculateRouteResult.h>
 #include <aws/location/model/CalculateRouteSummary.h>
 #include <aws/location/model/CalculateRouteTruckModeOptions.h>
+#include <aws/location/model/CancelJobRequest.h>
+#include <aws/location/model/CancelJobResult.h>
 #include <aws/location/model/CellSignals.h>
 #include <aws/location/model/Circle.h>
 #include <aws/location/model/CreateGeofenceCollectionRequest.h>
@@ -106,6 +110,8 @@
 #include <aws/location/model/GetDevicePositionResult.h>
 #include <aws/location/model/GetGeofenceRequest.h>
 #include <aws/location/model/GetGeofenceResult.h>
+#include <aws/location/model/GetJobRequest.h>
+#include <aws/location/model/GetJobResult.h>
 #include <aws/location/model/GetMapGlyphsRequest.h>
 #include <aws/location/model/GetMapGlyphsResult.h>
 #include <aws/location/model/GetMapSpritesRequest.h>
@@ -118,6 +124,16 @@
 #include <aws/location/model/GetPlaceResult.h>
 #include <aws/location/model/InferredState.h>
 #include <aws/location/model/IntendedUse.h>
+#include <aws/location/model/JobAction.h>
+#include <aws/location/model/JobActionOptions.h>
+#include <aws/location/model/JobError.h>
+#include <aws/location/model/JobErrorCode.h>
+#include <aws/location/model/JobInputFormat.h>
+#include <aws/location/model/JobInputOptions.h>
+#include <aws/location/model/JobOutputFormat.h>
+#include <aws/location/model/JobOutputOptions.h>
+#include <aws/location/model/JobStatus.h>
+#include <aws/location/model/JobsFilter.h>
 #include <aws/location/model/Leg.h>
 #include <aws/location/model/LegGeometry.h>
 #include <aws/location/model/ListDevicePositionsRequest.h>
@@ -129,6 +145,9 @@
 #include <aws/location/model/ListGeofenceResponseEntry.h>
 #include <aws/location/model/ListGeofencesRequest.h>
 #include <aws/location/model/ListGeofencesResult.h>
+#include <aws/location/model/ListJobsRequest.h>
+#include <aws/location/model/ListJobsResponseEntry.h>
+#include <aws/location/model/ListJobsResult.h>
 #include <aws/location/model/ListKeysRequest.h>
 #include <aws/location/model/ListKeysResponseEntry.h>
 #include <aws/location/model/ListKeysResult.h>
@@ -176,6 +195,8 @@
 #include <aws/location/model/SearchPlaceIndexForTextResult.h>
 #include <aws/location/model/SearchPlaceIndexForTextSummary.h>
 #include <aws/location/model/SpeedUnit.h>
+#include <aws/location/model/StartJobRequest.h>
+#include <aws/location/model/StartJobResult.h>
 #include <aws/location/model/Status.h>
 #include <aws/location/model/Step.h>
 #include <aws/location/model/TagResourceRequest.h>
@@ -199,6 +220,8 @@
 #include <aws/location/model/UpdateRouteCalculatorResult.h>
 #include <aws/location/model/UpdateTrackerRequest.h>
 #include <aws/location/model/UpdateTrackerResult.h>
+#include <aws/location/model/ValidateAddressActionOptions.h>
+#include <aws/location/model/ValidateAddressAdditionalFeature.h>
 #include <aws/location/model/ValidationException.h>
 #include <aws/location/model/ValidationExceptionField.h>
 #include <aws/location/model/ValidationExceptionReason.h>

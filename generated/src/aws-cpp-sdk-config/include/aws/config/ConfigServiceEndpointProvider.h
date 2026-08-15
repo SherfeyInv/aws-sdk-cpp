@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/config/ConfigServiceEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ConfigService
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ConfigService {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ConfigServiceClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using ConfigServiceDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CONFIGSERVICE_API ConfigServiceEndpointProvider : public ConfigServiceDefaultEpProviderBase
-{
-public:
-    using ConfigServiceResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CONFIGSERVICE_API ConfigServiceEndpointProvider : public ConfigServiceDefaultEpProviderBase {
+ public:
+  using ConfigServiceResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ConfigServiceEndpointProvider()
-      : ConfigServiceDefaultEpProviderBase(Aws::ConfigService::ConfigServiceEndpointRules::GetRulesBlob(), Aws::ConfigService::ConfigServiceEndpointRules::RulesBlobSize)
-    {}
+  ConfigServiceEndpointProvider();
 
-    ~ConfigServiceEndpointProvider()
-    {
-    }
+  ~ConfigServiceEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ConfigService
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ConfigService
+}  // namespace Aws

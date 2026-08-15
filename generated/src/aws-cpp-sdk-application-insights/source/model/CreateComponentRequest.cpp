@@ -4,52 +4,56 @@
  */
 
 #include <aws/application-insights/model/CreateComponentRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
+#include <aws/crt/cbor/Cbor.h>
 
 #include <utility>
 
 using namespace Aws::ApplicationInsights::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String CreateComponentRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String CreateComponentRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_resourceGroupNameHasBeenSet)
-  {
-   payload.WithString("ResourceGroupName", m_resourceGroupName);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_resourceGroupNameHasBeenSet) {
+    mapSize++;
+  }
+  if (m_componentNameHasBeenSet) {
+    mapSize++;
+  }
+  if (m_resourceListHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_componentNameHasBeenSet)
-  {
-   payload.WithString("ComponentName", m_componentName);
+  encoder.WriteMapStart(mapSize);
 
+  if (m_resourceGroupNameHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("ResourceGroupName"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_resourceGroupName.c_str()));
   }
 
-  if(m_resourceListHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> resourceListJsonList(m_resourceList.size());
-   for(unsigned resourceListIndex = 0; resourceListIndex < resourceListJsonList.GetLength(); ++resourceListIndex)
-   {
-     resourceListJsonList[resourceListIndex].AsString(m_resourceList[resourceListIndex]);
-   }
-   payload.WithArray("ResourceList", std::move(resourceListJsonList));
-
+  if (m_componentNameHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("ComponentName"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_componentName.c_str()));
   }
 
-  return payload.View().WriteReadable();
+  if (m_resourceListHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("ResourceList"));
+    encoder.WriteArrayStart(m_resourceList.size());
+    for (const auto& item_0 : m_resourceList) {
+      encoder.WriteText(Aws::Crt::ByteCursorFromCString(item_0.c_str()));
+    }
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection CreateComponentRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection CreateComponentRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "EC2WindowsBarleyService.CreateComponent"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

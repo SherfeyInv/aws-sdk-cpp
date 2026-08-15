@@ -8,16 +8,17 @@
 
 #include <aws/mediapackagev2/Mediapackagev2Client.h>
 #include <aws/mediapackagev2/Mediapackagev2EndpointProvider.h>
-#include <aws/mediapackagev2/Mediapackagev2EndpointRules.h>
 #include <aws/mediapackagev2/Mediapackagev2ErrorMarshaller.h>
 #include <aws/mediapackagev2/Mediapackagev2Errors.h>
 #include <aws/mediapackagev2/Mediapackagev2Request.h>
 #include <aws/mediapackagev2/Mediapackagev2ServiceClientModel.h>
 #include <aws/mediapackagev2/Mediapackagev2_EXPORTS.h>
+#include <aws/mediapackagev2/internal/Mediapackagev2EndpointRules.h>
 #include <aws/mediapackagev2/model/AdMarkerDash.h>
 #include <aws/mediapackagev2/model/AdMarkerHls.h>
 #include <aws/mediapackagev2/model/CancelHarvestJobRequest.h>
 #include <aws/mediapackagev2/model/CancelHarvestJobResult.h>
+#include <aws/mediapackagev2/model/CdnAuthConfiguration.h>
 #include <aws/mediapackagev2/model/ChannelGroupListConfiguration.h>
 #include <aws/mediapackagev2/model/ChannelListConfiguration.h>
 #include <aws/mediapackagev2/model/CmafEncryptionMethod.h>
@@ -33,8 +34,12 @@
 #include <aws/mediapackagev2/model/CreateHarvestJobResult.h>
 #include <aws/mediapackagev2/model/CreateHlsManifestConfiguration.h>
 #include <aws/mediapackagev2/model/CreateLowLatencyHlsManifestConfiguration.h>
+#include <aws/mediapackagev2/model/CreateMssManifestConfiguration.h>
 #include <aws/mediapackagev2/model/CreateOriginEndpointRequest.h>
 #include <aws/mediapackagev2/model/CreateOriginEndpointResult.h>
+#include <aws/mediapackagev2/model/CustomAdType.h>
+#include <aws/mediapackagev2/model/DashAudioTimelinePattern.h>
+#include <aws/mediapackagev2/model/DashAvailabilityStartTimeConfiguration.h>
 #include <aws/mediapackagev2/model/DashBaseUrl.h>
 #include <aws/mediapackagev2/model/DashCompactness.h>
 #include <aws/mediapackagev2/model/DashDrmSignaling.h>
@@ -79,6 +84,7 @@
 #include <aws/mediapackagev2/model/GetHarvestJobResult.h>
 #include <aws/mediapackagev2/model/GetHlsManifestConfiguration.h>
 #include <aws/mediapackagev2/model/GetLowLatencyHlsManifestConfiguration.h>
+#include <aws/mediapackagev2/model/GetMssManifestConfiguration.h>
 #include <aws/mediapackagev2/model/GetOriginEndpointPolicyRequest.h>
 #include <aws/mediapackagev2/model/GetOriginEndpointPolicyResult.h>
 #include <aws/mediapackagev2/model/GetOriginEndpointRequest.h>
@@ -93,6 +99,7 @@
 #include <aws/mediapackagev2/model/IngestEndpoint.h>
 #include <aws/mediapackagev2/model/InputSwitchConfiguration.h>
 #include <aws/mediapackagev2/model/InputType.h>
+#include <aws/mediapackagev2/model/IsmEncryptionMethod.h>
 #include <aws/mediapackagev2/model/ListChannelGroupsRequest.h>
 #include <aws/mediapackagev2/model/ListChannelGroupsResult.h>
 #include <aws/mediapackagev2/model/ListChannelsRequest.h>
@@ -102,12 +109,16 @@
 #include <aws/mediapackagev2/model/ListHarvestJobsResult.h>
 #include <aws/mediapackagev2/model/ListHlsManifestConfiguration.h>
 #include <aws/mediapackagev2/model/ListLowLatencyHlsManifestConfiguration.h>
+#include <aws/mediapackagev2/model/ListMssManifestConfiguration.h>
 #include <aws/mediapackagev2/model/ListOriginEndpointsRequest.h>
 #include <aws/mediapackagev2/model/ListOriginEndpointsResult.h>
 #include <aws/mediapackagev2/model/ListTagsForResourceRequest.h>
 #include <aws/mediapackagev2/model/ListTagsForResourceResult.h>
+#include <aws/mediapackagev2/model/MssManifestLayout.h>
 #include <aws/mediapackagev2/model/OriginEndpointListConfiguration.h>
 #include <aws/mediapackagev2/model/OutputHeaderConfiguration.h>
+#include <aws/mediapackagev2/model/OutputLockingMode.h>
+#include <aws/mediapackagev2/model/OutputTimestampMode.h>
 #include <aws/mediapackagev2/model/PresetSpeke20Audio.h>
 #include <aws/mediapackagev2/model/PresetSpeke20Video.h>
 #include <aws/mediapackagev2/model/PutChannelPolicyRequest.h>
@@ -125,6 +136,8 @@
 #include <aws/mediapackagev2/model/ScteDash.h>
 #include <aws/mediapackagev2/model/ScteFilter.h>
 #include <aws/mediapackagev2/model/ScteHls.h>
+#include <aws/mediapackagev2/model/ScteInManifests.h>
+#include <aws/mediapackagev2/model/ScteInSegments.h>
 #include <aws/mediapackagev2/model/Segment.h>
 #include <aws/mediapackagev2/model/SpekeKeyProvider.h>
 #include <aws/mediapackagev2/model/StartTag.h>
@@ -137,6 +150,8 @@
 #include <aws/mediapackagev2/model/UpdateChannelResult.h>
 #include <aws/mediapackagev2/model/UpdateOriginEndpointRequest.h>
 #include <aws/mediapackagev2/model/UpdateOriginEndpointResult.h>
+#include <aws/mediapackagev2/model/UriPathType.h>
+#include <aws/mediapackagev2/model/UriSeparator.h>
 #include <aws/mediapackagev2/model/ValidationException.h>
 #include <aws/mediapackagev2/model/ValidationExceptionType.h>
 

@@ -4,46 +4,48 @@
  */
 
 #include <aws/bcm-pricing-calculator/model/BatchUpdateWorkloadEstimateUsageRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
+#include <aws/crt/cbor/Cbor.h>
 
 #include <utility>
 
 using namespace Aws::BCMPricingCalculator::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String BatchUpdateWorkloadEstimateUsageRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String BatchUpdateWorkloadEstimateUsageRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_workloadEstimateIdHasBeenSet)
-  {
-   payload.WithString("workloadEstimateId", m_workloadEstimateId);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_workloadEstimateIdHasBeenSet) {
+    mapSize++;
+  }
+  if (m_usageHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_usageHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> usageJsonList(m_usage.size());
-   for(unsigned usageIndex = 0; usageIndex < usageJsonList.GetLength(); ++usageIndex)
-   {
-     usageJsonList[usageIndex].AsObject(m_usage[usageIndex].Jsonize());
-   }
-   payload.WithArray("usage", std::move(usageJsonList));
+  encoder.WriteMapStart(mapSize);
 
+  if (m_workloadEstimateIdHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("workloadEstimateId"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_workloadEstimateId.c_str()));
   }
 
-  return payload.View().WriteReadable();
+  if (m_usageHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("usage"));
+    encoder.WriteArrayStart(m_usage.size());
+    for (const auto& item_0 : m_usage) {
+      item_0.CborEncode(encoder);
+    }
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection BatchUpdateWorkloadEstimateUsageRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection BatchUpdateWorkloadEstimateUsageRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "AWSBCMPricingCalculator.BatchUpdateWorkloadEstimateUsage"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

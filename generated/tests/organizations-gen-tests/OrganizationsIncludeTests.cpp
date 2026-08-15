@@ -8,18 +8,19 @@
 
 #include <aws/organizations/OrganizationsClient.h>
 #include <aws/organizations/OrganizationsEndpointProvider.h>
-#include <aws/organizations/OrganizationsEndpointRules.h>
 #include <aws/organizations/OrganizationsErrorMarshaller.h>
 #include <aws/organizations/OrganizationsErrors.h>
 #include <aws/organizations/OrganizationsRequest.h>
 #include <aws/organizations/OrganizationsServiceClientModel.h>
 #include <aws/organizations/Organizations_EXPORTS.h>
+#include <aws/organizations/internal/OrganizationsEndpointRules.h>
 #include <aws/organizations/model/AcceptHandshakeRequest.h>
 #include <aws/organizations/model/AcceptHandshakeResult.h>
 #include <aws/organizations/model/AccessDeniedForDependencyException.h>
 #include <aws/organizations/model/AccessDeniedForDependencyExceptionReason.h>
 #include <aws/organizations/model/Account.h>
 #include <aws/organizations/model/AccountJoinedMethod.h>
+#include <aws/organizations/model/AccountState.h>
 #include <aws/organizations/model/AccountStatus.h>
 #include <aws/organizations/model/ActionType.h>
 #include <aws/organizations/model/AttachPolicyRequest.h>
@@ -68,12 +69,15 @@
 #include <aws/organizations/model/DescribePolicyResult.h>
 #include <aws/organizations/model/DescribeResourcePolicyRequest.h>
 #include <aws/organizations/model/DescribeResourcePolicyResult.h>
+#include <aws/organizations/model/DescribeResponsibilityTransferRequest.h>
+#include <aws/organizations/model/DescribeResponsibilityTransferResult.h>
 #include <aws/organizations/model/DetachPolicyRequest.h>
 #include <aws/organizations/model/DisableAWSServiceAccessRequest.h>
 #include <aws/organizations/model/DisablePolicyTypeRequest.h>
 #include <aws/organizations/model/DisablePolicyTypeResult.h>
 #include <aws/organizations/model/EffectivePolicy.h>
 #include <aws/organizations/model/EffectivePolicyType.h>
+#include <aws/organizations/model/EffectivePolicyValidationError.h>
 #include <aws/organizations/model/EnableAWSServiceAccessRequest.h>
 #include <aws/organizations/model/EnableAllFeaturesRequest.h>
 #include <aws/organizations/model/EnableAllFeaturesResult.h>
@@ -94,6 +98,8 @@
 #include <aws/organizations/model/InvalidInputExceptionReason.h>
 #include <aws/organizations/model/InviteAccountToOrganizationRequest.h>
 #include <aws/organizations/model/InviteAccountToOrganizationResult.h>
+#include <aws/organizations/model/InviteOrganizationToTransferResponsibilityRequest.h>
+#include <aws/organizations/model/InviteOrganizationToTransferResponsibilityResult.h>
 #include <aws/organizations/model/LeaveOrganizationRequest.h>
 #include <aws/organizations/model/ListAWSServiceAccessForOrganizationRequest.h>
 #include <aws/organizations/model/ListAWSServiceAccessForOrganizationResult.h>
@@ -101,6 +107,8 @@
 #include <aws/organizations/model/ListAccountsForParentResult.h>
 #include <aws/organizations/model/ListAccountsRequest.h>
 #include <aws/organizations/model/ListAccountsResult.h>
+#include <aws/organizations/model/ListAccountsWithInvalidEffectivePolicyRequest.h>
+#include <aws/organizations/model/ListAccountsWithInvalidEffectivePolicyResult.h>
 #include <aws/organizations/model/ListChildrenRequest.h>
 #include <aws/organizations/model/ListChildrenResult.h>
 #include <aws/organizations/model/ListCreateAccountStatusRequest.h>
@@ -109,12 +117,18 @@
 #include <aws/organizations/model/ListDelegatedAdministratorsResult.h>
 #include <aws/organizations/model/ListDelegatedServicesForAccountRequest.h>
 #include <aws/organizations/model/ListDelegatedServicesForAccountResult.h>
+#include <aws/organizations/model/ListEffectivePolicyValidationErrorsRequest.h>
+#include <aws/organizations/model/ListEffectivePolicyValidationErrorsResult.h>
 #include <aws/organizations/model/ListHandshakesForAccountRequest.h>
 #include <aws/organizations/model/ListHandshakesForAccountResult.h>
 #include <aws/organizations/model/ListHandshakesForOrganizationRequest.h>
 #include <aws/organizations/model/ListHandshakesForOrganizationResult.h>
+#include <aws/organizations/model/ListInboundResponsibilityTransfersRequest.h>
+#include <aws/organizations/model/ListInboundResponsibilityTransfersResult.h>
 #include <aws/organizations/model/ListOrganizationalUnitsForParentRequest.h>
 #include <aws/organizations/model/ListOrganizationalUnitsForParentResult.h>
+#include <aws/organizations/model/ListOutboundResponsibilityTransfersRequest.h>
+#include <aws/organizations/model/ListOutboundResponsibilityTransfersResult.h>
 #include <aws/organizations/model/ListParentsRequest.h>
 #include <aws/organizations/model/ListParentsResult.h>
 #include <aws/organizations/model/ListPoliciesForTargetRequest.h>
@@ -145,16 +159,24 @@
 #include <aws/organizations/model/RemoveAccountFromOrganizationRequest.h>
 #include <aws/organizations/model/ResourcePolicy.h>
 #include <aws/organizations/model/ResourcePolicySummary.h>
+#include <aws/organizations/model/ResponsibilityTransfer.h>
+#include <aws/organizations/model/ResponsibilityTransferStatus.h>
+#include <aws/organizations/model/ResponsibilityTransferType.h>
 #include <aws/organizations/model/Root.h>
 #include <aws/organizations/model/Tag.h>
 #include <aws/organizations/model/TagResourceRequest.h>
 #include <aws/organizations/model/TargetType.h>
+#include <aws/organizations/model/TerminateResponsibilityTransferRequest.h>
+#include <aws/organizations/model/TerminateResponsibilityTransferResult.h>
 #include <aws/organizations/model/TooManyRequestsException.h>
+#include <aws/organizations/model/TransferParticipant.h>
 #include <aws/organizations/model/UntagResourceRequest.h>
 #include <aws/organizations/model/UpdateOrganizationalUnitRequest.h>
 #include <aws/organizations/model/UpdateOrganizationalUnitResult.h>
 #include <aws/organizations/model/UpdatePolicyRequest.h>
 #include <aws/organizations/model/UpdatePolicyResult.h>
+#include <aws/organizations/model/UpdateResponsibilityTransferRequest.h>
+#include <aws/organizations/model/UpdateResponsibilityTransferResult.h>
 
 using OrganizationsIncludeTest = ::testing::Test;
 

@@ -4,25 +4,19 @@
  */
 
 #pragma once
-#include <aws/route53domains/Route53Domains_EXPORTS.h>
 #include <aws/core/client/GenericClientConfiguration.h>
 #include <aws/core/endpoint/DefaultEndpointProvider.h>
 #include <aws/core/endpoint/EndpointParameter.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
+#include <aws/route53domains/Route53Domains_EXPORTS.h>
 
-#include <aws/route53domains/Route53DomainsEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Route53Domains
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Route53Domains {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using Route53DomainsClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using Route53DomainsDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_ROUTE53DOMAINS_API Route53DomainsEndpointProvider : public Route53DomainsDefaultEpProviderBase
-{
-public:
-    using Route53DomainsResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_ROUTE53DOMAINS_API Route53DomainsEndpointProvider : public Route53DomainsDefaultEpProviderBase {
+ public:
+  using Route53DomainsResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    Route53DomainsEndpointProvider()
-      : Route53DomainsDefaultEpProviderBase(Aws::Route53Domains::Route53DomainsEndpointRules::GetRulesBlob(), Aws::Route53Domains::Route53DomainsEndpointRules::RulesBlobSize)
-    {}
+  Route53DomainsEndpointProvider();
 
-    ~Route53DomainsEndpointProvider()
-    {
-    }
+  ~Route53DomainsEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Route53Domains
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Route53Domains
+}  // namespace Aws

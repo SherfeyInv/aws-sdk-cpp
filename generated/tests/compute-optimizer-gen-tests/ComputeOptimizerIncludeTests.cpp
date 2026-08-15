@@ -8,12 +8,12 @@
 
 #include <aws/compute-optimizer/ComputeOptimizerClient.h>
 #include <aws/compute-optimizer/ComputeOptimizerEndpointProvider.h>
-#include <aws/compute-optimizer/ComputeOptimizerEndpointRules.h>
 #include <aws/compute-optimizer/ComputeOptimizerErrorMarshaller.h>
 #include <aws/compute-optimizer/ComputeOptimizerErrors.h>
 #include <aws/compute-optimizer/ComputeOptimizerRequest.h>
 #include <aws/compute-optimizer/ComputeOptimizerServiceClientModel.h>
 #include <aws/compute-optimizer/ComputeOptimizer_EXPORTS.h>
+#include <aws/compute-optimizer/internal/ComputeOptimizerEndpointRules.h>
 #include <aws/compute-optimizer/model/AccountEnrollmentStatus.h>
 #include <aws/compute-optimizer/model/AllocationStrategy.h>
 #include <aws/compute-optimizer/model/AsgType.h>
@@ -143,6 +143,7 @@
 #include <aws/compute-optimizer/model/Gpu.h>
 #include <aws/compute-optimizer/model/GpuInfo.h>
 #include <aws/compute-optimizer/model/Idle.h>
+#include <aws/compute-optimizer/model/IdleDimension.h>
 #include <aws/compute-optimizer/model/IdleEstimatedMonthlySavings.h>
 #include <aws/compute-optimizer/model/IdleFinding.h>
 #include <aws/compute-optimizer/model/IdleMetricName.h>

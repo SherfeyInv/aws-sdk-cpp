@@ -13,6 +13,9 @@ from codegen.legacy_c2j_cpp_gen import LegacyC2jCppGen, CLIENT_MODEL_FILE_LOCATI
 from codegen.model_utils import ModelUtils
 from codegen.protocol_tests_gen import ProtocolTestsGen
 from codegen.smoke_tests_gen import SmokeTestsGen
+from codegen.smithy_cpp_gen import SmithyCppGen
+from codegen.format_util import format_directories
+from codegen.install_test_gen import InstallTestGen
 
 
 def parse_arguments() -> dict:
@@ -52,13 +55,32 @@ def parse_arguments() -> dict:
                         help="Code generator raw argument to be passed through to "
                              "mark operation functions in service client as virtual functions. Always on by default",
                         action="store_true")
+    parser.add_argument("--disable-virtual-operations",
+                        help="Do NOT mark operation functions in service client as virtual functions",
+                        action="store_true")
 
+    parser.add_argument("--disable-smithy-generation",
+                        help="Disable smithy-based generation in c2j generator",
+                        action="store_true")
     parser.add_argument("--generate_smoke_tests",
                         help="Run smithy code generator for smoke tests",
                         action="store_true")
     parser.add_argument("--generate_protocol_tests",
                         help="Run protocol tests generation",
                         action="store_true")
+    parser.add_argument("--generate_install_tests",
+                        help="Run install test generation",
+                        action="store_true")
+
+    parser.add_argument("--use-smithy-models",
+                        help="Use Smithy-generated model files instead of C2J for specified services. "
+                             "C2J skips model generation; Smithy codegen produces model files.",
+                        action="store_true")
+    parser.add_argument("--smithy-model-services",
+                        type=str,
+                        help="Comma-separated list of services to generate models from Smithy. "
+                             "Only effective with --use-smithy-models. "
+                             "Defaults to all services in --client_list if omitted.")
 
     args = vars(parser.parse_args())
     arg_map = {"debug": args.get("debug", False)}
@@ -114,8 +136,17 @@ def parse_arguments() -> dict:
         if args.get(raw_argument):
             raw_generator_arguments[raw_argument] = args[raw_argument]
     arg_map["raw_generator_arguments"] = raw_generator_arguments
+    arg_map["disable_virtual_operations"] = args.get("disable_virtual_operations", False)
+    arg_map["disable_smithy_generation"] = args.get("disable_smithy_generation", False)
     arg_map["generate_smoke_tests"] = args.get("generate_smoke_tests", None)
     arg_map["generate_protocol_tests"] = args.get("generate_protocol_tests", None)
+    arg_map["generate_install_tests"] = args.get("generate_install_tests", None)
+    arg_map["use_smithy_models"] = args.get("use_smithy_models", False)
+    smithy_model_services_raw = args.get("smithy_model_services", None)
+    if smithy_model_services_raw:
+        arg_map["smithy_model_services"] = set(smithy_model_services_raw.replace(";", ",").split(","))
+    else:
+        arg_map["smithy_model_services"] = None
     if arg_map["debug"]:
         print("args=", arg_map)
     return arg_map
@@ -139,14 +170,30 @@ def main():
     if args["debug"]:
         print(f"Parallel executor thread count: {max_workers}")
 
+    # Determine which services use Smithy model generation
+    smithy_model_services = set()
+    if args.get("use_smithy_models"):
+        if args.get("smithy_model_services"):
+            smithy_model_services = args["smithy_model_services"]
+        elif args.get("client_list") and args["client_list"]:
+            smithy_model_services = set(args["client_list"])
+        else:
+            smithy_model_services = set(model_utils.models_to_generate.keys())
+        if args["debug"]:
+            print(f"Smithy model generation enabled for: {sorted(smithy_model_services)}")
+
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        c2j_gen = LegacyC2jCppGen(args, model_utils.models_to_generate)
+        c2j_gen = LegacyC2jCppGen(args, model_utils.models_to_generate,
+                                   skip_model_services=smithy_model_services)
         if c2j_gen.generate(executor, max_workers, args) != 0:
             print("ERROR: Failed to generate service client(s)!")
             return -1
 
         if args["generate_protocol_tests"]:
-            protocol_tests_generator = ProtocolTestsGen(args)
+            # Disable smithy generation for protocol tests
+            protocol_args = args.copy()
+            protocol_args["disable_smithy_generation"] = True
+            protocol_tests_generator = ProtocolTestsGen(protocol_args)
             if protocol_tests_generator.generate(executor, max_workers) != 0:
                 print("ERROR: Failed to generate protocol test(s)!")
                 return -1
@@ -154,10 +201,33 @@ def main():
     # generate code using smithy for all discoverable clients
     # clients_to_build check is present because user can generate only defaults or partitions or protocol-tests
     clients_to_build = model_utils.get_clients_to_build()
+    
+    if clients_to_build:
+        smithy_cpp_gen = SmithyCppGen(args["debug"],
+                                      use_smithy_models=bool(smithy_model_services),
+                                      smithy_model_services=smithy_model_services)
+        if smithy_cpp_gen.generate(clients_to_build) != 0:
+            print("ERROR: Failed to generate Smithy code!")
+            return -1
+    
     if args["generate_smoke_tests"] and clients_to_build:
         smoke_tests_gen = SmokeTestsGen(args["debug"])
         if smoke_tests_gen.generate(clients_to_build) != 0:
             print("ERROR: Failed to generate smoke test(s)!")
+            return -1
+
+    # Format all generated C++ code at the end
+    if clients_to_build:
+        client_dirs = [f"{args['output_location']}/src/aws-cpp-sdk-{client}" for client in clients_to_build]
+        existing_dirs = [d for d in client_dirs if os.path.exists(d)]
+        if existing_dirs:
+            format_directories(existing_dirs)
+
+    # Generate install tests
+    if args["generate_install_tests"] and clients_to_build:
+        install_test_gen = InstallTestGen(args["debug"])
+        if install_test_gen.generate(clients_to_build) != 0:
+            print("Error: Failed to generate install test")
             return -1
 
     return 0

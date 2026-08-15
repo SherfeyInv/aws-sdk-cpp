@@ -7,13 +7,14 @@
 #include <aws/testing/AwsTestHelpers.h>
 
 #include <aws/dynamodbstreams/DynamoDBStreamsClient.h>
+#include <aws/dynamodbstreams/DynamoDBStreamsClientConfiguration.h>
 #include <aws/dynamodbstreams/DynamoDBStreamsEndpointProvider.h>
-#include <aws/dynamodbstreams/DynamoDBStreamsEndpointRules.h>
 #include <aws/dynamodbstreams/DynamoDBStreamsErrorMarshaller.h>
 #include <aws/dynamodbstreams/DynamoDBStreamsErrors.h>
 #include <aws/dynamodbstreams/DynamoDBStreamsRequest.h>
 #include <aws/dynamodbstreams/DynamoDBStreamsServiceClientModel.h>
 #include <aws/dynamodbstreams/DynamoDBStreams_EXPORTS.h>
+#include <aws/dynamodbstreams/internal/DynamoDBStreamsEndpointRules.h>
 #include <aws/dynamodbstreams/model/AttributeValue.h>
 #include <aws/dynamodbstreams/model/DescribeStreamRequest.h>
 #include <aws/dynamodbstreams/model/DescribeStreamResult.h>
@@ -30,6 +31,8 @@
 #include <aws/dynamodbstreams/model/Record.h>
 #include <aws/dynamodbstreams/model/SequenceNumberRange.h>
 #include <aws/dynamodbstreams/model/Shard.h>
+#include <aws/dynamodbstreams/model/ShardFilter.h>
+#include <aws/dynamodbstreams/model/ShardFilterType.h>
 #include <aws/dynamodbstreams/model/ShardIteratorType.h>
 #include <aws/dynamodbstreams/model/Stream.h>
 #include <aws/dynamodbstreams/model/StreamDescription.h>

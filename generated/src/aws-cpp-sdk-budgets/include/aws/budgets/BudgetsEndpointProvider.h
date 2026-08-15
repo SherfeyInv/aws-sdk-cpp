@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/budgets/BudgetsEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Budgets
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Budgets {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using BudgetsClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using BudgetsDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_BUDGETS_API BudgetsEndpointProvider : public BudgetsDefaultEpProviderBase
-{
-public:
-    using BudgetsResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_BUDGETS_API BudgetsEndpointProvider : public BudgetsDefaultEpProviderBase {
+ public:
+  using BudgetsResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    BudgetsEndpointProvider()
-      : BudgetsDefaultEpProviderBase(Aws::Budgets::BudgetsEndpointRules::GetRulesBlob(), Aws::Budgets::BudgetsEndpointRules::RulesBlobSize)
-    {}
+  BudgetsEndpointProvider();
 
-    ~BudgetsEndpointProvider()
-    {
-    }
+  ~BudgetsEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Budgets
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Budgets
+}  // namespace Aws

@@ -4,13 +4,14 @@
  */
 
 #include <aws/billing/BillingEndpointProvider.h>
+#include <aws/billing/internal/BillingEndpointRules.h>
 
-namespace Aws
-{
-namespace Billing
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace Billing
-} // namespace Aws
+namespace Aws {
+namespace Billing {
+namespace Endpoint {
+BillingEndpointProvider::BillingEndpointProvider()
+    : BillingDefaultEpProviderBase(Aws::Billing::BillingEndpointRules::GetRulesBlob(), Aws::Billing::BillingEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace Billing
+}  // namespace Aws

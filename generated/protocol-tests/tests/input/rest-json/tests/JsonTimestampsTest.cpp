@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 #include <aws/core/utils/logging/LogMacros.h>
-#include <aws/testing/AwsProtocolTestHelpers.h>
 #include <aws/rest-json-protocol/RestJsonProtocolClient.h>
 #include <aws/rest-json-protocol/model/JsonTimestampsRequest.h>
+#include <aws/testing/AwsProtocolTestHelpers.h>
 
 using JsonTimestamps = AWS_PROTOCOL_TEST_SUITE;
 using RestJsonProtocolClient = Aws::RestJsonProtocol::RestJsonProtocolClient;
@@ -17,7 +17,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestamps) {
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetNormal(Aws::Utils::DateTime(1398796238L));
+  request.SetNormal(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;
@@ -35,7 +35,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestampsWithDateTimeFormat) {
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetDateTime(Aws::Utils::DateTime(1398796238L));
+  request.SetDateTime(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;
@@ -53,7 +53,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestampsWithDateTimeOnTargetForm
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetDateTimeOnTarget(Aws::Utils::DateTime(1398796238L));
+  request.SetDateTimeOnTarget(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;
@@ -71,7 +71,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestampsWithEpochSecondsFormat) 
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetEpochSeconds(Aws::Utils::DateTime(1398796238L));
+  request.SetEpochSeconds(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;
@@ -89,7 +89,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestampsWithEpochSecondsOnTarget
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetEpochSecondsOnTarget(Aws::Utils::DateTime(1398796238L));
+  request.SetEpochSecondsOnTarget(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;
@@ -107,7 +107,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestampsWithHttpDateFormat) {
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetHttpDate(Aws::Utils::DateTime(1398796238L));
+  request.SetHttpDate(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;
@@ -125,7 +125,7 @@ AWS_PROTOCOL_TEST(JsonTimestamps, RestJsonJsonTimestampsWithHttpDateOnTargetForm
   SetMockResponse();
 
   JsonTimestampsRequest request;
-  request.SetHttpDateOnTarget(Aws::Utils::DateTime(1398796238L));
+  request.SetHttpDateOnTarget(Aws::Utils::DateTime(static_cast<int64_t>(1398796238)));
 
   auto outcome = client.JsonTimestamps(request);
   ExpectedRequest expectedRq;

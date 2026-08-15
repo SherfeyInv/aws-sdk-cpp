@@ -16,6 +16,7 @@ public class Operation {
     private String name;
     private Http http;
     private ShapeMember request;
+    private boolean phonyRequest;
     private ShapeMember result;
     private List<Error> errors;
     private String documentation;
@@ -75,6 +76,11 @@ public class Operation {
     // For S3 CRT
     private boolean s3CrtEnabled;
 
+    // For S3 bare query-marker subresources that also carry query params (e.g. object annotations).
+    // Emits "?marker=" instead of "?marker" so URI query canonicalization does not mangle the
+    // valueless key (a bare "?annotation" alongside annotationName= becomes "annotation=annotation").
+    private boolean emitEmptyValueQueryMarker;
+
     // For flexible checksums
     private boolean requestChecksumRequired;
     private String requestAlgorithmMember;
@@ -88,11 +94,33 @@ public class Operation {
     // For Requestless Defaults
     private boolean requestlessDefault = false;
 
+    // Long-polling operations that must back off even when retry quota is exhausted
+    private boolean longPolling = false;
+
     public boolean hasRequest() {
-        return this.request != null;
+        return this.request != null && !this.phonyRequest;
     }
 
     public void addRequest(final ShapeMember request) {
         this.request = request;
+    }
+
+    public void addPhonyRequest(final ShapeMember request) {
+        this.request = request;
+        this.phonyRequest = true;
+    }
+
+    public boolean hasSigV4Auth() { return auth != null && auth.contains("aws.auth#sigv4"); }
+
+    public boolean hasSigV4aAuth() {
+        return auth != null && auth.contains("aws.auth#sigv4a");
+    }
+
+    public boolean hasNoAuth() {
+        return auth != null && auth.contains("smithy.api#noAuth");
+    }
+
+    public boolean hasBearerAuth() {
+        return auth != null && auth.contains("smithy.api#httpBearerAuth");
     }
 }

@@ -3,57 +3,73 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 
-#include <aws/core/utils/Outcome.h>
 #include <aws/core/auth/AWSAuthSigner.h>
+#include <aws/core/auth/AWSCredentialsProviderChain.h>
 #include <aws/core/client/CoreErrors.h>
 #include <aws/core/client/RetryStrategy.h>
 #include <aws/core/http/HttpClient.h>
-#include <aws/core/http/HttpResponse.h>
 #include <aws/core/http/HttpClientFactory.h>
-#include <aws/core/auth/AWSCredentialsProviderChain.h>
+#include <aws/core/http/HttpResponse.h>
+#include <aws/core/utils/DNS.h>
+#include <aws/core/utils/Outcome.h>
 #include <aws/core/utils/json/JsonSerializer.h>
+#include <aws/core/utils/logging/ErrorMacros.h>
+#include <aws/core/utils/logging/LogMacros.h>
 #include <aws/core/utils/memory/stl/AWSStringStream.h>
 #include <aws/core/utils/threading/Executor.h>
-#include <aws/core/utils/DNS.h>
-#include <aws/core/utils/logging/LogMacros.h>
-#include <aws/core/utils/logging/ErrorMacros.h>
-
 #include <aws/s3tables/S3TablesClient.h>
-#include <aws/s3tables/S3TablesErrorMarshaller.h>
 #include <aws/s3tables/S3TablesEndpointProvider.h>
+#include <aws/s3tables/S3TablesErrorMarshaller.h>
 #include <aws/s3tables/model/CreateNamespaceRequest.h>
-#include <aws/s3tables/model/CreateTableRequest.h>
 #include <aws/s3tables/model/CreateTableBucketRequest.h>
+#include <aws/s3tables/model/CreateTableRequest.h>
 #include <aws/s3tables/model/DeleteNamespaceRequest.h>
-#include <aws/s3tables/model/DeleteTableRequest.h>
-#include <aws/s3tables/model/DeleteTableBucketRequest.h>
 #include <aws/s3tables/model/DeleteTableBucketEncryptionRequest.h>
+#include <aws/s3tables/model/DeleteTableBucketMetricsConfigurationRequest.h>
 #include <aws/s3tables/model/DeleteTableBucketPolicyRequest.h>
+#include <aws/s3tables/model/DeleteTableBucketReplicationRequest.h>
+#include <aws/s3tables/model/DeleteTableBucketRequest.h>
 #include <aws/s3tables/model/DeleteTablePolicyRequest.h>
+#include <aws/s3tables/model/DeleteTableReplicationRequest.h>
+#include <aws/s3tables/model/DeleteTableRequest.h>
 #include <aws/s3tables/model/GetNamespaceRequest.h>
-#include <aws/s3tables/model/GetTableRequest.h>
-#include <aws/s3tables/model/GetTableBucketRequest.h>
 #include <aws/s3tables/model/GetTableBucketEncryptionRequest.h>
 #include <aws/s3tables/model/GetTableBucketMaintenanceConfigurationRequest.h>
+#include <aws/s3tables/model/GetTableBucketMetricsConfigurationRequest.h>
 #include <aws/s3tables/model/GetTableBucketPolicyRequest.h>
+#include <aws/s3tables/model/GetTableBucketReplicationRequest.h>
+#include <aws/s3tables/model/GetTableBucketRequest.h>
+#include <aws/s3tables/model/GetTableBucketStorageClassRequest.h>
 #include <aws/s3tables/model/GetTableEncryptionRequest.h>
 #include <aws/s3tables/model/GetTableMaintenanceConfigurationRequest.h>
 #include <aws/s3tables/model/GetTableMaintenanceJobStatusRequest.h>
 #include <aws/s3tables/model/GetTableMetadataLocationRequest.h>
 #include <aws/s3tables/model/GetTablePolicyRequest.h>
+#include <aws/s3tables/model/GetTableRecordExpirationConfigurationRequest.h>
+#include <aws/s3tables/model/GetTableRecordExpirationJobStatusRequest.h>
+#include <aws/s3tables/model/GetTableReplicationRequest.h>
+#include <aws/s3tables/model/GetTableReplicationStatusRequest.h>
+#include <aws/s3tables/model/GetTableRequest.h>
+#include <aws/s3tables/model/GetTableStorageClassRequest.h>
 #include <aws/s3tables/model/ListNamespacesRequest.h>
 #include <aws/s3tables/model/ListTableBucketsRequest.h>
 #include <aws/s3tables/model/ListTablesRequest.h>
+#include <aws/s3tables/model/ListTagsForResourceRequest.h>
 #include <aws/s3tables/model/PutTableBucketEncryptionRequest.h>
 #include <aws/s3tables/model/PutTableBucketMaintenanceConfigurationRequest.h>
+#include <aws/s3tables/model/PutTableBucketMetricsConfigurationRequest.h>
 #include <aws/s3tables/model/PutTableBucketPolicyRequest.h>
+#include <aws/s3tables/model/PutTableBucketReplicationRequest.h>
+#include <aws/s3tables/model/PutTableBucketStorageClassRequest.h>
 #include <aws/s3tables/model/PutTableMaintenanceConfigurationRequest.h>
 #include <aws/s3tables/model/PutTablePolicyRequest.h>
+#include <aws/s3tables/model/PutTableRecordExpirationConfigurationRequest.h>
+#include <aws/s3tables/model/PutTableReplicationRequest.h>
 #include <aws/s3tables/model/RenameTableRequest.h>
+#include <aws/s3tables/model/TagResourceRequest.h>
+#include <aws/s3tables/model/UntagResourceRequest.h>
 #include <aws/s3tables/model/UpdateTableMetadataLocationRequest.h>
-
 #include <smithy/tracing/TracingUtils.h>
-
 
 using namespace Aws;
 using namespace Aws::Auth;
@@ -65,116 +81,91 @@ using namespace Aws::Utils::Json;
 using namespace smithy::components::tracing;
 using ResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-namespace Aws
-{
-  namespace S3Tables
-  {
-    const char SERVICE_NAME[] = "s3tables";
-    const char ALLOCATION_TAG[] = "S3TablesClient";
-  }
-}
-const char* S3TablesClient::GetServiceName() {return SERVICE_NAME;}
-const char* S3TablesClient::GetAllocationTag() {return ALLOCATION_TAG;}
+namespace Aws {
+namespace S3Tables {
+const char SERVICE_NAME[] = "s3tables";
+const char ALLOCATION_TAG[] = "S3TablesClient";
+}  // namespace S3Tables
+}  // namespace Aws
+const char* S3TablesClient::GetServiceName() { return SERVICE_NAME; }
+const char* S3TablesClient::GetAllocationTag() { return ALLOCATION_TAG; }
 
 S3TablesClient::S3TablesClient(const S3Tables::S3TablesClientConfiguration& clientConfiguration,
-                               std::shared_ptr<S3TablesEndpointProviderBase> endpointProvider) :
-  BASECLASS(clientConfiguration,
-            Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
-                                             Aws::MakeShared<DefaultAWSCredentialsProviderChain>(ALLOCATION_TAG),
-                                             SERVICE_NAME,
-                                             Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
-            Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
-  m_clientConfiguration(clientConfiguration),
-  m_endpointProvider(endpointProvider ? std::move(endpointProvider) : Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG))
-{
+                               std::shared_ptr<S3TablesEndpointProviderBase> endpointProvider)
+    : BASECLASS(clientConfiguration,
+                Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
+                                                 Aws::MakeShared<DefaultAWSCredentialsProviderChain>(
+                                                     ALLOCATION_TAG, clientConfiguration.ResolveCredentialProviderConfig()),
+                                                 SERVICE_NAME, Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
+                Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
+      m_clientConfiguration(clientConfiguration),
+      m_endpointProvider(endpointProvider ? std::move(endpointProvider) : Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG)) {
   init(m_clientConfiguration);
 }
 
-S3TablesClient::S3TablesClient(const AWSCredentials& credentials,
-                               std::shared_ptr<S3TablesEndpointProviderBase> endpointProvider,
-                               const S3Tables::S3TablesClientConfiguration& clientConfiguration) :
-  BASECLASS(clientConfiguration,
-            Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
-                                             Aws::MakeShared<SimpleAWSCredentialsProvider>(ALLOCATION_TAG, credentials),
-                                             SERVICE_NAME,
-                                             Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
-            Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
-    m_clientConfiguration(clientConfiguration),
-    m_endpointProvider(endpointProvider ? std::move(endpointProvider) : Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG))
-{
+S3TablesClient::S3TablesClient(const AWSCredentials& credentials, std::shared_ptr<S3TablesEndpointProviderBase> endpointProvider,
+                               const S3Tables::S3TablesClientConfiguration& clientConfiguration)
+    : BASECLASS(clientConfiguration,
+                Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG, Aws::MakeShared<SimpleAWSCredentialsProvider>(ALLOCATION_TAG, credentials),
+                                                 SERVICE_NAME, Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
+                Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
+      m_clientConfiguration(clientConfiguration),
+      m_endpointProvider(endpointProvider ? std::move(endpointProvider) : Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG)) {
   init(m_clientConfiguration);
 }
 
 S3TablesClient::S3TablesClient(const std::shared_ptr<AWSCredentialsProvider>& credentialsProvider,
                                std::shared_ptr<S3TablesEndpointProviderBase> endpointProvider,
-                               const S3Tables::S3TablesClientConfiguration& clientConfiguration) :
-  BASECLASS(clientConfiguration,
-            Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
-                                             credentialsProvider,
-                                             SERVICE_NAME,
-                                             Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
-            Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
-    m_clientConfiguration(clientConfiguration),
-    m_endpointProvider(endpointProvider ? std::move(endpointProvider) : Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG))
-{
+                               const S3Tables::S3TablesClientConfiguration& clientConfiguration)
+    : BASECLASS(clientConfiguration,
+                Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG, credentialsProvider, SERVICE_NAME,
+                                                 Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
+                Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
+      m_clientConfiguration(clientConfiguration),
+      m_endpointProvider(endpointProvider ? std::move(endpointProvider) : Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG)) {
   init(m_clientConfiguration);
 }
 
-    /* Legacy constructors due deprecation */
-  S3TablesClient::S3TablesClient(const Client::ClientConfiguration& clientConfiguration) :
-  BASECLASS(clientConfiguration,
-            Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
-                                             Aws::MakeShared<DefaultAWSCredentialsProviderChain>(ALLOCATION_TAG),
-                                             SERVICE_NAME,
-                                             Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
-            Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
-  m_clientConfiguration(clientConfiguration),
-  m_endpointProvider(Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG))
-{
+/* Legacy constructors due deprecation */
+S3TablesClient::S3TablesClient(const Aws::Client::ClientConfiguration& clientConfiguration)
+    : BASECLASS(clientConfiguration,
+                Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
+                                                 Aws::MakeShared<DefaultAWSCredentialsProviderChain>(
+                                                     ALLOCATION_TAG, clientConfiguration.ResolveCredentialProviderConfig()),
+                                                 SERVICE_NAME, Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
+                Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
+      m_clientConfiguration(clientConfiguration),
+      m_endpointProvider(Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG)) {
   init(m_clientConfiguration);
 }
 
-S3TablesClient::S3TablesClient(const AWSCredentials& credentials,
-                               const Client::ClientConfiguration& clientConfiguration) :
-  BASECLASS(clientConfiguration,
-            Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
-                                             Aws::MakeShared<SimpleAWSCredentialsProvider>(ALLOCATION_TAG, credentials),
-                                             SERVICE_NAME,
-                                             Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
-            Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
-    m_clientConfiguration(clientConfiguration),
-    m_endpointProvider(Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG))
-{
+S3TablesClient::S3TablesClient(const AWSCredentials& credentials, const Aws::Client::ClientConfiguration& clientConfiguration)
+    : BASECLASS(clientConfiguration,
+                Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG, Aws::MakeShared<SimpleAWSCredentialsProvider>(ALLOCATION_TAG, credentials),
+                                                 SERVICE_NAME, Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
+                Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
+      m_clientConfiguration(clientConfiguration),
+      m_endpointProvider(Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG)) {
   init(m_clientConfiguration);
 }
 
 S3TablesClient::S3TablesClient(const std::shared_ptr<AWSCredentialsProvider>& credentialsProvider,
-                               const Client::ClientConfiguration& clientConfiguration) :
-  BASECLASS(clientConfiguration,
-            Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG,
-                                             credentialsProvider,
-                                             SERVICE_NAME,
-                                             Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
-            Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
-    m_clientConfiguration(clientConfiguration),
-    m_endpointProvider(Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG))
-{
+                               const Aws::Client::ClientConfiguration& clientConfiguration)
+    : BASECLASS(clientConfiguration,
+                Aws::MakeShared<AWSAuthV4Signer>(ALLOCATION_TAG, credentialsProvider, SERVICE_NAME,
+                                                 Aws::Region::ComputeSignerRegion(clientConfiguration.region)),
+                Aws::MakeShared<S3TablesErrorMarshaller>(ALLOCATION_TAG)),
+      m_clientConfiguration(clientConfiguration),
+      m_endpointProvider(Aws::MakeShared<S3TablesEndpointProvider>(ALLOCATION_TAG)) {
   init(m_clientConfiguration);
 }
 
-    /* End of legacy constructors due deprecation */
-S3TablesClient::~S3TablesClient()
-{
-  ShutdownSdkClient(this, -1);
-}
+/* End of legacy constructors due deprecation */
+S3TablesClient::~S3TablesClient() { ShutdownSdkClient(this, -1); }
 
-std::shared_ptr<S3TablesEndpointProviderBase>& S3TablesClient::accessEndpointProvider()
-{
-  return m_endpointProvider;
-}
+std::shared_ptr<S3TablesEndpointProviderBase>& S3TablesClient::accessEndpointProvider() { return m_endpointProvider; }
 
-void S3TablesClient::init(const S3Tables::S3TablesClientConfiguration& config)
-{
+void S3TablesClient::init(const S3Tables::S3TablesClientConfiguration& config) {
   AWSClient::SetServiceClientName("S3Tables");
   if (!m_clientConfiguration.executor) {
     if (!m_clientConfiguration.configFactories.executorCreateFn()) {
@@ -185,1164 +176,1107 @@ void S3TablesClient::init(const S3Tables::S3TablesClientConfiguration& config)
     m_clientConfiguration.executor = m_clientConfiguration.configFactories.executorCreateFn();
   }
   AWS_CHECK_PTR(SERVICE_NAME, m_endpointProvider);
-  m_endpointProvider->InitBuiltInParameters(config);
+  m_endpointProvider->InitBuiltInParameters(config, "s3tables");
 }
 
-void S3TablesClient::OverrideEndpoint(const Aws::String& endpoint)
-{
+void S3TablesClient::OverrideEndpoint(const Aws::String& endpoint) {
   AWS_CHECK_PTR(SERVICE_NAME, m_endpointProvider);
+  m_clientConfiguration.endpointOverride = endpoint;
   m_endpointProvider->OverrideEndpoint(endpoint);
 }
+S3TablesClient::InvokeOperationOutcome S3TablesClient::InvokeServiceOperation(
+    const AmazonWebServiceRequest& request, const std::function<void(Aws::Endpoint::ResolveEndpointOutcome&)>& resolveUri,
+    Aws::Http::HttpMethod httpMethod) const {
+  auto operationName = request.GetServiceRequestName();
+  auto serviceName = GetServiceClientName();
 
-CreateNamespaceOutcome S3TablesClient::CreateNamespace(const CreateNamespaceRequest& request) const
-{
-  AWS_OPERATION_GUARD(CreateNamespace);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, CreateNamespace, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+  AWS_OPERATION_GUARD_DYNAMIC(operationName);
+
+  AWS_OPERATION_CHECK_PTR_DYNAMIC(m_endpointProvider, operationName, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
+  AWS_OPERATION_CHECK_PTR_DYNAMIC(m_telemetryProvider, operationName, CoreErrors, CoreErrors::NOT_INITIALIZED);
+
+  auto tracer = m_telemetryProvider->getTracer(serviceName, {});
+  auto meter = m_telemetryProvider->getMeter(serviceName, {});
+  AWS_OPERATION_CHECK_PTR_DYNAMIC(meter, operationName, CoreErrors, CoreErrors::NOT_INITIALIZED);
+
+  auto span = tracer->CreateSpan(Aws::String(serviceName) + "." + operationName,
+                                 {{TracingUtils::SMITHY_METHOD_DIMENSION, operationName},
+                                  {TracingUtils::SMITHY_SERVICE_DIMENSION, serviceName},
+                                  {TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE}},
+                                 smithy::components::tracing::SpanKind::CLIENT);
+
+  return TracingUtils::MakeCallWithTiming<InvokeOperationOutcome>(
+      [&]() -> InvokeOperationOutcome {
+        auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
+            [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
+            TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC, *meter,
+            {{TracingUtils::SMITHY_METHOD_DIMENSION, operationName}, {TracingUtils::SMITHY_SERVICE_DIMENSION, serviceName}});
+
+        AWS_OPERATION_CHECK_SUCCESS_DYNAMIC(endpointResolutionOutcome, operationName, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE,
+                                            endpointResolutionOutcome.GetError().GetMessage());
+
+        resolveUri(endpointResolutionOutcome);
+
+        return InvokeOperationOutcome{MakeRequest(request, endpointResolutionOutcome.GetResult(), httpMethod, Aws::Auth::SIGV4_SIGNER)};
+      },
+      TracingUtils::SMITHY_CLIENT_DURATION_METRIC, *meter,
+      {{TracingUtils::SMITHY_METHOD_DIMENSION, operationName}, {TracingUtils::SMITHY_SERVICE_DIMENSION, serviceName}});
+}
+
+CreateNamespaceOutcome S3TablesClient::CreateNamespace(const CreateNamespaceRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("CreateNamespace", "Required field: TableBucketARN, is not set");
-    return CreateNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return CreateNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                        "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, CreateNamespace, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, CreateNamespace, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".CreateNamespace",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<CreateNamespaceOutcome>(
-    [&]()-> CreateNamespaceOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, CreateNamespace, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      return CreateNamespaceOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? CreateNamespaceOutcome(result.GetResultWithOwnership())
+                            : CreateNamespaceOutcome(std::move(result.GetError()));
 }
 
-CreateTableOutcome S3TablesClient::CreateTable(const CreateTableRequest& request) const
-{
-  AWS_OPERATION_GUARD(CreateTable);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, CreateTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+CreateTableOutcome S3TablesClient::CreateTable(const CreateTableRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("CreateTable", "Required field: TableBucketARN, is not set");
-    return CreateTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return CreateTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("CreateTable", "Required field: Namespace, is not set");
-    return CreateTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return CreateTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [Namespace]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, CreateTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, CreateTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".CreateTable",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<CreateTableOutcome>(
-    [&]()-> CreateTableOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, CreateTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      return CreateTableOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? CreateTableOutcome(result.GetResultWithOwnership()) : CreateTableOutcome(std::move(result.GetError()));
 }
 
-CreateTableBucketOutcome S3TablesClient::CreateTableBucket(const CreateTableBucketRequest& request) const
-{
-  AWS_OPERATION_GUARD(CreateTableBucket);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, CreateTableBucket, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, CreateTableBucket, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, CreateTableBucket, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".CreateTableBucket",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<CreateTableBucketOutcome>(
-    [&]()-> CreateTableBucketOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, CreateTableBucket, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets");
-      return CreateTableBucketOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+CreateTableBucketOutcome S3TablesClient::CreateTableBucket(const CreateTableBucketRequest& request) const {
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? CreateTableBucketOutcome(result.GetResultWithOwnership())
+                            : CreateTableBucketOutcome(std::move(result.GetError()));
 }
 
-DeleteNamespaceOutcome S3TablesClient::DeleteNamespace(const DeleteNamespaceRequest& request) const
-{
-  AWS_OPERATION_GUARD(DeleteNamespace);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, DeleteNamespace, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteNamespaceOutcome S3TablesClient::DeleteNamespace(const DeleteNamespaceRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteNamespace", "Required field: TableBucketARN, is not set");
-    return DeleteNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return DeleteNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                        "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteNamespace", "Required field: Namespace, is not set");
-    return DeleteNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return DeleteNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                        "Missing required field [Namespace]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, DeleteNamespace, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, DeleteNamespace, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".DeleteNamespace",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<DeleteNamespaceOutcome>(
-    [&]()-> DeleteNamespaceOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, DeleteNamespace, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      return DeleteNamespaceOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_DELETE, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteNamespaceOutcome(result.GetResultWithOwnership())
+                            : DeleteNamespaceOutcome(std::move(result.GetError()));
 }
 
-DeleteTableOutcome S3TablesClient::DeleteTable(const DeleteTableRequest& request) const
-{
-  AWS_OPERATION_GUARD(DeleteTable);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, DeleteTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteTableOutcome S3TablesClient::DeleteTable(const DeleteTableRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTable", "Required field: TableBucketARN, is not set");
-    return DeleteTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return DeleteTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTable", "Required field: Namespace, is not set");
-    return DeleteTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return DeleteTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTable", "Required field: Name, is not set");
-    return DeleteTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return DeleteTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, DeleteTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, DeleteTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".DeleteTable",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<DeleteTableOutcome>(
-    [&]()-> DeleteTableOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, DeleteTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      return DeleteTableOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_DELETE, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableOutcome(result.GetResultWithOwnership()) : DeleteTableOutcome(std::move(result.GetError()));
 }
 
-DeleteTableBucketOutcome S3TablesClient::DeleteTableBucket(const DeleteTableBucketRequest& request) const
-{
-  AWS_OPERATION_GUARD(DeleteTableBucket);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, DeleteTableBucket, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteTableBucketOutcome S3TablesClient::DeleteTableBucket(const DeleteTableBucketRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTableBucket", "Required field: TableBucketARN, is not set");
-    return DeleteTableBucketOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return DeleteTableBucketOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                          "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, DeleteTableBucket, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, DeleteTableBucket, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".DeleteTableBucket",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<DeleteTableBucketOutcome>(
-    [&]()-> DeleteTableBucketOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, DeleteTableBucket, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      return DeleteTableBucketOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_DELETE, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableBucketOutcome(result.GetResultWithOwnership())
+                            : DeleteTableBucketOutcome(std::move(result.GetError()));
 }
 
-DeleteTableBucketEncryptionOutcome S3TablesClient::DeleteTableBucketEncryption(const DeleteTableBucketEncryptionRequest& request) const
-{
-  AWS_OPERATION_GUARD(DeleteTableBucketEncryption);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, DeleteTableBucketEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteTableBucketEncryptionOutcome S3TablesClient::DeleteTableBucketEncryption(const DeleteTableBucketEncryptionRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTableBucketEncryption", "Required field: TableBucketARN, is not set");
-    return DeleteTableBucketEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return DeleteTableBucketEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                    "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, DeleteTableBucketEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, DeleteTableBucketEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".DeleteTableBucketEncryption",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<DeleteTableBucketEncryptionOutcome>(
-    [&]()-> DeleteTableBucketEncryptionOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, DeleteTableBucketEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
-      return DeleteTableBucketEncryptionOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_DELETE, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableBucketEncryptionOutcome(result.GetResultWithOwnership())
+                            : DeleteTableBucketEncryptionOutcome(std::move(result.GetError()));
 }
 
-DeleteTableBucketPolicyOutcome S3TablesClient::DeleteTableBucketPolicy(const DeleteTableBucketPolicyRequest& request) const
-{
-  AWS_OPERATION_GUARD(DeleteTableBucketPolicy);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, DeleteTableBucketPolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteTableBucketMetricsConfigurationOutcome S3TablesClient::DeleteTableBucketMetricsConfiguration(
+    const DeleteTableBucketMetricsConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("DeleteTableBucketMetricsConfiguration", "Required field: TableBucketARN, is not set");
+    return DeleteTableBucketMetricsConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/metrics");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableBucketMetricsConfigurationOutcome(result.GetResultWithOwnership())
+                            : DeleteTableBucketMetricsConfigurationOutcome(std::move(result.GetError()));
+}
+
+DeleteTableBucketPolicyOutcome S3TablesClient::DeleteTableBucketPolicy(const DeleteTableBucketPolicyRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTableBucketPolicy", "Required field: TableBucketARN, is not set");
-    return DeleteTableBucketPolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return DeleteTableBucketPolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, DeleteTableBucketPolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, DeleteTableBucketPolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".DeleteTableBucketPolicy",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<DeleteTableBucketPolicyOutcome>(
-    [&]()-> DeleteTableBucketPolicyOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, DeleteTableBucketPolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
-      return DeleteTableBucketPolicyOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_DELETE, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableBucketPolicyOutcome(result.GetResultWithOwnership())
+                            : DeleteTableBucketPolicyOutcome(std::move(result.GetError()));
 }
 
-DeleteTablePolicyOutcome S3TablesClient::DeleteTablePolicy(const DeleteTablePolicyRequest& request) const
-{
-  AWS_OPERATION_GUARD(DeleteTablePolicy);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, DeleteTablePolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteTableBucketReplicationOutcome S3TablesClient::DeleteTableBucketReplication(const DeleteTableBucketReplicationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("DeleteTableBucketReplication", "Required field: TableBucketARN, is not set");
+    return DeleteTableBucketReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                     "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-bucket-replication");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableBucketReplicationOutcome(result.GetResultWithOwnership())
+                            : DeleteTableBucketReplicationOutcome(std::move(result.GetError()));
+}
+
+DeleteTablePolicyOutcome S3TablesClient::DeleteTablePolicy(const DeleteTablePolicyRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTablePolicy", "Required field: TableBucketARN, is not set");
-    return DeleteTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return DeleteTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                          "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTablePolicy", "Required field: Namespace, is not set");
-    return DeleteTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return DeleteTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                          "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("DeleteTablePolicy", "Required field: Name, is not set");
-    return DeleteTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return DeleteTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                          "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, DeleteTablePolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, DeleteTablePolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".DeleteTablePolicy",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<DeleteTablePolicyOutcome>(
-    [&]()-> DeleteTablePolicyOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, DeleteTablePolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
-      return DeleteTablePolicyOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_DELETE, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTablePolicyOutcome(result.GetResultWithOwnership())
+                            : DeleteTablePolicyOutcome(std::move(result.GetError()));
 }
 
-GetNamespaceOutcome S3TablesClient::GetNamespace(const GetNamespaceRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetNamespace);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetNamespace, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+DeleteTableReplicationOutcome S3TablesClient::DeleteTableReplication(const DeleteTableReplicationRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("DeleteTableReplication", "Required field: TableArn, is not set");
+    return DeleteTableReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                               "Missing required field [TableArn]", false));
+  }
+  if (!request.VersionTokenHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("DeleteTableReplication", "Required field: VersionToken, is not set");
+    return DeleteTableReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                               "Missing required field [VersionToken]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-replication");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? DeleteTableReplicationOutcome(result.GetResultWithOwnership())
+                            : DeleteTableReplicationOutcome(std::move(result.GetError()));
+}
+
+GetNamespaceOutcome S3TablesClient::GetNamespace(const GetNamespaceRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetNamespace", "Required field: TableBucketARN, is not set");
-    return GetNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                     "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetNamespace", "Required field: Namespace, is not set");
-    return GetNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return GetNamespaceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                     "Missing required field [Namespace]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetNamespace, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetNamespace, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetNamespace",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetNamespaceOutcome>(
-    [&]()-> GetNamespaceOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetNamespace, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      return GetNamespaceOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetNamespaceOutcome(result.GetResultWithOwnership()) : GetNamespaceOutcome(std::move(result.GetError()));
 }
 
-GetTableOutcome S3TablesClient::GetTable(const GetTableRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTable);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTable",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableOutcome>(
-    [&]()-> GetTableOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/get-table");
-      return GetTableOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+GetTableOutcome S3TablesClient::GetTable(const GetTableRequest& request) const {
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/get-table");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableOutcome(result.GetResultWithOwnership()) : GetTableOutcome(std::move(result.GetError()));
 }
 
-GetTableBucketOutcome S3TablesClient::GetTableBucket(const GetTableBucketRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableBucket);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableBucket, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableBucketOutcome S3TablesClient::GetTableBucket(const GetTableBucketRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableBucket", "Required field: TableBucketARN, is not set");
-    return GetTableBucketOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableBucketOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableBucket, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableBucket, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableBucket",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableBucketOutcome>(
-    [&]()-> GetTableBucketOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableBucket, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      return GetTableBucketOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketOutcome(result.GetResultWithOwnership()) : GetTableBucketOutcome(std::move(result.GetError()));
 }
 
-GetTableBucketEncryptionOutcome S3TablesClient::GetTableBucketEncryption(const GetTableBucketEncryptionRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableBucketEncryption);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableBucketEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableBucketEncryptionOutcome S3TablesClient::GetTableBucketEncryption(const GetTableBucketEncryptionRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableBucketEncryption", "Required field: TableBucketARN, is not set");
-    return GetTableBucketEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableBucketEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                 "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableBucketEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableBucketEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableBucketEncryption",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableBucketEncryptionOutcome>(
-    [&]()-> GetTableBucketEncryptionOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableBucketEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
-      return GetTableBucketEncryptionOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketEncryptionOutcome(result.GetResultWithOwnership())
+                            : GetTableBucketEncryptionOutcome(std::move(result.GetError()));
 }
 
-GetTableBucketMaintenanceConfigurationOutcome S3TablesClient::GetTableBucketMaintenanceConfiguration(const GetTableBucketMaintenanceConfigurationRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableBucketMaintenanceConfiguration);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableBucketMaintenanceConfigurationOutcome S3TablesClient::GetTableBucketMaintenanceConfiguration(
+    const GetTableBucketMaintenanceConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableBucketMaintenanceConfiguration", "Required field: TableBucketARN, is not set");
-    return GetTableBucketMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableBucketMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableBucketMaintenanceConfiguration",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableBucketMaintenanceConfigurationOutcome>(
-    [&]()-> GetTableBucketMaintenanceConfigurationOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance");
-      return GetTableBucketMaintenanceConfigurationOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketMaintenanceConfigurationOutcome(result.GetResultWithOwnership())
+                            : GetTableBucketMaintenanceConfigurationOutcome(std::move(result.GetError()));
 }
 
-GetTableBucketPolicyOutcome S3TablesClient::GetTableBucketPolicy(const GetTableBucketPolicyRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableBucketPolicy);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableBucketPolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableBucketMetricsConfigurationOutcome S3TablesClient::GetTableBucketMetricsConfiguration(
+    const GetTableBucketMetricsConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableBucketMetricsConfiguration", "Required field: TableBucketARN, is not set");
+    return GetTableBucketMetricsConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/metrics");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketMetricsConfigurationOutcome(result.GetResultWithOwnership())
+                            : GetTableBucketMetricsConfigurationOutcome(std::move(result.GetError()));
+}
+
+GetTableBucketPolicyOutcome S3TablesClient::GetTableBucketPolicy(const GetTableBucketPolicyRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableBucketPolicy", "Required field: TableBucketARN, is not set");
-    return GetTableBucketPolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableBucketPolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                             "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableBucketPolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableBucketPolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableBucketPolicy",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableBucketPolicyOutcome>(
-    [&]()-> GetTableBucketPolicyOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableBucketPolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
-      return GetTableBucketPolicyOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketPolicyOutcome(result.GetResultWithOwnership())
+                            : GetTableBucketPolicyOutcome(std::move(result.GetError()));
 }
 
-GetTableEncryptionOutcome S3TablesClient::GetTableEncryption(const GetTableEncryptionRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableEncryption);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableBucketReplicationOutcome S3TablesClient::GetTableBucketReplication(const GetTableBucketReplicationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableBucketReplication", "Required field: TableBucketARN, is not set");
+    return GetTableBucketReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                  "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-bucket-replication");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketReplicationOutcome(result.GetResultWithOwnership())
+                            : GetTableBucketReplicationOutcome(std::move(result.GetError()));
+}
+
+GetTableBucketStorageClassOutcome S3TablesClient::GetTableBucketStorageClass(const GetTableBucketStorageClassRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableBucketStorageClass", "Required field: TableBucketARN, is not set");
+    return GetTableBucketStorageClassOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                   "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/storage-class");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableBucketStorageClassOutcome(result.GetResultWithOwnership())
+                            : GetTableBucketStorageClassOutcome(std::move(result.GetError()));
+}
+
+GetTableEncryptionOutcome S3TablesClient::GetTableEncryption(const GetTableEncryptionRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableEncryption", "Required field: TableBucketARN, is not set");
-    return GetTableEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                           "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableEncryption", "Required field: Namespace, is not set");
-    return GetTableEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return GetTableEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                           "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableEncryption", "Required field: Name, is not set");
-    return GetTableEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return GetTableEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                           "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableEncryption",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableEncryptionOutcome>(
-    [&]()-> GetTableEncryptionOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
-      return GetTableEncryptionOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableEncryptionOutcome(result.GetResultWithOwnership())
+                            : GetTableEncryptionOutcome(std::move(result.GetError()));
 }
 
-GetTableMaintenanceConfigurationOutcome S3TablesClient::GetTableMaintenanceConfiguration(const GetTableMaintenanceConfigurationRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableMaintenanceConfiguration);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableMaintenanceConfigurationOutcome S3TablesClient::GetTableMaintenanceConfiguration(
+    const GetTableMaintenanceConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMaintenanceConfiguration", "Required field: TableBucketARN, is not set");
-    return GetTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMaintenanceConfiguration", "Required field: Namespace, is not set");
-    return GetTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return GetTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMaintenanceConfiguration", "Required field: Name, is not set");
-    return GetTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return GetTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableMaintenanceConfiguration",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableMaintenanceConfigurationOutcome>(
-    [&]()-> GetTableMaintenanceConfigurationOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance");
-      return GetTableMaintenanceConfigurationOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableMaintenanceConfigurationOutcome(result.GetResultWithOwnership())
+                            : GetTableMaintenanceConfigurationOutcome(std::move(result.GetError()));
 }
 
-GetTableMaintenanceJobStatusOutcome S3TablesClient::GetTableMaintenanceJobStatus(const GetTableMaintenanceJobStatusRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableMaintenanceJobStatus);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableMaintenanceJobStatus, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableMaintenanceJobStatusOutcome S3TablesClient::GetTableMaintenanceJobStatus(const GetTableMaintenanceJobStatusRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMaintenanceJobStatus", "Required field: TableBucketARN, is not set");
-    return GetTableMaintenanceJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableMaintenanceJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                     "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMaintenanceJobStatus", "Required field: Namespace, is not set");
-    return GetTableMaintenanceJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return GetTableMaintenanceJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                     "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMaintenanceJobStatus", "Required field: Name, is not set");
-    return GetTableMaintenanceJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return GetTableMaintenanceJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                     "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableMaintenanceJobStatus, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableMaintenanceJobStatus, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableMaintenanceJobStatus",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableMaintenanceJobStatusOutcome>(
-    [&]()-> GetTableMaintenanceJobStatusOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableMaintenanceJobStatus, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance-job-status");
-      return GetTableMaintenanceJobStatusOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance-job-status");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableMaintenanceJobStatusOutcome(result.GetResultWithOwnership())
+                            : GetTableMaintenanceJobStatusOutcome(std::move(result.GetError()));
 }
 
-GetTableMetadataLocationOutcome S3TablesClient::GetTableMetadataLocation(const GetTableMetadataLocationRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTableMetadataLocation);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTableMetadataLocation, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableMetadataLocationOutcome S3TablesClient::GetTableMetadataLocation(const GetTableMetadataLocationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMetadataLocation", "Required field: TableBucketARN, is not set");
-    return GetTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                 "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMetadataLocation", "Required field: Namespace, is not set");
-    return GetTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return GetTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                 "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTableMetadataLocation", "Required field: Name, is not set");
-    return GetTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return GetTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                 "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTableMetadataLocation, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTableMetadataLocation, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTableMetadataLocation",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTableMetadataLocationOutcome>(
-    [&]()-> GetTableMetadataLocationOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTableMetadataLocation, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/metadata-location");
-      return GetTableMetadataLocationOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/metadata-location");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableMetadataLocationOutcome(result.GetResultWithOwnership())
+                            : GetTableMetadataLocationOutcome(std::move(result.GetError()));
 }
 
-GetTablePolicyOutcome S3TablesClient::GetTablePolicy(const GetTablePolicyRequest& request) const
-{
-  AWS_OPERATION_GUARD(GetTablePolicy);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, GetTablePolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTablePolicyOutcome S3TablesClient::GetTablePolicy(const GetTablePolicyRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTablePolicy", "Required field: TableBucketARN, is not set");
-    return GetTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return GetTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTablePolicy", "Required field: Namespace, is not set");
-    return GetTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return GetTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("GetTablePolicy", "Required field: Name, is not set");
-    return GetTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return GetTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, GetTablePolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, GetTablePolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".GetTablePolicy",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<GetTablePolicyOutcome>(
-    [&]()-> GetTablePolicyOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, GetTablePolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
-      return GetTablePolicyOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTablePolicyOutcome(result.GetResultWithOwnership()) : GetTablePolicyOutcome(std::move(result.GetError()));
 }
 
-ListNamespacesOutcome S3TablesClient::ListNamespaces(const ListNamespacesRequest& request) const
-{
-  AWS_OPERATION_GUARD(ListNamespaces);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, ListNamespaces, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+GetTableRecordExpirationConfigurationOutcome S3TablesClient::GetTableRecordExpirationConfiguration(
+    const GetTableRecordExpirationConfigurationRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableRecordExpirationConfiguration", "Required field: TableArn, is not set");
+    return GetTableRecordExpirationConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-record-expiration");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableRecordExpirationConfigurationOutcome(result.GetResultWithOwnership())
+                            : GetTableRecordExpirationConfigurationOutcome(std::move(result.GetError()));
+}
+
+GetTableRecordExpirationJobStatusOutcome S3TablesClient::GetTableRecordExpirationJobStatus(
+    const GetTableRecordExpirationJobStatusRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableRecordExpirationJobStatus", "Required field: TableArn, is not set");
+    return GetTableRecordExpirationJobStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-record-expiration-job-status");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableRecordExpirationJobStatusOutcome(result.GetResultWithOwnership())
+                            : GetTableRecordExpirationJobStatusOutcome(std::move(result.GetError()));
+}
+
+GetTableReplicationOutcome S3TablesClient::GetTableReplication(const GetTableReplicationRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableReplication", "Required field: TableArn, is not set");
+    return GetTableReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                            "Missing required field [TableArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-replication");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableReplicationOutcome(result.GetResultWithOwnership())
+                            : GetTableReplicationOutcome(std::move(result.GetError()));
+}
+
+GetTableReplicationStatusOutcome S3TablesClient::GetTableReplicationStatus(const GetTableReplicationStatusRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableReplicationStatus", "Required field: TableArn, is not set");
+    return GetTableReplicationStatusOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                  "Missing required field [TableArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/replication-status");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableReplicationStatusOutcome(result.GetResultWithOwnership())
+                            : GetTableReplicationStatusOutcome(std::move(result.GetError()));
+}
+
+GetTableStorageClassOutcome S3TablesClient::GetTableStorageClass(const GetTableStorageClassRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableStorageClass", "Required field: TableBucketARN, is not set");
+    return GetTableStorageClassOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                             "Missing required field [TableBucketARN]", false));
+  }
+  if (!request.NamespaceHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableStorageClass", "Required field: Namespace, is not set");
+    return GetTableStorageClassOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                             "Missing required field [Namespace]", false));
+  }
+  if (!request.NameHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("GetTableStorageClass", "Required field: Name, is not set");
+    return GetTableStorageClassOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                             "Missing required field [Name]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/storage-class");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? GetTableStorageClassOutcome(result.GetResultWithOwnership())
+                            : GetTableStorageClassOutcome(std::move(result.GetError()));
+}
+
+ListNamespacesOutcome S3TablesClient::ListNamespaces(const ListNamespacesRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("ListNamespaces", "Required field: TableBucketARN, is not set");
-    return ListNamespacesOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return ListNamespacesOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, ListNamespaces, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, ListNamespaces, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".ListNamespaces",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<ListNamespacesOutcome>(
-    [&]()-> ListNamespacesOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, ListNamespaces, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      return ListNamespacesOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/namespaces/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? ListNamespacesOutcome(result.GetResultWithOwnership()) : ListNamespacesOutcome(std::move(result.GetError()));
 }
 
-ListTableBucketsOutcome S3TablesClient::ListTableBuckets(const ListTableBucketsRequest& request) const
-{
-  AWS_OPERATION_GUARD(ListTableBuckets);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, ListTableBuckets, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, ListTableBuckets, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, ListTableBuckets, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".ListTableBuckets",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<ListTableBucketsOutcome>(
-    [&]()-> ListTableBucketsOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, ListTableBuckets, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets");
-      return ListTableBucketsOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+ListTableBucketsOutcome S3TablesClient::ListTableBuckets(const ListTableBucketsRequest& request) const {
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? ListTableBucketsOutcome(result.GetResultWithOwnership())
+                            : ListTableBucketsOutcome(std::move(result.GetError()));
 }
 
-ListTablesOutcome S3TablesClient::ListTables(const ListTablesRequest& request) const
-{
-  AWS_OPERATION_GUARD(ListTables);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, ListTables, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+ListTablesOutcome S3TablesClient::ListTables(const ListTablesRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("ListTables", "Required field: TableBucketARN, is not set");
-    return ListTablesOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return ListTablesOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                   "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, ListTables, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, ListTables, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".ListTables",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<ListTablesOutcome>(
-    [&]()-> ListTablesOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, ListTables, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      return ListTablesOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_GET, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? ListTablesOutcome(result.GetResultWithOwnership()) : ListTablesOutcome(std::move(result.GetError()));
 }
 
-PutTableBucketEncryptionOutcome S3TablesClient::PutTableBucketEncryption(const PutTableBucketEncryptionRequest& request) const
-{
-  AWS_OPERATION_GUARD(PutTableBucketEncryption);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, PutTableBucketEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+ListTagsForResourceOutcome S3TablesClient::ListTagsForResource(const ListTagsForResourceRequest& request) const {
+  if (!request.ResourceArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("ListTagsForResource", "Required field: ResourceArn, is not set");
+    return ListTagsForResourceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                            "Missing required field [ResourceArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tag/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetResourceArn());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_GET);
+  return result.IsSuccess() ? ListTagsForResourceOutcome(result.GetResultWithOwnership())
+                            : ListTagsForResourceOutcome(std::move(result.GetError()));
+}
+
+PutTableBucketEncryptionOutcome S3TablesClient::PutTableBucketEncryption(const PutTableBucketEncryptionRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableBucketEncryption", "Required field: TableBucketARN, is not set");
-    return PutTableBucketEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return PutTableBucketEncryptionOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                 "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, PutTableBucketEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, PutTableBucketEncryption, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".PutTableBucketEncryption",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<PutTableBucketEncryptionOutcome>(
-    [&]()-> PutTableBucketEncryptionOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, PutTableBucketEncryption, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
-      return PutTableBucketEncryptionOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/encryption");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableBucketEncryptionOutcome(result.GetResultWithOwnership())
+                            : PutTableBucketEncryptionOutcome(std::move(result.GetError()));
 }
 
-PutTableBucketMaintenanceConfigurationOutcome S3TablesClient::PutTableBucketMaintenanceConfiguration(const PutTableBucketMaintenanceConfigurationRequest& request) const
-{
-  AWS_OPERATION_GUARD(PutTableBucketMaintenanceConfiguration);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, PutTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+PutTableBucketMaintenanceConfigurationOutcome S3TablesClient::PutTableBucketMaintenanceConfiguration(
+    const PutTableBucketMaintenanceConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableBucketMaintenanceConfiguration", "Required field: TableBucketARN, is not set");
-    return PutTableBucketMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return PutTableBucketMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
   }
-  if (!request.TypeHasBeenSet())
-  {
+  if (!request.TypeHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableBucketMaintenanceConfiguration", "Required field: Type, is not set");
-    return PutTableBucketMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Type]", false));
+    return PutTableBucketMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Type]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, PutTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, PutTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".PutTableBucketMaintenanceConfiguration",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<PutTableBucketMaintenanceConfigurationOutcome>(
-    [&]()-> PutTableBucketMaintenanceConfigurationOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, PutTableBucketMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(TableBucketMaintenanceTypeMapper::GetNameForTableBucketMaintenanceType(request.GetType()));
-      return PutTableBucketMaintenanceConfigurationOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(
+        TableBucketMaintenanceTypeMapper::GetNameForTableBucketMaintenanceType(request.GetType()));
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableBucketMaintenanceConfigurationOutcome(result.GetResultWithOwnership())
+                            : PutTableBucketMaintenanceConfigurationOutcome(std::move(result.GetError()));
 }
 
-PutTableBucketPolicyOutcome S3TablesClient::PutTableBucketPolicy(const PutTableBucketPolicyRequest& request) const
-{
-  AWS_OPERATION_GUARD(PutTableBucketPolicy);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, PutTableBucketPolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+PutTableBucketMetricsConfigurationOutcome S3TablesClient::PutTableBucketMetricsConfiguration(
+    const PutTableBucketMetricsConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("PutTableBucketMetricsConfiguration", "Required field: TableBucketARN, is not set");
+    return PutTableBucketMetricsConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/metrics");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableBucketMetricsConfigurationOutcome(result.GetResultWithOwnership())
+                            : PutTableBucketMetricsConfigurationOutcome(std::move(result.GetError()));
+}
+
+PutTableBucketPolicyOutcome S3TablesClient::PutTableBucketPolicy(const PutTableBucketPolicyRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableBucketPolicy", "Required field: TableBucketARN, is not set");
-    return PutTableBucketPolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return PutTableBucketPolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                             "Missing required field [TableBucketARN]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, PutTableBucketPolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, PutTableBucketPolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".PutTableBucketPolicy",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<PutTableBucketPolicyOutcome>(
-    [&]()-> PutTableBucketPolicyOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, PutTableBucketPolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
-      return PutTableBucketPolicyOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableBucketPolicyOutcome(result.GetResultWithOwnership())
+                            : PutTableBucketPolicyOutcome(std::move(result.GetError()));
 }
 
-PutTableMaintenanceConfigurationOutcome S3TablesClient::PutTableMaintenanceConfiguration(const PutTableMaintenanceConfigurationRequest& request) const
-{
-  AWS_OPERATION_GUARD(PutTableMaintenanceConfiguration);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, PutTableMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+PutTableBucketReplicationOutcome S3TablesClient::PutTableBucketReplication(const PutTableBucketReplicationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("PutTableBucketReplication", "Required field: TableBucketARN, is not set");
+    return PutTableBucketReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                  "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-bucket-replication");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableBucketReplicationOutcome(result.GetResultWithOwnership())
+                            : PutTableBucketReplicationOutcome(std::move(result.GetError()));
+}
+
+PutTableBucketStorageClassOutcome S3TablesClient::PutTableBucketStorageClass(const PutTableBucketStorageClassRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("PutTableBucketStorageClass", "Required field: TableBucketARN, is not set");
+    return PutTableBucketStorageClassOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                   "Missing required field [TableBucketARN]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/buckets/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/storage-class");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableBucketStorageClassOutcome(result.GetResultWithOwnership())
+                            : PutTableBucketStorageClassOutcome(std::move(result.GetError()));
+}
+
+PutTableMaintenanceConfigurationOutcome S3TablesClient::PutTableMaintenanceConfiguration(
+    const PutTableMaintenanceConfigurationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableMaintenanceConfiguration", "Required field: TableBucketARN, is not set");
-    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableMaintenanceConfiguration", "Required field: Namespace, is not set");
-    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableMaintenanceConfiguration", "Required field: Name, is not set");
-    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
   }
-  if (!request.TypeHasBeenSet())
-  {
+  if (!request.TypeHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTableMaintenanceConfiguration", "Required field: Type, is not set");
-    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Type]", false));
+    return PutTableMaintenanceConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Type]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, PutTableMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, PutTableMaintenanceConfiguration, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".PutTableMaintenanceConfiguration",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<PutTableMaintenanceConfigurationOutcome>(
-    [&]()-> PutTableMaintenanceConfigurationOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, PutTableMaintenanceConfiguration, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(TableMaintenanceTypeMapper::GetNameForTableMaintenanceType(request.GetType()));
-      return PutTableMaintenanceConfigurationOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/maintenance/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(TableMaintenanceTypeMapper::GetNameForTableMaintenanceType(request.GetType()));
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableMaintenanceConfigurationOutcome(result.GetResultWithOwnership())
+                            : PutTableMaintenanceConfigurationOutcome(std::move(result.GetError()));
 }
 
-PutTablePolicyOutcome S3TablesClient::PutTablePolicy(const PutTablePolicyRequest& request) const
-{
-  AWS_OPERATION_GUARD(PutTablePolicy);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, PutTablePolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+PutTablePolicyOutcome S3TablesClient::PutTablePolicy(const PutTablePolicyRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTablePolicy", "Required field: TableBucketARN, is not set");
-    return PutTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return PutTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTablePolicy", "Required field: Namespace, is not set");
-    return PutTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return PutTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("PutTablePolicy", "Required field: Name, is not set");
-    return PutTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return PutTablePolicyOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                       "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, PutTablePolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, PutTablePolicy, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".PutTablePolicy",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<PutTablePolicyOutcome>(
-    [&]()-> PutTablePolicyOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, PutTablePolicy, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
-      return PutTablePolicyOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/policy");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTablePolicyOutcome(result.GetResultWithOwnership()) : PutTablePolicyOutcome(std::move(result.GetError()));
 }
 
-RenameTableOutcome S3TablesClient::RenameTable(const RenameTableRequest& request) const
-{
-  AWS_OPERATION_GUARD(RenameTable);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, RenameTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+PutTableRecordExpirationConfigurationOutcome S3TablesClient::PutTableRecordExpirationConfiguration(
+    const PutTableRecordExpirationConfigurationRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("PutTableRecordExpirationConfiguration", "Required field: TableArn, is not set");
+    return PutTableRecordExpirationConfigurationOutcome(Aws::Client::AWSError<S3TablesErrors>(
+        S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-record-expiration");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableRecordExpirationConfigurationOutcome(result.GetResultWithOwnership())
+                            : PutTableRecordExpirationConfigurationOutcome(std::move(result.GetError()));
+}
+
+PutTableReplicationOutcome S3TablesClient::PutTableReplication(const PutTableReplicationRequest& request) const {
+  if (!request.TableArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("PutTableReplication", "Required field: TableArn, is not set");
+    return PutTableReplicationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                            "Missing required field [TableArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/table-replication");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? PutTableReplicationOutcome(result.GetResultWithOwnership())
+                            : PutTableReplicationOutcome(std::move(result.GetError()));
+}
+
+RenameTableOutcome S3TablesClient::RenameTable(const RenameTableRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("RenameTable", "Required field: TableBucketARN, is not set");
-    return RenameTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return RenameTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("RenameTable", "Required field: Namespace, is not set");
-    return RenameTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return RenameTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("RenameTable", "Required field: Name, is not set");
-    return RenameTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return RenameTableOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, RenameTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, RenameTable, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".RenameTable",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<RenameTableOutcome>(
-    [&]()-> RenameTableOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, RenameTable, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/rename");
-      return RenameTableOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/rename");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? RenameTableOutcome(result.GetResultWithOwnership()) : RenameTableOutcome(std::move(result.GetError()));
 }
 
-UpdateTableMetadataLocationOutcome S3TablesClient::UpdateTableMetadataLocation(const UpdateTableMetadataLocationRequest& request) const
-{
-  AWS_OPERATION_GUARD(UpdateTableMetadataLocation);
-  AWS_OPERATION_CHECK_PTR(m_endpointProvider, UpdateTableMetadataLocation, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE);
-  if (!request.TableBucketARNHasBeenSet())
-  {
+TagResourceOutcome S3TablesClient::TagResource(const TagResourceRequest& request) const {
+  if (!request.ResourceArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("TagResource", "Required field: ResourceArn, is not set");
+    return TagResourceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                    "Missing required field [ResourceArn]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tag/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetResourceArn());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_POST);
+  return result.IsSuccess() ? TagResourceOutcome(result.GetResultWithOwnership()) : TagResourceOutcome(std::move(result.GetError()));
+}
+
+UntagResourceOutcome S3TablesClient::UntagResource(const UntagResourceRequest& request) const {
+  if (!request.ResourceArnHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("UntagResource", "Required field: ResourceArn, is not set");
+    return UntagResourceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                      "Missing required field [ResourceArn]", false));
+  }
+  if (!request.TagKeysHasBeenSet()) {
+    AWS_LOGSTREAM_ERROR("UntagResource", "Required field: TagKeys, is not set");
+    return UntagResourceOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                      "Missing required field [TagKeys]", false));
+  }
+
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tag/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetResourceArn());
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_DELETE);
+  return result.IsSuccess() ? UntagResourceOutcome(result.GetResultWithOwnership()) : UntagResourceOutcome(std::move(result.GetError()));
+}
+
+UpdateTableMetadataLocationOutcome S3TablesClient::UpdateTableMetadataLocation(const UpdateTableMetadataLocationRequest& request) const {
+  if (!request.TableBucketARNHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("UpdateTableMetadataLocation", "Required field: TableBucketARN, is not set");
-    return UpdateTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [TableBucketARN]", false));
+    return UpdateTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                    "Missing required field [TableBucketARN]", false));
   }
-  if (!request.NamespaceHasBeenSet())
-  {
+  if (!request.NamespaceHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("UpdateTableMetadataLocation", "Required field: Namespace, is not set");
-    return UpdateTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Namespace]", false));
+    return UpdateTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                    "Missing required field [Namespace]", false));
   }
-  if (!request.NameHasBeenSet())
-  {
+  if (!request.NameHasBeenSet()) {
     AWS_LOGSTREAM_ERROR("UpdateTableMetadataLocation", "Required field: Name, is not set");
-    return UpdateTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER", "Missing required field [Name]", false));
+    return UpdateTableMetadataLocationOutcome(Aws::Client::AWSError<S3TablesErrors>(S3TablesErrors::MISSING_PARAMETER, "MISSING_PARAMETER",
+                                                                                    "Missing required field [Name]", false));
   }
-  AWS_OPERATION_CHECK_PTR(m_telemetryProvider, UpdateTableMetadataLocation, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto tracer = m_telemetryProvider->getTracer(this->GetServiceClientName(), {});
-  auto meter = m_telemetryProvider->getMeter(this->GetServiceClientName(), {});
-  AWS_OPERATION_CHECK_PTR(meter, UpdateTableMetadataLocation, CoreErrors, CoreErrors::NOT_INITIALIZED);
-  auto span = tracer->CreateSpan(Aws::String(this->GetServiceClientName()) + ".UpdateTableMetadataLocation",
-    {{ TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName() }, { TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName() }, { TracingUtils::SMITHY_SYSTEM_DIMENSION, TracingUtils::SMITHY_METHOD_AWS_VALUE }},
-    smithy::components::tracing::SpanKind::CLIENT);
-  return TracingUtils::MakeCallWithTiming<UpdateTableMetadataLocationOutcome>(
-    [&]()-> UpdateTableMetadataLocationOutcome {
-      auto endpointResolutionOutcome = TracingUtils::MakeCallWithTiming<ResolveEndpointOutcome>(
-          [&]() -> ResolveEndpointOutcome { return m_endpointProvider->ResolveEndpoint(request.GetEndpointContextParams()); },
-          TracingUtils::SMITHY_CLIENT_ENDPOINT_RESOLUTION_METRIC,
-          *meter,
-          {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-      AWS_OPERATION_CHECK_SUCCESS(endpointResolutionOutcome, UpdateTableMetadataLocation, CoreErrors, CoreErrors::ENDPOINT_RESOLUTION_FAILURE, endpointResolutionOutcome.GetError().GetMessage());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
-      endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
-      endpointResolutionOutcome.GetResult().AddPathSegments("/metadata-location");
-      return UpdateTableMetadataLocationOutcome(MakeRequest(request, endpointResolutionOutcome.GetResult(), Aws::Http::HttpMethod::HTTP_PUT, Aws::Auth::SIGV4_SIGNER));
-    },
-    TracingUtils::SMITHY_CLIENT_DURATION_METRIC,
-    *meter,
-    {{TracingUtils::SMITHY_METHOD_DIMENSION, request.GetServiceRequestName()}, {TracingUtils::SMITHY_SERVICE_DIMENSION, this->GetServiceClientName()}});
-}
 
+  auto uriResolver = [&](Aws::Endpoint::ResolveEndpointOutcome& endpointResolutionOutcome) {
+    (void)endpointResolutionOutcome;
+    endpointResolutionOutcome.GetResult().AddPathSegments("/tables/");
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetTableBucketARN());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetNamespace());
+    endpointResolutionOutcome.GetResult().AddPathSegment(request.GetName());
+    endpointResolutionOutcome.GetResult().AddPathSegments("/metadata-location");
+  };
+
+  auto result = InvokeServiceOperation(request, uriResolver, Aws::Http::HttpMethod::HTTP_PUT);
+  return result.IsSuccess() ? UpdateTableMetadataLocationOutcome(result.GetResultWithOwnership())
+                            : UpdateTableMetadataLocationOutcome(std::move(result.GetError()));
+}

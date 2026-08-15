@@ -5,47 +5,50 @@
 
 #pragma once
 #include <aws/appstream/AppStream_EXPORTS.h>
+#include <aws/core/http/HttpResponse.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
-#include <utility>
+#include <aws/crt/cbor/Cbor.h>
 
-namespace Aws
-{
-template<typename RESULT_TYPE>
+#include <utility>
+namespace Aws {
+template <typename RESULT_TYPE>
 class AmazonWebServiceResult;
 
-namespace Utils
-{
-namespace Json
-{
-  class JsonValue;
-} // namespace Json
-} // namespace Utils
-namespace AppStream
-{
-namespace Model
-{
-  class UpdateImagePermissionsResult
-  {
-  public:
-    AWS_APPSTREAM_API UpdateImagePermissionsResult() = default;
-    AWS_APPSTREAM_API UpdateImagePermissionsResult(const Aws::AmazonWebServiceResult<Aws::Utils::Json::JsonValue>& result);
-    AWS_APPSTREAM_API UpdateImagePermissionsResult& operator=(const Aws::AmazonWebServiceResult<Aws::Utils::Json::JsonValue>& result);
+namespace Utils {
+namespace Cbor {
+class CborValue;
+}  // namespace Cbor
+}  // namespace Utils
+namespace AppStream {
+namespace Model {
+class UpdateImagePermissionsResult {
+ public:
+  AWS_APPSTREAM_API UpdateImagePermissionsResult() = default;
+  AWS_APPSTREAM_API UpdateImagePermissionsResult(const Aws::AmazonWebServiceResult<Aws::Utils::Cbor::CborValue>& result);
+  AWS_APPSTREAM_API UpdateImagePermissionsResult& operator=(const Aws::AmazonWebServiceResult<Aws::Utils::Cbor::CborValue>& result);
 
+  ///@{
 
-    ///@{
-    
-    inline const Aws::String& GetRequestId() const { return m_requestId; }
-    template<typename RequestIdT = Aws::String>
-    void SetRequestId(RequestIdT&& value) { m_requestIdHasBeenSet = true; m_requestId = std::forward<RequestIdT>(value); }
-    template<typename RequestIdT = Aws::String>
-    UpdateImagePermissionsResult& WithRequestId(RequestIdT&& value) { SetRequestId(std::forward<RequestIdT>(value)); return *this;}
-    ///@}
-  private:
+  inline const Aws::String& GetRequestId() const { return m_requestId; }
+  template <typename RequestIdT = Aws::String>
+  void SetRequestId(RequestIdT&& value) {
+    m_requestIdHasBeenSet = true;
+    m_requestId = std::forward<RequestIdT>(value);
+  }
+  template <typename RequestIdT = Aws::String>
+  UpdateImagePermissionsResult& WithRequestId(RequestIdT&& value) {
+    SetRequestId(std::forward<RequestIdT>(value));
+    return *this;
+  }
+  ///@}
+  inline Aws::Http::HttpResponseCode GetHttpResponseCode() const { return m_HttpResponseCode; }
 
-    Aws::String m_requestId;
-    bool m_requestIdHasBeenSet = false;
-  };
+ private:
+  Aws::String m_requestId;
+  Aws::Http::HttpResponseCode m_HttpResponseCode;
+  bool m_requestIdHasBeenSet = false;
+};
 
-} // namespace Model
-} // namespace AppStream
-} // namespace Aws
+}  // namespace Model
+}  // namespace AppStream
+}  // namespace Aws

@@ -4,13 +4,15 @@
  */
 
 #include <aws/backupsearch/BackupSearchEndpointProvider.h>
+#include <aws/backupsearch/internal/BackupSearchEndpointRules.h>
 
-namespace Aws
-{
-namespace BackupSearch
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace BackupSearch
-} // namespace Aws
+namespace Aws {
+namespace BackupSearch {
+namespace Endpoint {
+BackupSearchEndpointProvider::BackupSearchEndpointProvider()
+    : BackupSearchDefaultEpProviderBase(Aws::BackupSearch::BackupSearchEndpointRules::GetRulesBlob(),
+                                        Aws::BackupSearch::BackupSearchEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace BackupSearch
+}  // namespace Aws

@@ -8,12 +8,12 @@
 
 #include <aws/transcribe/TranscribeServiceClient.h>
 #include <aws/transcribe/TranscribeServiceEndpointProvider.h>
-#include <aws/transcribe/TranscribeServiceEndpointRules.h>
 #include <aws/transcribe/TranscribeServiceErrorMarshaller.h>
 #include <aws/transcribe/TranscribeServiceErrors.h>
 #include <aws/transcribe/TranscribeServiceRequest.h>
 #include <aws/transcribe/TranscribeServiceServiceClientModel.h>
 #include <aws/transcribe/TranscribeService_EXPORTS.h>
+#include <aws/transcribe/internal/TranscribeServiceEndpointRules.h>
 #include <aws/transcribe/model/AbsoluteTimeRange.h>
 #include <aws/transcribe/model/BaseModelName.h>
 #include <aws/transcribe/model/CLMLanguageCode.h>
@@ -100,6 +100,7 @@
 #include <aws/transcribe/model/MediaFormat.h>
 #include <aws/transcribe/model/MedicalContentIdentificationType.h>
 #include <aws/transcribe/model/MedicalScribeChannelDefinition.h>
+#include <aws/transcribe/model/MedicalScribeContext.h>
 #include <aws/transcribe/model/MedicalScribeJob.h>
 #include <aws/transcribe/model/MedicalScribeJobStatus.h>
 #include <aws/transcribe/model/MedicalScribeJobSummary.h>
@@ -107,6 +108,7 @@
 #include <aws/transcribe/model/MedicalScribeNoteTemplate.h>
 #include <aws/transcribe/model/MedicalScribeOutput.h>
 #include <aws/transcribe/model/MedicalScribeParticipantRole.h>
+#include <aws/transcribe/model/MedicalScribePatientContext.h>
 #include <aws/transcribe/model/MedicalScribeSettings.h>
 #include <aws/transcribe/model/MedicalTranscript.h>
 #include <aws/transcribe/model/MedicalTranscriptionJob.h>
@@ -118,6 +120,7 @@
 #include <aws/transcribe/model/OutputLocationType.h>
 #include <aws/transcribe/model/ParticipantRole.h>
 #include <aws/transcribe/model/PiiEntityType.h>
+#include <aws/transcribe/model/Pronouns.h>
 #include <aws/transcribe/model/RedactionOutput.h>
 #include <aws/transcribe/model/RedactionType.h>
 #include <aws/transcribe/model/RelativeTimeRange.h>

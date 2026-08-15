@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/appmesh/AppMeshEndpointRules.h>
-
-
-namespace Aws
-{
-namespace AppMesh
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace AppMesh {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using AppMeshClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using AppMeshDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_APPMESH_API AppMeshEndpointProvider : public AppMeshDefaultEpProviderBase
-{
-public:
-    using AppMeshResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_APPMESH_API AppMeshEndpointProvider : public AppMeshDefaultEpProviderBase {
+ public:
+  using AppMeshResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    AppMeshEndpointProvider()
-      : AppMeshDefaultEpProviderBase(Aws::AppMesh::AppMeshEndpointRules::GetRulesBlob(), Aws::AppMesh::AppMeshEndpointRules::RulesBlobSize)
-    {}
+  AppMeshEndpointProvider();
 
-    ~AppMeshEndpointProvider()
-    {
-    }
+  ~AppMeshEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace AppMesh
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace AppMesh
+}  // namespace Aws

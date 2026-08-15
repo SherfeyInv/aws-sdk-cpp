@@ -8,12 +8,12 @@
 
 #include <aws/billingconductor/BillingConductorClient.h>
 #include <aws/billingconductor/BillingConductorEndpointProvider.h>
-#include <aws/billingconductor/BillingConductorEndpointRules.h>
 #include <aws/billingconductor/BillingConductorErrorMarshaller.h>
 #include <aws/billingconductor/BillingConductorErrors.h>
 #include <aws/billingconductor/BillingConductorRequest.h>
 #include <aws/billingconductor/BillingConductorServiceClientModel.h>
 #include <aws/billingconductor/BillingConductor_EXPORTS.h>
+#include <aws/billingconductor/internal/BillingConductorEndpointRules.h>
 #include <aws/billingconductor/model/AccountAssociationsListElement.h>
 #include <aws/billingconductor/model/AccountGrouping.h>
 #include <aws/billingconductor/model/AssociateAccountsRequest.h>
@@ -32,8 +32,10 @@
 #include <aws/billingconductor/model/BillingGroupCostReportResultElement.h>
 #include <aws/billingconductor/model/BillingGroupListElement.h>
 #include <aws/billingconductor/model/BillingGroupStatus.h>
+#include <aws/billingconductor/model/BillingGroupType.h>
 #include <aws/billingconductor/model/BillingPeriodRange.h>
 #include <aws/billingconductor/model/ComputationPreference.h>
+#include <aws/billingconductor/model/ComputationRuleEnum.h>
 #include <aws/billingconductor/model/ConflictException.h>
 #include <aws/billingconductor/model/ConflictExceptionReason.h>
 #include <aws/billingconductor/model/CreateBillingGroupRequest.h>
@@ -113,12 +115,15 @@
 #include <aws/billingconductor/model/ListTagsForResourceRequest.h>
 #include <aws/billingconductor/model/ListTagsForResourceResult.h>
 #include <aws/billingconductor/model/MatchOption.h>
+#include <aws/billingconductor/model/PresentationObject.h>
 #include <aws/billingconductor/model/PricingPlanListElement.h>
 #include <aws/billingconductor/model/PricingRuleListElement.h>
 #include <aws/billingconductor/model/PricingRuleScope.h>
 #include <aws/billingconductor/model/PricingRuleType.h>
 #include <aws/billingconductor/model/ResourceNotFoundException.h>
+#include <aws/billingconductor/model/SearchOption.h>
 #include <aws/billingconductor/model/ServiceLimitExceededException.h>
+#include <aws/billingconductor/model/StringSearch.h>
 #include <aws/billingconductor/model/TagResourceRequest.h>
 #include <aws/billingconductor/model/TagResourceResult.h>
 #include <aws/billingconductor/model/ThrottlingException.h>

@@ -8,12 +8,13 @@
 
 #include <aws/ds/DirectoryServiceClient.h>
 #include <aws/ds/DirectoryServiceEndpointProvider.h>
-#include <aws/ds/DirectoryServiceEndpointRules.h>
 #include <aws/ds/DirectoryServiceErrorMarshaller.h>
 #include <aws/ds/DirectoryServiceErrors.h>
 #include <aws/ds/DirectoryServiceRequest.h>
 #include <aws/ds/DirectoryServiceServiceClientModel.h>
 #include <aws/ds/DirectoryService_EXPORTS.h>
+#include <aws/ds/internal/DirectoryServiceEndpointRules.h>
+#include <aws/ds/model/ADAssessmentLimitExceededException.h>
 #include <aws/ds/model/AcceptSharedDirectoryRequest.h>
 #include <aws/ds/model/AcceptSharedDirectoryResult.h>
 #include <aws/ds/model/AccessDeniedException.h>
@@ -23,8 +24,14 @@
 #include <aws/ds/model/AddRegionResult.h>
 #include <aws/ds/model/AddTagsToResourceRequest.h>
 #include <aws/ds/model/AddTagsToResourceResult.h>
+#include <aws/ds/model/Assessment.h>
+#include <aws/ds/model/AssessmentConfiguration.h>
+#include <aws/ds/model/AssessmentReport.h>
+#include <aws/ds/model/AssessmentSummary.h>
+#include <aws/ds/model/AssessmentValidation.h>
 #include <aws/ds/model/Attribute.h>
 #include <aws/ds/model/AuthenticationFailedException.h>
+#include <aws/ds/model/CaEnrollmentPolicyStatus.h>
 #include <aws/ds/model/CancelSchemaExtensionRequest.h>
 #include <aws/ds/model/CancelSchemaExtensionResult.h>
 #include <aws/ds/model/Certificate.h>
@@ -52,6 +59,8 @@
 #include <aws/ds/model/CreateConditionalForwarderResult.h>
 #include <aws/ds/model/CreateDirectoryRequest.h>
 #include <aws/ds/model/CreateDirectoryResult.h>
+#include <aws/ds/model/CreateHybridADRequest.h>
+#include <aws/ds/model/CreateHybridADResult.h>
 #include <aws/ds/model/CreateLogSubscriptionRequest.h>
 #include <aws/ds/model/CreateLogSubscriptionResult.h>
 #include <aws/ds/model/CreateMicrosoftADRequest.h>
@@ -61,6 +70,8 @@
 #include <aws/ds/model/CreateTrustRequest.h>
 #include <aws/ds/model/CreateTrustResult.h>
 #include <aws/ds/model/DataAccessStatus.h>
+#include <aws/ds/model/DeleteADAssessmentRequest.h>
+#include <aws/ds/model/DeleteADAssessmentResult.h>
 #include <aws/ds/model/DeleteConditionalForwarderRequest.h>
 #include <aws/ds/model/DeleteConditionalForwarderResult.h>
 #include <aws/ds/model/DeleteDirectoryRequest.h>
@@ -75,6 +86,10 @@
 #include <aws/ds/model/DeregisterCertificateResult.h>
 #include <aws/ds/model/DeregisterEventTopicRequest.h>
 #include <aws/ds/model/DeregisterEventTopicResult.h>
+#include <aws/ds/model/DescribeADAssessmentRequest.h>
+#include <aws/ds/model/DescribeADAssessmentResult.h>
+#include <aws/ds/model/DescribeCAEnrollmentPolicyRequest.h>
+#include <aws/ds/model/DescribeCAEnrollmentPolicyResult.h>
 #include <aws/ds/model/DescribeCertificateRequest.h>
 #include <aws/ds/model/DescribeCertificateResult.h>
 #include <aws/ds/model/DescribeClientAuthenticationSettingsRequest.h>
@@ -89,6 +104,8 @@
 #include <aws/ds/model/DescribeDomainControllersResult.h>
 #include <aws/ds/model/DescribeEventTopicsRequest.h>
 #include <aws/ds/model/DescribeEventTopicsResult.h>
+#include <aws/ds/model/DescribeHybridADUpdateRequest.h>
+#include <aws/ds/model/DescribeHybridADUpdateResult.h>
 #include <aws/ds/model/DescribeLDAPSSettingsRequest.h>
 #include <aws/ds/model/DescribeLDAPSSettingsResult.h>
 #include <aws/ds/model/DescribeRegionsRequest.h>
@@ -116,11 +133,15 @@
 #include <aws/ds/model/DirectoryLimits.h>
 #include <aws/ds/model/DirectoryNotSharedException.h>
 #include <aws/ds/model/DirectorySize.h>
+#include <aws/ds/model/DirectorySizeUpdateSettings.h>
 #include <aws/ds/model/DirectoryStage.h>
 #include <aws/ds/model/DirectoryType.h>
 #include <aws/ds/model/DirectoryUnavailableException.h>
 #include <aws/ds/model/DirectoryVpcSettings.h>
 #include <aws/ds/model/DirectoryVpcSettingsDescription.h>
+#include <aws/ds/model/DisableAlreadyInProgressException.h>
+#include <aws/ds/model/DisableCAEnrollmentPolicyRequest.h>
+#include <aws/ds/model/DisableCAEnrollmentPolicyResult.h>
 #include <aws/ds/model/DisableClientAuthenticationRequest.h>
 #include <aws/ds/model/DisableClientAuthenticationResult.h>
 #include <aws/ds/model/DisableDirectoryDataAccessRequest.h>
@@ -134,6 +155,9 @@
 #include <aws/ds/model/DomainController.h>
 #include <aws/ds/model/DomainControllerLimitExceededException.h>
 #include <aws/ds/model/DomainControllerStatus.h>
+#include <aws/ds/model/EnableAlreadyInProgressException.h>
+#include <aws/ds/model/EnableCAEnrollmentPolicyRequest.h>
+#include <aws/ds/model/EnableCAEnrollmentPolicyResult.h>
 #include <aws/ds/model/EnableClientAuthenticationRequest.h>
 #include <aws/ds/model/EnableClientAuthenticationResult.h>
 #include <aws/ds/model/EnableDirectoryDataAccessRequest.h>
@@ -151,6 +175,13 @@
 #include <aws/ds/model/GetDirectoryLimitsResult.h>
 #include <aws/ds/model/GetSnapshotLimitsRequest.h>
 #include <aws/ds/model/GetSnapshotLimitsResult.h>
+#include <aws/ds/model/HybridAdministratorAccountUpdate.h>
+#include <aws/ds/model/HybridCustomerInstancesSettings.h>
+#include <aws/ds/model/HybridSettingsDescription.h>
+#include <aws/ds/model/HybridUpdateActivities.h>
+#include <aws/ds/model/HybridUpdateInfoEntry.h>
+#include <aws/ds/model/HybridUpdateType.h>
+#include <aws/ds/model/HybridUpdateValue.h>
 #include <aws/ds/model/IncompatibleSettingsException.h>
 #include <aws/ds/model/InsufficientPermissionsException.h>
 #include <aws/ds/model/InvalidCertificateException.h>
@@ -167,6 +198,8 @@
 #include <aws/ds/model/LDAPSSettingInfo.h>
 #include <aws/ds/model/LDAPSStatus.h>
 #include <aws/ds/model/LDAPSType.h>
+#include <aws/ds/model/ListADAssessmentsRequest.h>
+#include <aws/ds/model/ListADAssessmentsResult.h>
 #include <aws/ds/model/ListCertificatesRequest.h>
 #include <aws/ds/model/ListCertificatesResult.h>
 #include <aws/ds/model/ListIpRoutesRequest.h>
@@ -178,6 +211,8 @@
 #include <aws/ds/model/ListTagsForResourceRequest.h>
 #include <aws/ds/model/ListTagsForResourceResult.h>
 #include <aws/ds/model/LogSubscription.h>
+#include <aws/ds/model/NetworkType.h>
+#include <aws/ds/model/NetworkUpdateSettings.h>
 #include <aws/ds/model/NoAvailableCertificateException.h>
 #include <aws/ds/model/OSUpdateSettings.h>
 #include <aws/ds/model/OSVersion.h>
@@ -225,6 +260,8 @@
 #include <aws/ds/model/SnapshotLimits.h>
 #include <aws/ds/model/SnapshotStatus.h>
 #include <aws/ds/model/SnapshotType.h>
+#include <aws/ds/model/StartADAssessmentRequest.h>
+#include <aws/ds/model/StartADAssessmentResult.h>
 #include <aws/ds/model/StartSchemaExtensionRequest.h>
 #include <aws/ds/model/StartSchemaExtensionResult.h>
 #include <aws/ds/model/Tag.h>
@@ -244,6 +281,8 @@
 #include <aws/ds/model/UpdateConditionalForwarderResult.h>
 #include <aws/ds/model/UpdateDirectorySetupRequest.h>
 #include <aws/ds/model/UpdateDirectorySetupResult.h>
+#include <aws/ds/model/UpdateHybridADRequest.h>
+#include <aws/ds/model/UpdateHybridADResult.h>
 #include <aws/ds/model/UpdateInfoEntry.h>
 #include <aws/ds/model/UpdateNumberOfDomainControllersRequest.h>
 #include <aws/ds/model/UpdateNumberOfDomainControllersResult.h>

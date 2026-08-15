@@ -8,12 +8,12 @@
 
 #include <aws/cost-optimization-hub/CostOptimizationHubClient.h>
 #include <aws/cost-optimization-hub/CostOptimizationHubEndpointProvider.h>
-#include <aws/cost-optimization-hub/CostOptimizationHubEndpointRules.h>
 #include <aws/cost-optimization-hub/CostOptimizationHubErrorMarshaller.h>
 #include <aws/cost-optimization-hub/CostOptimizationHubErrors.h>
 #include <aws/cost-optimization-hub/CostOptimizationHubRequest.h>
 #include <aws/cost-optimization-hub/CostOptimizationHubServiceClientModel.h>
 #include <aws/cost-optimization-hub/CostOptimizationHub_EXPORTS.h>
+#include <aws/cost-optimization-hub/internal/CostOptimizationHubEndpointRules.h>
 #include <aws/cost-optimization-hub/model/AccountEnrollmentStatus.h>
 #include <aws/cost-optimization-hub/model/ActionType.h>
 #include <aws/cost-optimization-hub/model/AllocationStrategy.h>
@@ -24,8 +24,10 @@
 #include <aws/cost-optimization-hub/model/ComputeSavingsPlans.h>
 #include <aws/cost-optimization-hub/model/ComputeSavingsPlansConfiguration.h>
 #include <aws/cost-optimization-hub/model/DbInstanceConfiguration.h>
+#include <aws/cost-optimization-hub/model/DocumentDbCluster.h>
 #include <aws/cost-optimization-hub/model/DynamoDbReservedCapacity.h>
 #include <aws/cost-optimization-hub/model/DynamoDbReservedCapacityConfiguration.h>
+#include <aws/cost-optimization-hub/model/DynamoDbTable.h>
 #include <aws/cost-optimization-hub/model/EbsVolume.h>
 #include <aws/cost-optimization-hub/model/EbsVolumeConfiguration.h>
 #include <aws/cost-optimization-hub/model/Ec2AutoScalingGroup.h>
@@ -39,6 +41,8 @@
 #include <aws/cost-optimization-hub/model/Ec2ReservedInstancesConfiguration.h>
 #include <aws/cost-optimization-hub/model/EcsService.h>
 #include <aws/cost-optimization-hub/model/EcsServiceConfiguration.h>
+#include <aws/cost-optimization-hub/model/EfficiencyMetricsByGroup.h>
+#include <aws/cost-optimization-hub/model/ElastiCacheCluster.h>
 #include <aws/cost-optimization-hub/model/ElastiCacheReservedInstances.h>
 #include <aws/cost-optimization-hub/model/ElastiCacheReservedInstancesConfiguration.h>
 #include <aws/cost-optimization-hub/model/EnrollmentStatus.h>
@@ -48,10 +52,13 @@
 #include <aws/cost-optimization-hub/model/GetPreferencesResult.h>
 #include <aws/cost-optimization-hub/model/GetRecommendationRequest.h>
 #include <aws/cost-optimization-hub/model/GetRecommendationResult.h>
+#include <aws/cost-optimization-hub/model/GranularityType.h>
 #include <aws/cost-optimization-hub/model/ImplementationEffort.h>
 #include <aws/cost-optimization-hub/model/InstanceConfiguration.h>
 #include <aws/cost-optimization-hub/model/LambdaFunction.h>
 #include <aws/cost-optimization-hub/model/LambdaFunctionConfiguration.h>
+#include <aws/cost-optimization-hub/model/ListEfficiencyMetricsRequest.h>
+#include <aws/cost-optimization-hub/model/ListEfficiencyMetricsResult.h>
 #include <aws/cost-optimization-hub/model/ListEnrollmentStatusesRequest.h>
 #include <aws/cost-optimization-hub/model/ListEnrollmentStatusesResult.h>
 #include <aws/cost-optimization-hub/model/ListRecommendationSummariesRequest.h>
@@ -59,9 +66,13 @@
 #include <aws/cost-optimization-hub/model/ListRecommendationsRequest.h>
 #include <aws/cost-optimization-hub/model/ListRecommendationsResult.h>
 #include <aws/cost-optimization-hub/model/MemberAccountDiscountVisibility.h>
+#include <aws/cost-optimization-hub/model/MemoryDbCluster.h>
 #include <aws/cost-optimization-hub/model/MemoryDbReservedInstances.h>
 #include <aws/cost-optimization-hub/model/MemoryDbReservedInstancesConfiguration.h>
+#include <aws/cost-optimization-hub/model/MetricsByTime.h>
 #include <aws/cost-optimization-hub/model/MixedInstanceConfiguration.h>
+#include <aws/cost-optimization-hub/model/NatGateway.h>
+#include <aws/cost-optimization-hub/model/NatGatewayConfiguration.h>
 #include <aws/cost-optimization-hub/model/OpenSearchReservedInstances.h>
 #include <aws/cost-optimization-hub/model/OpenSearchReservedInstancesConfiguration.h>
 #include <aws/cost-optimization-hub/model/Order.h>
@@ -85,6 +96,7 @@
 #include <aws/cost-optimization-hub/model/ResourceNotFoundException.h>
 #include <aws/cost-optimization-hub/model/ResourcePricing.h>
 #include <aws/cost-optimization-hub/model/ResourceType.h>
+#include <aws/cost-optimization-hub/model/SageMakerEndpoint.h>
 #include <aws/cost-optimization-hub/model/SageMakerSavingsPlans.h>
 #include <aws/cost-optimization-hub/model/SageMakerSavingsPlansConfiguration.h>
 #include <aws/cost-optimization-hub/model/SavingsEstimationMode.h>
@@ -96,6 +108,7 @@
 #include <aws/cost-optimization-hub/model/SummaryMetricsResult.h>
 #include <aws/cost-optimization-hub/model/Tag.h>
 #include <aws/cost-optimization-hub/model/Term.h>
+#include <aws/cost-optimization-hub/model/TimePeriod.h>
 #include <aws/cost-optimization-hub/model/UpdateEnrollmentStatusRequest.h>
 #include <aws/cost-optimization-hub/model/UpdateEnrollmentStatusResult.h>
 #include <aws/cost-optimization-hub/model/UpdatePreferencesRequest.h>
@@ -104,6 +117,7 @@
 #include <aws/cost-optimization-hub/model/ValidationException.h>
 #include <aws/cost-optimization-hub/model/ValidationExceptionDetail.h>
 #include <aws/cost-optimization-hub/model/ValidationExceptionReason.h>
+#include <aws/cost-optimization-hub/model/WorkSpaces.h>
 
 using CostOptimizationHubIncludeTest = ::testing::Test;
 

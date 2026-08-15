@@ -19,6 +19,7 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/stream/ResponseStream.h>
 #include <aws/core/endpoint/internal/AWSEndpointAttribute.h>
+#include <smithy/identity/auth/AuthSchemeOption.h>
 
 namespace Aws
 {
@@ -34,6 +35,10 @@ namespace Aws
      */
     typedef std::function<void(const AmazonWebServiceRequest&)> RequestRetryHandler;
     typedef std::function<void(const Aws::Http::HttpRequest&)> RequestSignedHandler;
+
+    struct RetryContext {
+      std::shared_ptr<std::pair<Aws::String, std::shared_ptr<Aws::Utils::Crypto::Hash>>> m_requestHash;
+    };
 
     /**
      * Base level abstraction for all modeled AWS requests
@@ -108,6 +113,12 @@ namespace Aws
          * Defaults to false, if this is set to true, it supports chunked transfer encoding.
          */
         virtual bool IsChunked() const { return false; }
+
+        /**
+         * Whether this operation is a long-polling operation (e.g. SQS ReceiveMessage).
+         * Long-polling operations apply a backoff delay before returning when retry quota is exhausted.
+         */
+        virtual bool IsLongPollingOperation() const { return false; }
 
         /**
          * Register closure for request signed event.
@@ -222,7 +233,21 @@ namespace Aws
          */
         Aws::Set<Aws::Client::UserAgentFeature> GetUserAgentFeatures() const { return m_userAgentFeatures; }
 
-      inline virtual bool RequestChecksumRequired() const { return false; }
+        inline virtual bool RequestChecksumRequired() const { return false; }
+
+        RetryContext GetRetryContext() const { return m_retryContext; }
+
+        void SetRetryContext(const RetryContext& context) const { m_retryContext = context; }
+
+        virtual Aws::Vector<smithy::AuthSchemeOption> GetRequestSpecificSupportedAuth() const { return {}; }
+
+        /**
+         * A request can return a checksum name, this tells if if it is a user set checksum
+         * or if it was defaulted
+         *
+         * @return true of a request has a user set checksum
+         */
+        inline virtual bool ChecksumAlgorithmIsSet() const { return false; }
     protected:
         /**
          * Default does nothing. Override this to convert what would otherwise be the payload of the
@@ -242,6 +267,7 @@ namespace Aws
         RequestRetryHandler m_requestRetryHandler;
         mutable std::shared_ptr<Aws::Http::ServiceSpecificParameters> m_serviceSpecificParameters;
         mutable Aws::Set<Client::UserAgentFeature> m_userAgentFeatures;
+        mutable Aws::RetryContext m_retryContext;
     };
 
 } // namespace Aws

@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/codeguru-security/CodeGuruSecurityEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CodeGuruSecurity
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CodeGuruSecurity {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CodeGuruSecurityClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -38,24 +32,20 @@ using CodeGuruSecurityEndpointProviderBase =
     EndpointProviderBase<CodeGuruSecurityClientConfiguration, CodeGuruSecurityBuiltInParameters, CodeGuruSecurityClientContextParameters>;
 
 using CodeGuruSecurityDefaultEpProviderBase =
-    DefaultEndpointProvider<CodeGuruSecurityClientConfiguration, CodeGuruSecurityBuiltInParameters, CodeGuruSecurityClientContextParameters>;
+    DefaultEndpointProvider<CodeGuruSecurityClientConfiguration, CodeGuruSecurityBuiltInParameters,
+                            CodeGuruSecurityClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CODEGURUSECURITY_API CodeGuruSecurityEndpointProvider : public CodeGuruSecurityDefaultEpProviderBase
-{
-public:
-    using CodeGuruSecurityResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CODEGURUSECURITY_API CodeGuruSecurityEndpointProvider : public CodeGuruSecurityDefaultEpProviderBase {
+ public:
+  using CodeGuruSecurityResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CodeGuruSecurityEndpointProvider()
-      : CodeGuruSecurityDefaultEpProviderBase(Aws::CodeGuruSecurity::CodeGuruSecurityEndpointRules::GetRulesBlob(), Aws::CodeGuruSecurity::CodeGuruSecurityEndpointRules::RulesBlobSize)
-    {}
+  CodeGuruSecurityEndpointProvider();
 
-    ~CodeGuruSecurityEndpointProvider()
-    {
-    }
+  ~CodeGuruSecurityEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CodeGuruSecurity
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CodeGuruSecurity
+}  // namespace Aws

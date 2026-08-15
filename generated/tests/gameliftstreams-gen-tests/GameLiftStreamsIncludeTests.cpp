@@ -8,12 +8,12 @@
 
 #include <aws/gameliftstreams/GameLiftStreamsClient.h>
 #include <aws/gameliftstreams/GameLiftStreamsEndpointProvider.h>
-#include <aws/gameliftstreams/GameLiftStreamsEndpointRules.h>
 #include <aws/gameliftstreams/GameLiftStreamsErrorMarshaller.h>
 #include <aws/gameliftstreams/GameLiftStreamsErrors.h>
 #include <aws/gameliftstreams/GameLiftStreamsRequest.h>
 #include <aws/gameliftstreams/GameLiftStreamsServiceClientModel.h>
 #include <aws/gameliftstreams/GameLiftStreams_EXPORTS.h>
+#include <aws/gameliftstreams/internal/GameLiftStreamsEndpointRules.h>
 #include <aws/gameliftstreams/model/AddStreamGroupLocationsRequest.h>
 #include <aws/gameliftstreams/model/AddStreamGroupLocationsResult.h>
 #include <aws/gameliftstreams/model/ApplicationStatus.h>
@@ -25,6 +25,8 @@
 #include <aws/gameliftstreams/model/CreateApplicationResult.h>
 #include <aws/gameliftstreams/model/CreateStreamGroupRequest.h>
 #include <aws/gameliftstreams/model/CreateStreamGroupResult.h>
+#include <aws/gameliftstreams/model/CreateStreamSessionAdminShellRequest.h>
+#include <aws/gameliftstreams/model/CreateStreamSessionAdminShellResult.h>
 #include <aws/gameliftstreams/model/CreateStreamSessionConnectionRequest.h>
 #include <aws/gameliftstreams/model/CreateStreamSessionConnectionResult.h>
 #include <aws/gameliftstreams/model/DefaultApplication.h>
@@ -32,6 +34,7 @@
 #include <aws/gameliftstreams/model/DeleteStreamGroupRequest.h>
 #include <aws/gameliftstreams/model/DisassociateApplicationsRequest.h>
 #include <aws/gameliftstreams/model/DisassociateApplicationsResult.h>
+#include <aws/gameliftstreams/model/DisplayConfiguration.h>
 #include <aws/gameliftstreams/model/ExportFilesMetadata.h>
 #include <aws/gameliftstreams/model/ExportFilesStatus.h>
 #include <aws/gameliftstreams/model/ExportStreamSessionFilesRequest.h>
@@ -54,10 +57,12 @@
 #include <aws/gameliftstreams/model/ListTagsForResourceResult.h>
 #include <aws/gameliftstreams/model/LocationConfiguration.h>
 #include <aws/gameliftstreams/model/LocationState.h>
+#include <aws/gameliftstreams/model/PerformanceStatsConfiguration.h>
 #include <aws/gameliftstreams/model/Protocol.h>
 #include <aws/gameliftstreams/model/RemoveStreamGroupLocationsRequest.h>
 #include <aws/gameliftstreams/model/ReplicationStatus.h>
 #include <aws/gameliftstreams/model/ReplicationStatusType.h>
+#include <aws/gameliftstreams/model/Resolution.h>
 #include <aws/gameliftstreams/model/RuntimeEnvironment.h>
 #include <aws/gameliftstreams/model/RuntimeEnvironmentType.h>
 #include <aws/gameliftstreams/model/StartStreamSessionRequest.h>
@@ -79,6 +84,8 @@
 #include <aws/gameliftstreams/model/UpdateApplicationResult.h>
 #include <aws/gameliftstreams/model/UpdateStreamGroupRequest.h>
 #include <aws/gameliftstreams/model/UpdateStreamGroupResult.h>
+#include <aws/gameliftstreams/model/VpcTransitConfiguration.h>
+#include <aws/gameliftstreams/model/VpcTransitConfigurationResponse.h>
 
 using GameLiftStreamsIncludeTest = ::testing::Test;
 

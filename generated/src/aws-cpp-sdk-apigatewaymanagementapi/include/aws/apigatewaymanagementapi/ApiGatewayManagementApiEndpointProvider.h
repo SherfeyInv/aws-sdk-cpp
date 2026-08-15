@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/apigatewaymanagementapi/ApiGatewayManagementApiEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ApiGatewayManagementApi
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ApiGatewayManagementApi {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ApiGatewayManagementApiClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -35,27 +29,24 @@ using ApiGatewayManagementApiBuiltInParameters = Aws::Endpoint::BuiltInParameter
  * The SDK must use service-specific type for each service per specification.
  */
 using ApiGatewayManagementApiEndpointProviderBase =
-    EndpointProviderBase<ApiGatewayManagementApiClientConfiguration, ApiGatewayManagementApiBuiltInParameters, ApiGatewayManagementApiClientContextParameters>;
+    EndpointProviderBase<ApiGatewayManagementApiClientConfiguration, ApiGatewayManagementApiBuiltInParameters,
+                         ApiGatewayManagementApiClientContextParameters>;
 
 using ApiGatewayManagementApiDefaultEpProviderBase =
-    DefaultEndpointProvider<ApiGatewayManagementApiClientConfiguration, ApiGatewayManagementApiBuiltInParameters, ApiGatewayManagementApiClientContextParameters>;
+    DefaultEndpointProvider<ApiGatewayManagementApiClientConfiguration, ApiGatewayManagementApiBuiltInParameters,
+                            ApiGatewayManagementApiClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_APIGATEWAYMANAGEMENTAPI_API ApiGatewayManagementApiEndpointProvider : public ApiGatewayManagementApiDefaultEpProviderBase
-{
-public:
-    using ApiGatewayManagementApiResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_APIGATEWAYMANAGEMENTAPI_API ApiGatewayManagementApiEndpointProvider : public ApiGatewayManagementApiDefaultEpProviderBase {
+ public:
+  using ApiGatewayManagementApiResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ApiGatewayManagementApiEndpointProvider()
-      : ApiGatewayManagementApiDefaultEpProviderBase(Aws::ApiGatewayManagementApi::ApiGatewayManagementApiEndpointRules::GetRulesBlob(), Aws::ApiGatewayManagementApi::ApiGatewayManagementApiEndpointRules::RulesBlobSize)
-    {}
+  ApiGatewayManagementApiEndpointProvider();
 
-    ~ApiGatewayManagementApiEndpointProvider()
-    {
-    }
+  ~ApiGatewayManagementApiEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ApiGatewayManagementApi
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ApiGatewayManagementApi
+}  // namespace Aws

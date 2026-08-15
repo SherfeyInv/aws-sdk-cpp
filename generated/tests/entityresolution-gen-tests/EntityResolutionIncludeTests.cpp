@@ -8,12 +8,12 @@
 
 #include <aws/entityresolution/EntityResolutionClient.h>
 #include <aws/entityresolution/EntityResolutionEndpointProvider.h>
-#include <aws/entityresolution/EntityResolutionEndpointRules.h>
 #include <aws/entityresolution/EntityResolutionErrorMarshaller.h>
 #include <aws/entityresolution/EntityResolutionErrors.h>
 #include <aws/entityresolution/EntityResolutionRequest.h>
 #include <aws/entityresolution/EntityResolutionServiceClientModel.h>
 #include <aws/entityresolution/EntityResolution_EXPORTS.h>
+#include <aws/entityresolution/internal/EntityResolutionEndpointRules.h>
 #include <aws/entityresolution/model/AddPolicyStatementRequest.h>
 #include <aws/entityresolution/model/AddPolicyStatementResult.h>
 #include <aws/entityresolution/model/AttributeMatchingModel.h>
@@ -27,6 +27,7 @@
 #include <aws/entityresolution/model/CreateMatchingWorkflowResult.h>
 #include <aws/entityresolution/model/CreateSchemaMappingRequest.h>
 #include <aws/entityresolution/model/CreateSchemaMappingResult.h>
+#include <aws/entityresolution/model/CustomerProfilesIntegrationConfig.h>
 #include <aws/entityresolution/model/DeleteIdMappingWorkflowRequest.h>
 #include <aws/entityresolution/model/DeleteIdMappingWorkflowResult.h>
 #include <aws/entityresolution/model/DeleteIdNamespaceRequest.h>
@@ -64,6 +65,8 @@
 #include <aws/entityresolution/model/GetProviderServiceResult.h>
 #include <aws/entityresolution/model/GetSchemaMappingRequest.h>
 #include <aws/entityresolution/model/GetSchemaMappingResult.h>
+#include <aws/entityresolution/model/IdMappingIncrementalRunConfig.h>
+#include <aws/entityresolution/model/IdMappingIncrementalRunType.h>
 #include <aws/entityresolution/model/IdMappingJobMetrics.h>
 #include <aws/entityresolution/model/IdMappingJobOutputSource.h>
 #include <aws/entityresolution/model/IdMappingRuleBasedProperties.h>
@@ -86,6 +89,7 @@
 #include <aws/entityresolution/model/JobOutputSource.h>
 #include <aws/entityresolution/model/JobStatus.h>
 #include <aws/entityresolution/model/JobSummary.h>
+#include <aws/entityresolution/model/JobType.h>
 #include <aws/entityresolution/model/ListIdMappingJobsRequest.h>
 #include <aws/entityresolution/model/ListIdMappingJobsResult.h>
 #include <aws/entityresolution/model/ListIdMappingWorkflowsRequest.h>
@@ -105,6 +109,7 @@
 #include <aws/entityresolution/model/MatchGroup.h>
 #include <aws/entityresolution/model/MatchPurpose.h>
 #include <aws/entityresolution/model/MatchedRecord.h>
+#include <aws/entityresolution/model/MatchingConfig.h>
 #include <aws/entityresolution/model/MatchingWorkflowSummary.h>
 #include <aws/entityresolution/model/NamespaceProviderProperties.h>
 #include <aws/entityresolution/model/NamespaceRuleBasedProperties.h>
@@ -127,6 +132,8 @@
 #include <aws/entityresolution/model/ResolutionType.h>
 #include <aws/entityresolution/model/Rule.h>
 #include <aws/entityresolution/model/RuleBasedProperties.h>
+#include <aws/entityresolution/model/RuleCondition.h>
+#include <aws/entityresolution/model/RuleConditionProperties.h>
 #include <aws/entityresolution/model/SchemaAttributeType.h>
 #include <aws/entityresolution/model/SchemaInputAttribute.h>
 #include <aws/entityresolution/model/SchemaMappingSummary.h>

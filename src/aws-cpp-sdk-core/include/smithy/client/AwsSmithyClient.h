@@ -26,6 +26,13 @@
 #include <smithy/client/AwsLegacyClient.h>
 
 namespace smithy {
+  namespace client {
+    template <typename OutcomeT, typename ClientT, typename RequestT, typename HandlerT>
+    class SmithyBidirectionalStreamingTask;
+  }
+}
+
+namespace smithy {
 namespace client
 {
     template<const char* ServiceNameT,
@@ -132,6 +139,12 @@ namespace client
         virtual ~AwsSmithyClientT() = default;
 
     protected:
+        template <typename OutcomeT, typename ClientT, typename RequestT, typename HandlerT>
+        friend class SmithyBidirectionalStreamingTask;
+
+        template <typename OutcomeT, typename ClientT, typename RequestT, typename EncoderStreamT, typename HandlerT>
+        friend class SmithyBidirectionalStreamingWriteDataTask;
+
         void initClient() {
           if (m_endpointProvider && m_authSchemeResolver) {
             m_endpointProvider->InitBuiltInParameters(m_clientConfiguration);
@@ -163,18 +176,22 @@ namespace client
             identityParams.serviceName = m_serviceName;
             identityParams.operation = ctx.m_requestName;
             identityParams.region = m_clientConfiguration.region;
+            identityParams.authPreferences = m_clientConfiguration.authPreferences;
 
             if (ctx.m_pRequest) {
                 // refactor once auth scheme resolver will use it's own rule set
                 const auto& epParams = ctx.m_pRequest->GetEndpointContextParams();
                 for (const auto& epParam : epParams) {
                     using ParameterType = Aws::Endpoint::EndpointParameter::ParameterType;
-                    if(epParam.GetStoredType() == ParameterType::STRING)
-                        identityParams.additionalProperties.insert({epParam.GetName(), epParam.GetStrValueNoCheck()});
-                    else if (epParam.GetStoredType() == ParameterType::BOOLEAN)
-                        identityParams.additionalProperties.insert({epParam.GetName(), epParam.GetBoolValueNoCheck()});
-                    else
-                        assert(!"Unknown endpoint parameter!");
+                    if(epParam.GetStoredType() == ParameterType::STRING) {
+                      identityParams.additionalProperties.insert({epParam.GetName(), epParam.GetStrValueNoCheck()});
+                    } else if (epParam.GetStoredType() == ParameterType::BOOLEAN) {
+                      identityParams.additionalProperties.insert({epParam.GetName(), epParam.GetBoolValueNoCheck()});
+                    } else if (epParam.GetStoredType() == ParameterType::STRING_ARRAY) {
+                      identityParams.additionalProperties.insert({epParam.GetName(), epParam.GetStrArrayValueNoCheck()});
+                    } else {
+                      assert(!"Unknown endpoint parameter!");
+                    }
                 }
                 const auto& serviceParams = ctx.m_pRequest->GetServiceSpecificParameters();
                 if (serviceParams) {
@@ -184,7 +201,7 @@ namespace client
                 }
             }
 
-            Aws::Vector<AuthSchemeOption> authSchemeOptions = m_authSchemeResolver->resolveAuthScheme(identityParams);
+            Aws::Vector<AuthSchemeOption> authSchemeOptions = ctx.m_authResolver == nullptr ? m_authSchemeResolver->resolveAuthScheme(identityParams) : ctx.m_authResolver->resolveAuthScheme(identityParams);
 
             auto authSchemeOptionIt = std::find_if(authSchemeOptions.begin(), authSchemeOptions.end(),
                                                    [this](const AuthSchemeOption& opt)
@@ -207,6 +224,11 @@ namespace client
             return AwsClientRequestSigning<AuthSchemesVariantT>::SignRequest(httpRequest, ctx, m_authSchemes);
         }
 
+        SigningEventOutcome SignEventMessage(Aws::Utils::Event::Message& message, Aws::String &seed, const std::shared_ptr<AwsSmithyClientAsyncRequestContext>& ctx) const
+        {
+          return AwsClientRequestSigning<AuthSchemesVariantT>::SignEventMessage(message, seed, ctx, m_authSchemes);
+        }
+
         bool AdjustClockSkew(HttpResponseOutcome& outcome, const AuthSchemeOption& authSchemeOption) const override
         {
             return AwsClientRequestSigning<AuthSchemesVariantT>::AdjustClockSkew(outcome, authSchemeOption, m_authSchemes);
@@ -223,12 +245,13 @@ namespace client
         ResponseT MakeRequestDeserialize(Aws::AmazonWebServiceRequest const * const request,
                                      const char* requestName,
                                      Aws::Http::HttpMethod method,
-                                     EndpointUpdateCallback&& endpointCallback) const
+                                     EndpointUpdateCallback&& endpointCallback,
+                                     AuthResolvedCallback&& authCallback = nullptr) const
         {
-            auto httpResponseOutcome = MakeRequestSync(request, requestName, method, std::move(endpointCallback));
-            return m_serializer->Deserialize(std::move(httpResponseOutcome), GetServiceClientName(), requestName);
+          auto httpResponseOutcome = MakeRequestSync(request, requestName, method, std::move(endpointCallback), std::move(authCallback));
+          return m_serializer->Deserialize(std::move(httpResponseOutcome), GetServiceClientName(), requestName);
         }
-        
+
         Aws::String GeneratePresignedUrl(
             EndpointUpdateCallback&& endpointCallback,
             Aws::Http::HttpMethod method,

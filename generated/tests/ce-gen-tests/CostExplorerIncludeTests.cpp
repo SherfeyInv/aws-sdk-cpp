@@ -8,12 +8,12 @@
 
 #include <aws/ce/CostExplorerClient.h>
 #include <aws/ce/CostExplorerEndpointProvider.h>
-#include <aws/ce/CostExplorerEndpointRules.h>
 #include <aws/ce/CostExplorerErrorMarshaller.h>
 #include <aws/ce/CostExplorerErrors.h>
 #include <aws/ce/CostExplorerRequest.h>
 #include <aws/ce/CostExplorerServiceClientModel.h>
 #include <aws/ce/CostExplorer_EXPORTS.h>
+#include <aws/ce/internal/CostExplorerEndpointRules.h>
 #include <aws/ce/model/AccountScope.h>
 #include <aws/ce/model/AnalysisDetails.h>
 #include <aws/ce/model/AnalysisStatus.h>
@@ -42,6 +42,7 @@
 #include <aws/ce/model/CostCategoryInheritedValueDimensionName.h>
 #include <aws/ce/model/CostCategoryProcessingStatus.h>
 #include <aws/ce/model/CostCategoryReference.h>
+#include <aws/ce/model/CostCategoryResourceAssociation.h>
 #include <aws/ce/model/CostCategoryRule.h>
 #include <aws/ce/model/CostCategoryRuleType.h>
 #include <aws/ce/model/CostCategoryRuleVersion.h>
@@ -153,6 +154,8 @@
 #include <aws/ce/model/ListCostAllocationTagsResult.h>
 #include <aws/ce/model/ListCostCategoryDefinitionsRequest.h>
 #include <aws/ce/model/ListCostCategoryDefinitionsResult.h>
+#include <aws/ce/model/ListCostCategoryResourceAssociationsRequest.h>
+#include <aws/ce/model/ListCostCategoryResourceAssociationsResult.h>
 #include <aws/ce/model/ListSavingsPlansPurchaseRecommendationGenerationRequest.h>
 #include <aws/ce/model/ListSavingsPlansPurchaseRecommendationGenerationResult.h>
 #include <aws/ce/model/ListTagsForResourceRequest.h>

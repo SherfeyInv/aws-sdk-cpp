@@ -8,13 +8,14 @@
 
 #include <aws/connectcampaignsv2/ConnectCampaignsV2Client.h>
 #include <aws/connectcampaignsv2/ConnectCampaignsV2EndpointProvider.h>
-#include <aws/connectcampaignsv2/ConnectCampaignsV2EndpointRules.h>
 #include <aws/connectcampaignsv2/ConnectCampaignsV2ErrorMarshaller.h>
 #include <aws/connectcampaignsv2/ConnectCampaignsV2Errors.h>
 #include <aws/connectcampaignsv2/ConnectCampaignsV2Request.h>
 #include <aws/connectcampaignsv2/ConnectCampaignsV2ServiceClientModel.h>
 #include <aws/connectcampaignsv2/ConnectCampaignsV2_EXPORTS.h>
+#include <aws/connectcampaignsv2/internal/ConnectCampaignsV2EndpointRules.h>
 #include <aws/connectcampaignsv2/model/AccessDeniedException.h>
+#include <aws/connectcampaignsv2/model/AgentAction.h>
 #include <aws/connectcampaignsv2/model/AgentlessConfig.h>
 #include <aws/connectcampaignsv2/model/AnswerMachineDetectionConfig.h>
 #include <aws/connectcampaignsv2/model/Campaign.h>
@@ -22,6 +23,7 @@
 #include <aws/connectcampaignsv2/model/CampaignFilters.h>
 #include <aws/connectcampaignsv2/model/CampaignState.h>
 #include <aws/connectcampaignsv2/model/CampaignSummary.h>
+#include <aws/connectcampaignsv2/model/ChannelContext.h>
 #include <aws/connectcampaignsv2/model/ChannelSubtype.h>
 #include <aws/connectcampaignsv2/model/ChannelSubtypeConfig.h>
 #include <aws/connectcampaignsv2/model/ChannelSubtypeParameters.h>
@@ -42,6 +44,7 @@
 #include <aws/connectcampaignsv2/model/DeleteCampaignChannelSubtypeConfigRequest.h>
 #include <aws/connectcampaignsv2/model/DeleteCampaignCommunicationLimitsRequest.h>
 #include <aws/connectcampaignsv2/model/DeleteCampaignCommunicationTimeRequest.h>
+#include <aws/connectcampaignsv2/model/DeleteCampaignEntryLimitsRequest.h>
 #include <aws/connectcampaignsv2/model/DeleteCampaignRequest.h>
 #include <aws/connectcampaignsv2/model/DeleteConnectInstanceConfigRequest.h>
 #include <aws/connectcampaignsv2/model/DeleteConnectInstanceIntegrationRequest.h>
@@ -54,8 +57,11 @@
 #include <aws/connectcampaignsv2/model/EmailOutboundMode.h>
 #include <aws/connectcampaignsv2/model/EncryptionConfig.h>
 #include <aws/connectcampaignsv2/model/EncryptionType.h>
+#include <aws/connectcampaignsv2/model/EntryLimitsConfig.h>
 #include <aws/connectcampaignsv2/model/EventTrigger.h>
+#include <aws/connectcampaignsv2/model/EventTriggerContext.h>
 #include <aws/connectcampaignsv2/model/EventType.h>
+#include <aws/connectcampaignsv2/model/ExternalCampaignType.h>
 #include <aws/connectcampaignsv2/model/FailedCampaignStateResponse.h>
 #include <aws/connectcampaignsv2/model/FailedProfileOutboundRequest.h>
 #include <aws/connectcampaignsv2/model/FailedRequest.h>
@@ -67,11 +73,15 @@
 #include <aws/connectcampaignsv2/model/GetCampaignStateResult.h>
 #include <aws/connectcampaignsv2/model/GetConnectInstanceConfigRequest.h>
 #include <aws/connectcampaignsv2/model/GetConnectInstanceConfigResult.h>
+#include <aws/connectcampaignsv2/model/GetInstanceCommunicationLimitsRequest.h>
+#include <aws/connectcampaignsv2/model/GetInstanceCommunicationLimitsResult.h>
 #include <aws/connectcampaignsv2/model/GetInstanceOnboardingJobStatusRequest.h>
 #include <aws/connectcampaignsv2/model/GetInstanceOnboardingJobStatusResult.h>
+#include <aws/connectcampaignsv2/model/InstanceCommunicationLimitsConfig.h>
 #include <aws/connectcampaignsv2/model/InstanceConfig.h>
 #include <aws/connectcampaignsv2/model/InstanceIdFilter.h>
 #include <aws/connectcampaignsv2/model/InstanceIdFilterOperator.h>
+#include <aws/connectcampaignsv2/model/InstanceLimitsHandling.h>
 #include <aws/connectcampaignsv2/model/InstanceOnboardingJobFailureCode.h>
 #include <aws/connectcampaignsv2/model/InstanceOnboardingJobStatus.h>
 #include <aws/connectcampaignsv2/model/InstanceOnboardingJobStatusCode.h>
@@ -81,6 +91,9 @@
 #include <aws/connectcampaignsv2/model/InternalServerException.h>
 #include <aws/connectcampaignsv2/model/InvalidCampaignStateException.h>
 #include <aws/connectcampaignsv2/model/InvalidStateException.h>
+#include <aws/connectcampaignsv2/model/LambdaIntegrationConfig.h>
+#include <aws/connectcampaignsv2/model/LambdaIntegrationIdentifier.h>
+#include <aws/connectcampaignsv2/model/LambdaIntegrationSummary.h>
 #include <aws/connectcampaignsv2/model/ListCampaignsRequest.h>
 #include <aws/connectcampaignsv2/model/ListCampaignsResult.h>
 #include <aws/connectcampaignsv2/model/ListConnectInstanceIntegrationsRequest.h>
@@ -88,15 +101,18 @@
 #include <aws/connectcampaignsv2/model/ListTagsForResourceRequest.h>
 #include <aws/connectcampaignsv2/model/ListTagsForResourceResult.h>
 #include <aws/connectcampaignsv2/model/LocalTimeZoneConfig.h>
+#include <aws/connectcampaignsv2/model/LocalTimeZoneDetectionScope.h>
 #include <aws/connectcampaignsv2/model/LocalTimeZoneDetectionType.h>
 #include <aws/connectcampaignsv2/model/OpenHours.h>
 #include <aws/connectcampaignsv2/model/OutboundRequest.h>
 #include <aws/connectcampaignsv2/model/PauseCampaignRequest.h>
 #include <aws/connectcampaignsv2/model/PredictiveConfig.h>
+#include <aws/connectcampaignsv2/model/PreviewConfig.h>
 #include <aws/connectcampaignsv2/model/ProfileOutboundRequest.h>
 #include <aws/connectcampaignsv2/model/ProfileOutboundRequestFailureCode.h>
 #include <aws/connectcampaignsv2/model/ProgressiveConfig.h>
 #include <aws/connectcampaignsv2/model/PutConnectInstanceIntegrationRequest.h>
+#include <aws/connectcampaignsv2/model/PutInstanceCommunicationLimitsRequest.h>
 #include <aws/connectcampaignsv2/model/PutOutboundRequestBatchRequest.h>
 #include <aws/connectcampaignsv2/model/PutOutboundRequestBatchResult.h>
 #include <aws/connectcampaignsv2/model/PutProfileOutboundRequestBatchRequest.h>
@@ -130,15 +146,22 @@
 #include <aws/connectcampaignsv2/model/ThrottlingException.h>
 #include <aws/connectcampaignsv2/model/TimeRange.h>
 #include <aws/connectcampaignsv2/model/TimeWindow.h>
+#include <aws/connectcampaignsv2/model/TimeoutConfig.h>
 #include <aws/connectcampaignsv2/model/UntagResourceRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignChannelSubtypeConfigRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignCommunicationLimitsRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignCommunicationTimeRequest.h>
+#include <aws/connectcampaignsv2/model/UpdateCampaignEntryLimitsRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignFlowAssociationRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignNameRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignScheduleRequest.h>
 #include <aws/connectcampaignsv2/model/UpdateCampaignSourceRequest.h>
 #include <aws/connectcampaignsv2/model/ValidationException.h>
+#include <aws/connectcampaignsv2/model/WebNotificationContext.h>
+#include <aws/connectcampaignsv2/model/WhatsAppChannelSubtypeConfig.h>
+#include <aws/connectcampaignsv2/model/WhatsAppChannelSubtypeParameters.h>
+#include <aws/connectcampaignsv2/model/WhatsAppOutboundConfig.h>
+#include <aws/connectcampaignsv2/model/WhatsAppOutboundMode.h>
 
 using ConnectCampaignsV2IncludeTest = ::testing::Test;
 

@@ -8,17 +8,19 @@
 
 #include <aws/account/AccountClient.h>
 #include <aws/account/AccountEndpointProvider.h>
-#include <aws/account/AccountEndpointRules.h>
 #include <aws/account/AccountErrorMarshaller.h>
 #include <aws/account/AccountErrors.h>
 #include <aws/account/AccountRequest.h>
 #include <aws/account/AccountServiceClientModel.h>
 #include <aws/account/Account_EXPORTS.h>
+#include <aws/account/internal/AccountEndpointRules.h>
 #include <aws/account/model/AcceptPrimaryEmailUpdateRequest.h>
 #include <aws/account/model/AcceptPrimaryEmailUpdateResult.h>
 #include <aws/account/model/AccessDeniedException.h>
+#include <aws/account/model/AccountState.h>
 #include <aws/account/model/AlternateContact.h>
 #include <aws/account/model/AlternateContactType.h>
+#include <aws/account/model/AwsAccountState.h>
 #include <aws/account/model/ConflictException.h>
 #include <aws/account/model/ContactInformation.h>
 #include <aws/account/model/DeleteAlternateContactRequest.h>
@@ -30,8 +32,12 @@
 #include <aws/account/model/GetAlternateContactResult.h>
 #include <aws/account/model/GetContactInformationRequest.h>
 #include <aws/account/model/GetContactInformationResult.h>
+#include <aws/account/model/GetGovCloudAccountInformationRequest.h>
+#include <aws/account/model/GetGovCloudAccountInformationResult.h>
 #include <aws/account/model/GetPrimaryEmailRequest.h>
 #include <aws/account/model/GetPrimaryEmailResult.h>
+#include <aws/account/model/GetPrimaryEmailUpdateStatusRequest.h>
+#include <aws/account/model/GetPrimaryEmailUpdateStatusResult.h>
 #include <aws/account/model/GetRegionOptStatusRequest.h>
 #include <aws/account/model/GetRegionOptStatusResult.h>
 #include <aws/account/model/InternalServerException.h>
@@ -44,6 +50,7 @@
 #include <aws/account/model/Region.h>
 #include <aws/account/model/RegionOptStatus.h>
 #include <aws/account/model/ResourceNotFoundException.h>
+#include <aws/account/model/ResourceUnavailableException.h>
 #include <aws/account/model/StartPrimaryEmailUpdateRequest.h>
 #include <aws/account/model/StartPrimaryEmailUpdateResult.h>
 #include <aws/account/model/TooManyRequestsException.h>

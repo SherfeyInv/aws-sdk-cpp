@@ -8,12 +8,12 @@
 
 #include <aws/sts/STSClient.h>
 #include <aws/sts/STSEndpointProvider.h>
-#include <aws/sts/STSEndpointRules.h>
 #include <aws/sts/STSErrorMarshaller.h>
 #include <aws/sts/STSErrors.h>
 #include <aws/sts/STSRequest.h>
 #include <aws/sts/STSServiceClientModel.h>
 #include <aws/sts/STS_EXPORTS.h>
+#include <aws/sts/internal/STSEndpointRules.h>
 #include <aws/sts/model/AssumeRoleRequest.h>
 #include <aws/sts/model/AssumeRoleResult.h>
 #include <aws/sts/model/AssumeRoleWithSAMLRequest.h>
@@ -31,10 +31,14 @@
 #include <aws/sts/model/GetAccessKeyInfoResult.h>
 #include <aws/sts/model/GetCallerIdentityRequest.h>
 #include <aws/sts/model/GetCallerIdentityResult.h>
+#include <aws/sts/model/GetDelegatedAccessTokenRequest.h>
+#include <aws/sts/model/GetDelegatedAccessTokenResult.h>
 #include <aws/sts/model/GetFederationTokenRequest.h>
 #include <aws/sts/model/GetFederationTokenResult.h>
 #include <aws/sts/model/GetSessionTokenRequest.h>
 #include <aws/sts/model/GetSessionTokenResult.h>
+#include <aws/sts/model/GetWebIdentityTokenRequest.h>
+#include <aws/sts/model/GetWebIdentityTokenResult.h>
 #include <aws/sts/model/PolicyDescriptorType.h>
 #include <aws/sts/model/ProvidedContext.h>
 #include <aws/sts/model/ResponseMetadata.h>

@@ -54,6 +54,7 @@ public class Shape {
     private String eventPayloadMemberName;
     private String eventPayloadType;
     private boolean isOutgoingEventStream;
+    private Map<String, Shape> eventStreamHeaders;
     private boolean exception;
     private boolean sensitive;
     private boolean hasPreSignedUrl;
@@ -62,6 +63,7 @@ public class Shape {
     private boolean overrideStreaming = false;
     private boolean requestCompressionRequired=false;
     private boolean requestCompressionRequiredGzip=false;
+    private boolean sparse=false;
 
     public boolean isMap() {
         return "map".equals(type.toLowerCase());
@@ -76,6 +78,8 @@ public class Shape {
     }
 
     public boolean isDouble() { return "double".equals(type.toLowerCase()); }
+
+    public boolean isFloat() { return "float".equals(type.toLowerCase()); }
 
     public boolean isString() {
         return "string".equals(type.toLowerCase()) && !isEnum();
@@ -123,8 +127,13 @@ public class Shape {
         return members.keySet().parallelStream().anyMatch(key -> !key.equals("Message") && !key.equals("message"));
     }
 
+    public boolean isCborModeledException() {
+        if (!exception) return false;
+        return members.keySet().parallelStream().anyMatch(key -> !key.equals("Message") && !key.equals("message"));
+    }
+
     public boolean isModeledException() {
-        return isXmlModeledException() || isJsonModeledException();
+        return isXmlModeledException() || isJsonModeledException() || isCborModeledException();
     }
 
     public boolean isMemberRequired(String member) {
@@ -178,6 +187,10 @@ public class Shape {
 
     public boolean hasMember(String member) {
         return members != null && members.keySet().stream().anyMatch(key -> key.equals(member));
+    }
+
+    public boolean hasMembers() {
+        return members != null && !members.isEmpty();
     }
 
     public ShapeMember getMemberByLocationName(String locationName) {

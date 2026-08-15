@@ -114,7 +114,6 @@ public class CppProtocolTestGenerator implements ClientGenerator {
         context.put("testModel", testModel);
         context.put("input.encoding", StandardCharsets.UTF_8.name());
         context.put("output.encoding", StandardCharsets.UTF_8.name());
-
         context.put("CppViewHelper", CppViewHelper.class);
         return context;
     }

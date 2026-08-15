@@ -8,15 +8,16 @@
 
 #include <aws/iotwireless/IoTWirelessClient.h>
 #include <aws/iotwireless/IoTWirelessEndpointProvider.h>
-#include <aws/iotwireless/IoTWirelessEndpointRules.h>
 #include <aws/iotwireless/IoTWirelessErrorMarshaller.h>
 #include <aws/iotwireless/IoTWirelessErrors.h>
 #include <aws/iotwireless/IoTWirelessRequest.h>
 #include <aws/iotwireless/IoTWirelessServiceClientModel.h>
 #include <aws/iotwireless/IoTWireless_EXPORTS.h>
+#include <aws/iotwireless/internal/IoTWirelessEndpointRules.h>
 #include <aws/iotwireless/model/AbpV1_0_x.h>
 #include <aws/iotwireless/model/AbpV1_1.h>
 #include <aws/iotwireless/model/Accuracy.h>
+#include <aws/iotwireless/model/AdvancedConfiguration.h>
 #include <aws/iotwireless/model/AggregationPeriod.h>
 #include <aws/iotwireless/model/ApplicationConfig.h>
 #include <aws/iotwireless/model/ApplicationConfigType.h>
@@ -68,6 +69,7 @@
 #include <aws/iotwireless/model/CreateWirelessGatewayTaskRequest.h>
 #include <aws/iotwireless/model/CreateWirelessGatewayTaskResult.h>
 #include <aws/iotwireless/model/DakCertificateMetadata.h>
+#include <aws/iotwireless/model/DefaultSessionParametersMulticast.h>
 #include <aws/iotwireless/model/DeleteDestinationRequest.h>
 #include <aws/iotwireless/model/DeleteDestinationResult.h>
 #include <aws/iotwireless/model/DeleteDeviceProfileRequest.h>
@@ -316,12 +318,15 @@
 #include <aws/iotwireless/model/SidewalkGetDeviceProfile.h>
 #include <aws/iotwireless/model/SidewalkGetStartImportInfo.h>
 #include <aws/iotwireless/model/SidewalkListDevice.h>
+#include <aws/iotwireless/model/SidewalkListDevicesForImportInfo.h>
+#include <aws/iotwireless/model/SidewalkPositioning.h>
 #include <aws/iotwireless/model/SidewalkResourceTypeEventConfiguration.h>
 #include <aws/iotwireless/model/SidewalkSendDataToDevice.h>
 #include <aws/iotwireless/model/SidewalkSingleStartImportInfo.h>
 #include <aws/iotwireless/model/SidewalkStartImportInfo.h>
 #include <aws/iotwireless/model/SidewalkUpdateAccount.h>
 #include <aws/iotwireless/model/SidewalkUpdateImportInfo.h>
+#include <aws/iotwireless/model/SidewalkUpdateWirelessDevice.h>
 #include <aws/iotwireless/model/SigningAlg.h>
 #include <aws/iotwireless/model/StartBulkAssociateWirelessDeviceWithMulticastGroupRequest.h>
 #include <aws/iotwireless/model/StartBulkAssociateWirelessDeviceWithMulticastGroupResult.h>
@@ -387,6 +392,7 @@
 #include <aws/iotwireless/model/WcdmaNmrObj.h>
 #include <aws/iotwireless/model/WcdmaObj.h>
 #include <aws/iotwireless/model/WiFiAccessPoint.h>
+#include <aws/iotwireless/model/WiFiCellular.h>
 #include <aws/iotwireless/model/WirelessDeviceEvent.h>
 #include <aws/iotwireless/model/WirelessDeviceEventLogOption.h>
 #include <aws/iotwireless/model/WirelessDeviceFrameInfo.h>

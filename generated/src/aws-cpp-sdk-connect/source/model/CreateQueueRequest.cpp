@@ -12,71 +12,57 @@ using namespace Aws::Connect::Model;
 using namespace Aws::Utils::Json;
 using namespace Aws::Utils;
 
-Aws::String CreateQueueRequest::SerializePayload() const
-{
+Aws::String CreateQueueRequest::SerializePayload() const {
   JsonValue payload;
 
-  if(m_nameHasBeenSet)
-  {
-   payload.WithString("Name", m_name);
-
+  if (m_nameHasBeenSet) {
+    payload.WithString("Name", m_name);
   }
 
-  if(m_descriptionHasBeenSet)
-  {
-   payload.WithString("Description", m_description);
-
+  if (m_descriptionHasBeenSet) {
+    payload.WithString("Description", m_description);
   }
 
-  if(m_outboundCallerConfigHasBeenSet)
-  {
-   payload.WithObject("OutboundCallerConfig", m_outboundCallerConfig.Jsonize());
-
+  if (m_outboundCallerConfigHasBeenSet) {
+    payload.WithObject("OutboundCallerConfig", m_outboundCallerConfig.Jsonize());
   }
 
-  if(m_outboundEmailConfigHasBeenSet)
-  {
-   payload.WithObject("OutboundEmailConfig", m_outboundEmailConfig.Jsonize());
-
+  if (m_outboundEmailConfigHasBeenSet) {
+    payload.WithObject("OutboundEmailConfig", m_outboundEmailConfig.Jsonize());
   }
 
-  if(m_hoursOfOperationIdHasBeenSet)
-  {
-   payload.WithString("HoursOfOperationId", m_hoursOfOperationId);
-
+  if (m_hoursOfOperationIdHasBeenSet) {
+    payload.WithString("HoursOfOperationId", m_hoursOfOperationId);
   }
 
-  if(m_maxContactsHasBeenSet)
-  {
-   payload.WithInteger("MaxContacts", m_maxContacts);
-
+  if (m_maxContactsHasBeenSet) {
+    payload.WithInteger("MaxContacts", m_maxContacts);
   }
 
-  if(m_quickConnectIdsHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> quickConnectIdsJsonList(m_quickConnectIds.size());
-   for(unsigned quickConnectIdsIndex = 0; quickConnectIdsIndex < quickConnectIdsJsonList.GetLength(); ++quickConnectIdsIndex)
-   {
-     quickConnectIdsJsonList[quickConnectIdsIndex].AsString(m_quickConnectIds[quickConnectIdsIndex]);
-   }
-   payload.WithArray("QuickConnectIds", std::move(quickConnectIdsJsonList));
-
+  if (m_quickConnectIdsHasBeenSet) {
+    Aws::Utils::Array<JsonValue> quickConnectIdsJsonList(m_quickConnectIds.size());
+    for (unsigned quickConnectIdsIndex = 0; quickConnectIdsIndex < quickConnectIdsJsonList.GetLength(); ++quickConnectIdsIndex) {
+      quickConnectIdsJsonList[quickConnectIdsIndex].AsString(m_quickConnectIds[quickConnectIdsIndex]);
+    }
+    payload.WithArray("QuickConnectIds", std::move(quickConnectIdsJsonList));
   }
 
-  if(m_tagsHasBeenSet)
-  {
-   JsonValue tagsJsonMap;
-   for(auto& tagsItem : m_tags)
-   {
-     tagsJsonMap.WithString(tagsItem.first, tagsItem.second);
-   }
-   payload.WithObject("Tags", std::move(tagsJsonMap));
+  if (m_emailAddressesConfigHasBeenSet) {
+    Aws::Utils::Array<JsonValue> emailAddressesConfigJsonList(m_emailAddressesConfig.size());
+    for (unsigned emailAddressesConfigIndex = 0; emailAddressesConfigIndex < emailAddressesConfigJsonList.GetLength();
+         ++emailAddressesConfigIndex) {
+      emailAddressesConfigJsonList[emailAddressesConfigIndex].AsObject(m_emailAddressesConfig[emailAddressesConfigIndex].Jsonize());
+    }
+    payload.WithArray("EmailAddressesConfig", std::move(emailAddressesConfigJsonList));
+  }
 
+  if (m_tagsHasBeenSet) {
+    JsonValue tagsJsonMap;
+    for (auto& tagsItem : m_tags) {
+      tagsJsonMap.WithString(tagsItem.first, tagsItem.second);
+    }
+    payload.WithObject("Tags", std::move(tagsJsonMap));
   }
 
   return payload.View().WriteReadable();
 }
-
-
-
-

@@ -8,12 +8,12 @@
 
 #include <aws/codebuild/CodeBuildClient.h>
 #include <aws/codebuild/CodeBuildEndpointProvider.h>
-#include <aws/codebuild/CodeBuildEndpointRules.h>
 #include <aws/codebuild/CodeBuildErrorMarshaller.h>
 #include <aws/codebuild/CodeBuildErrors.h>
 #include <aws/codebuild/CodeBuildRequest.h>
 #include <aws/codebuild/CodeBuildServiceClientModel.h>
 #include <aws/codebuild/CodeBuild_EXPORTS.h>
+#include <aws/codebuild/internal/CodeBuildEndpointRules.h>
 #include <aws/codebuild/model/ArtifactNamespace.h>
 #include <aws/codebuild/model/ArtifactPackaging.h>
 #include <aws/codebuild/model/ArtifactsType.h>
@@ -118,6 +118,7 @@
 #include <aws/codebuild/model/GetResourcePolicyRequest.h>
 #include <aws/codebuild/model/GetResourcePolicyResult.h>
 #include <aws/codebuild/model/GitSubmodulesConfig.h>
+#include <aws/codebuild/model/HostKernel.h>
 #include <aws/codebuild/model/ImagePullCredentialsType.h>
 #include <aws/codebuild/model/ImportSourceCredentialsRequest.h>
 #include <aws/codebuild/model/ImportSourceCredentialsResult.h>
@@ -176,6 +177,9 @@
 #include <aws/codebuild/model/ProjectSourceVersion.h>
 #include <aws/codebuild/model/ProjectVisibilityType.h>
 #include <aws/codebuild/model/ProxyConfiguration.h>
+#include <aws/codebuild/model/PullRequestBuildApproverRole.h>
+#include <aws/codebuild/model/PullRequestBuildCommentApproval.h>
+#include <aws/codebuild/model/PullRequestBuildPolicy.h>
 #include <aws/codebuild/model/PutResourcePolicyRequest.h>
 #include <aws/codebuild/model/PutResourcePolicyResult.h>
 #include <aws/codebuild/model/RegistryCredential.h>

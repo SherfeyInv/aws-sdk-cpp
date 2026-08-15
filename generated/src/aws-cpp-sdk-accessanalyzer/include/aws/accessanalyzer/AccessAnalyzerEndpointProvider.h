@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/accessanalyzer/AccessAnalyzerEndpointRules.h>
-
-
-namespace Aws
-{
-namespace AccessAnalyzer
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace AccessAnalyzer {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using AccessAnalyzerClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using AccessAnalyzerDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_ACCESSANALYZER_API AccessAnalyzerEndpointProvider : public AccessAnalyzerDefaultEpProviderBase
-{
-public:
-    using AccessAnalyzerResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_ACCESSANALYZER_API AccessAnalyzerEndpointProvider : public AccessAnalyzerDefaultEpProviderBase {
+ public:
+  using AccessAnalyzerResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    AccessAnalyzerEndpointProvider()
-      : AccessAnalyzerDefaultEpProviderBase(Aws::AccessAnalyzer::AccessAnalyzerEndpointRules::GetRulesBlob(), Aws::AccessAnalyzer::AccessAnalyzerEndpointRules::RulesBlobSize)
-    {}
+  AccessAnalyzerEndpointProvider();
 
-    ~AccessAnalyzerEndpointProvider()
-    {
-    }
+  ~AccessAnalyzerEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace AccessAnalyzer
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace AccessAnalyzer
+}  // namespace Aws

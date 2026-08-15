@@ -4,25 +4,19 @@
  */
 
 #pragma once
-#include <aws/invoicing/Invoicing_EXPORTS.h>
 #include <aws/core/client/GenericClientConfiguration.h>
 #include <aws/core/endpoint/DefaultEndpointProvider.h>
 #include <aws/core/endpoint/EndpointParameter.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
+#include <aws/invoicing/Invoicing_EXPORTS.h>
 
-#include <aws/invoicing/InvoicingEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Invoicing
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Invoicing {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using InvoicingClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using InvoicingDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_INVOICING_API InvoicingEndpointProvider : public InvoicingDefaultEpProviderBase
-{
-public:
-    using InvoicingResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_INVOICING_API InvoicingEndpointProvider : public InvoicingDefaultEpProviderBase {
+ public:
+  using InvoicingResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    InvoicingEndpointProvider()
-      : InvoicingDefaultEpProviderBase(Aws::Invoicing::InvoicingEndpointRules::GetRulesBlob(), Aws::Invoicing::InvoicingEndpointRules::RulesBlobSize)
-    {}
+  InvoicingEndpointProvider();
 
-    ~InvoicingEndpointProvider()
-    {
-    }
+  ~InvoicingEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Invoicing
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Invoicing
+}  // namespace Aws

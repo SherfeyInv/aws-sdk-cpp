@@ -8,12 +8,13 @@
 
 #include <aws/fsx/FSxClient.h>
 #include <aws/fsx/FSxEndpointProvider.h>
-#include <aws/fsx/FSxEndpointRules.h>
 #include <aws/fsx/FSxErrorMarshaller.h>
 #include <aws/fsx/FSxErrors.h>
 #include <aws/fsx/FSxRequest.h>
 #include <aws/fsx/FSxServiceClientModel.h>
 #include <aws/fsx/FSx_EXPORTS.h>
+#include <aws/fsx/internal/FSxEndpointRules.h>
+#include <aws/fsx/model/AccessPointAlreadyOwnedByYou.h>
 #include <aws/fsx/model/ActiveDirectoryBackupAttributes.h>
 #include <aws/fsx/model/ActiveDirectoryError.h>
 #include <aws/fsx/model/ActiveDirectoryErrorType.h>
@@ -44,6 +45,11 @@
 #include <aws/fsx/model/CopySnapshotAndUpdateVolumeRequest.h>
 #include <aws/fsx/model/CopySnapshotAndUpdateVolumeResult.h>
 #include <aws/fsx/model/CreateAggregateConfiguration.h>
+#include <aws/fsx/model/CreateAndAttachS3AccessPointOntapConfiguration.h>
+#include <aws/fsx/model/CreateAndAttachS3AccessPointOpenZFSConfiguration.h>
+#include <aws/fsx/model/CreateAndAttachS3AccessPointRequest.h>
+#include <aws/fsx/model/CreateAndAttachS3AccessPointResult.h>
+#include <aws/fsx/model/CreateAndAttachS3AccessPointS3Configuration.h>
 #include <aws/fsx/model/CreateBackupRequest.h>
 #include <aws/fsx/model/CreateBackupResult.h>
 #include <aws/fsx/model/CreateDataRepositoryAssociationRequest.h>
@@ -124,6 +130,8 @@
 #include <aws/fsx/model/DescribeFileSystemAliasesResult.h>
 #include <aws/fsx/model/DescribeFileSystemsRequest.h>
 #include <aws/fsx/model/DescribeFileSystemsResult.h>
+#include <aws/fsx/model/DescribeS3AccessPointAttachmentsRequest.h>
+#include <aws/fsx/model/DescribeS3AccessPointAttachmentsResult.h>
 #include <aws/fsx/model/DescribeSharedVpcConfigurationRequest.h>
 #include <aws/fsx/model/DescribeSharedVpcConfigurationResult.h>
 #include <aws/fsx/model/DescribeSnapshotsRequest.h>
@@ -132,6 +140,8 @@
 #include <aws/fsx/model/DescribeStorageVirtualMachinesResult.h>
 #include <aws/fsx/model/DescribeVolumesRequest.h>
 #include <aws/fsx/model/DescribeVolumesResult.h>
+#include <aws/fsx/model/DetachAndDeleteS3AccessPointRequest.h>
+#include <aws/fsx/model/DetachAndDeleteS3AccessPointResult.h>
 #include <aws/fsx/model/DisassociateFileSystemAliasesRequest.h>
 #include <aws/fsx/model/DisassociateFileSystemAliasesResult.h>
 #include <aws/fsx/model/DiskIopsConfiguration.h>
@@ -162,7 +172,9 @@
 #include <aws/fsx/model/FlexCacheEndpointType.h>
 #include <aws/fsx/model/IncompatibleParameterError.h>
 #include <aws/fsx/model/InputOntapVolumeType.h>
+#include <aws/fsx/model/InvalidAccessPoint.h>
 #include <aws/fsx/model/InvalidNetworkSettings.h>
+#include <aws/fsx/model/InvalidRequest.h>
 #include <aws/fsx/model/LifecycleTransitionReason.h>
 #include <aws/fsx/model/ListTagsForResourceRequest.h>
 #include <aws/fsx/model/ListTagsForResourceResult.h>
@@ -176,20 +188,28 @@
 #include <aws/fsx/model/LustreRootSquashConfiguration.h>
 #include <aws/fsx/model/MetadataConfigurationMode.h>
 #include <aws/fsx/model/NFSDataRepositoryConfiguration.h>
+#include <aws/fsx/model/NetworkType.h>
 #include <aws/fsx/model/NfsVersion.h>
 #include <aws/fsx/model/NotServiceResourceError.h>
 #include <aws/fsx/model/OntapDeploymentType.h>
 #include <aws/fsx/model/OntapFileSystemConfiguration.h>
+#include <aws/fsx/model/OntapFileSystemIdentity.h>
+#include <aws/fsx/model/OntapFileSystemUserType.h>
+#include <aws/fsx/model/OntapUnixFileSystemUser.h>
 #include <aws/fsx/model/OntapVolumeConfiguration.h>
 #include <aws/fsx/model/OntapVolumeType.h>
+#include <aws/fsx/model/OntapWindowsFileSystemUser.h>
 #include <aws/fsx/model/OpenZFSClientConfiguration.h>
 #include <aws/fsx/model/OpenZFSCopyStrategy.h>
 #include <aws/fsx/model/OpenZFSCreateRootVolumeConfiguration.h>
 #include <aws/fsx/model/OpenZFSDataCompressionType.h>
 #include <aws/fsx/model/OpenZFSDeploymentType.h>
 #include <aws/fsx/model/OpenZFSFileSystemConfiguration.h>
+#include <aws/fsx/model/OpenZFSFileSystemIdentity.h>
+#include <aws/fsx/model/OpenZFSFileSystemUserType.h>
 #include <aws/fsx/model/OpenZFSNfsExport.h>
 #include <aws/fsx/model/OpenZFSOriginSnapshotConfiguration.h>
+#include <aws/fsx/model/OpenZFSPosixFileSystemUser.h>
 #include <aws/fsx/model/OpenZFSQuotaType.h>
 #include <aws/fsx/model/OpenZFSReadCacheConfiguration.h>
 #include <aws/fsx/model/OpenZFSReadCacheSizingMode.h>
@@ -209,6 +229,15 @@
 #include <aws/fsx/model/RestoreVolumeFromSnapshotResult.h>
 #include <aws/fsx/model/RetentionPeriod.h>
 #include <aws/fsx/model/RetentionPeriodType.h>
+#include <aws/fsx/model/S3AccessPoint.h>
+#include <aws/fsx/model/S3AccessPointAttachment.h>
+#include <aws/fsx/model/S3AccessPointAttachmentLifecycle.h>
+#include <aws/fsx/model/S3AccessPointAttachmentType.h>
+#include <aws/fsx/model/S3AccessPointAttachmentsFilter.h>
+#include <aws/fsx/model/S3AccessPointAttachmentsFilterName.h>
+#include <aws/fsx/model/S3AccessPointOntapConfiguration.h>
+#include <aws/fsx/model/S3AccessPointOpenZFSConfiguration.h>
+#include <aws/fsx/model/S3AccessPointVpcConfiguration.h>
 #include <aws/fsx/model/S3DataRepositoryConfiguration.h>
 #include <aws/fsx/model/SecurityStyle.h>
 #include <aws/fsx/model/SelfManagedActiveDirectoryAttributes.h>
@@ -242,6 +271,7 @@
 #include <aws/fsx/model/TagResourceResult.h>
 #include <aws/fsx/model/TieringPolicy.h>
 #include <aws/fsx/model/TieringPolicyName.h>
+#include <aws/fsx/model/TooManyAccessPoints.h>
 #include <aws/fsx/model/Unit.h>
 #include <aws/fsx/model/UntagResourceRequest.h>
 #include <aws/fsx/model/UntagResourceResult.h>
@@ -281,6 +311,7 @@
 #include <aws/fsx/model/WindowsAuditLogCreateConfiguration.h>
 #include <aws/fsx/model/WindowsDeploymentType.h>
 #include <aws/fsx/model/WindowsFileSystemConfiguration.h>
+#include <aws/fsx/model/WindowsFsrmConfiguration.h>
 
 using FSxIncludeTest = ::testing::Test;
 

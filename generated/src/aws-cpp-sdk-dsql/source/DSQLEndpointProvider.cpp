@@ -4,13 +4,14 @@
  */
 
 #include <aws/dsql/DSQLEndpointProvider.h>
+#include <aws/dsql/internal/DSQLEndpointRules.h>
 
-namespace Aws
-{
-namespace DSQL
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace DSQL
-} // namespace Aws
+namespace Aws {
+namespace DSQL {
+namespace Endpoint {
+DSQLEndpointProvider::DSQLEndpointProvider()
+    : DSQLDefaultEpProviderBase(Aws::DSQL::DSQLEndpointRules::GetRulesBlob(), Aws::DSQL::DSQLEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace DSQL
+}  // namespace Aws

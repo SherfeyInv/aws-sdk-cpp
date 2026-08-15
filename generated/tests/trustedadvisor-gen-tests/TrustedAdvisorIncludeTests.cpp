@@ -8,12 +8,12 @@
 
 #include <aws/trustedadvisor/TrustedAdvisorClient.h>
 #include <aws/trustedadvisor/TrustedAdvisorEndpointProvider.h>
-#include <aws/trustedadvisor/TrustedAdvisorEndpointRules.h>
 #include <aws/trustedadvisor/TrustedAdvisorErrorMarshaller.h>
 #include <aws/trustedadvisor/TrustedAdvisorErrors.h>
 #include <aws/trustedadvisor/TrustedAdvisorRequest.h>
 #include <aws/trustedadvisor/TrustedAdvisorServiceClientModel.h>
 #include <aws/trustedadvisor/TrustedAdvisor_EXPORTS.h>
+#include <aws/trustedadvisor/internal/TrustedAdvisorEndpointRules.h>
 #include <aws/trustedadvisor/model/AccountRecommendationLifecycleSummary.h>
 #include <aws/trustedadvisor/model/BatchUpdateRecommendationResourceExclusionRequest.h>
 #include <aws/trustedadvisor/model/BatchUpdateRecommendationResourceExclusionResult.h>
@@ -33,6 +33,8 @@
 #include <aws/trustedadvisor/model/ListOrganizationRecommendationsResult.h>
 #include <aws/trustedadvisor/model/ListRecommendationResourcesRequest.h>
 #include <aws/trustedadvisor/model/ListRecommendationResourcesResult.h>
+#include <aws/trustedadvisor/model/ListRecommendationsForResourceRequest.h>
+#include <aws/trustedadvisor/model/ListRecommendationsForResourceResult.h>
 #include <aws/trustedadvisor/model/ListRecommendationsRequest.h>
 #include <aws/trustedadvisor/model/ListRecommendationsResult.h>
 #include <aws/trustedadvisor/model/OrganizationRecommendation.h>
@@ -40,6 +42,7 @@
 #include <aws/trustedadvisor/model/OrganizationRecommendationSummary.h>
 #include <aws/trustedadvisor/model/Recommendation.h>
 #include <aws/trustedadvisor/model/RecommendationCostOptimizingAggregates.h>
+#include <aws/trustedadvisor/model/RecommendationForResourceSummary.h>
 #include <aws/trustedadvisor/model/RecommendationLanguage.h>
 #include <aws/trustedadvisor/model/RecommendationLifecycleStage.h>
 #include <aws/trustedadvisor/model/RecommendationPillar.h>
@@ -52,6 +55,7 @@
 #include <aws/trustedadvisor/model/RecommendationSummary.h>
 #include <aws/trustedadvisor/model/RecommendationType.h>
 #include <aws/trustedadvisor/model/ResourceStatus.h>
+#include <aws/trustedadvisor/model/StatusReason.h>
 #include <aws/trustedadvisor/model/UpdateOrganizationRecommendationLifecycleRequest.h>
 #include <aws/trustedadvisor/model/UpdateRecommendationLifecycleRequest.h>
 #include <aws/trustedadvisor/model/UpdateRecommendationLifecycleStage.h>

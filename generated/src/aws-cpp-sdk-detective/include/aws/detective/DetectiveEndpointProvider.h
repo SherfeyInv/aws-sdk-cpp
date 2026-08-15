@@ -4,25 +4,19 @@
  */
 
 #pragma once
-#include <aws/detective/Detective_EXPORTS.h>
 #include <aws/core/client/GenericClientConfiguration.h>
 #include <aws/core/endpoint/DefaultEndpointProvider.h>
 #include <aws/core/endpoint/EndpointParameter.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
+#include <aws/detective/Detective_EXPORTS.h>
 
-#include <aws/detective/DetectiveEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Detective
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Detective {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using DetectiveClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using DetectiveDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_DETECTIVE_API DetectiveEndpointProvider : public DetectiveDefaultEpProviderBase
-{
-public:
-    using DetectiveResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_DETECTIVE_API DetectiveEndpointProvider : public DetectiveDefaultEpProviderBase {
+ public:
+  using DetectiveResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    DetectiveEndpointProvider()
-      : DetectiveDefaultEpProviderBase(Aws::Detective::DetectiveEndpointRules::GetRulesBlob(), Aws::Detective::DetectiveEndpointRules::RulesBlobSize)
-    {}
+  DetectiveEndpointProvider();
 
-    ~DetectiveEndpointProvider()
-    {
-    }
+  ~DetectiveEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Detective
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Detective
+}  // namespace Aws

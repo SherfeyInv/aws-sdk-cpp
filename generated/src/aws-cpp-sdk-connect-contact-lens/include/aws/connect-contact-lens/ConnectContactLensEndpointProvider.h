@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/connect-contact-lens/ConnectContactLensEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ConnectContactLens
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ConnectContactLens {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ConnectContactLensClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -35,27 +29,24 @@ using ConnectContactLensBuiltInParameters = Aws::Endpoint::BuiltInParameters;
  * The SDK must use service-specific type for each service per specification.
  */
 using ConnectContactLensEndpointProviderBase =
-    EndpointProviderBase<ConnectContactLensClientConfiguration, ConnectContactLensBuiltInParameters, ConnectContactLensClientContextParameters>;
+    EndpointProviderBase<ConnectContactLensClientConfiguration, ConnectContactLensBuiltInParameters,
+                         ConnectContactLensClientContextParameters>;
 
 using ConnectContactLensDefaultEpProviderBase =
-    DefaultEndpointProvider<ConnectContactLensClientConfiguration, ConnectContactLensBuiltInParameters, ConnectContactLensClientContextParameters>;
+    DefaultEndpointProvider<ConnectContactLensClientConfiguration, ConnectContactLensBuiltInParameters,
+                            ConnectContactLensClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CONNECTCONTACTLENS_API ConnectContactLensEndpointProvider : public ConnectContactLensDefaultEpProviderBase
-{
-public:
-    using ConnectContactLensResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CONNECTCONTACTLENS_API ConnectContactLensEndpointProvider : public ConnectContactLensDefaultEpProviderBase {
+ public:
+  using ConnectContactLensResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ConnectContactLensEndpointProvider()
-      : ConnectContactLensDefaultEpProviderBase(Aws::ConnectContactLens::ConnectContactLensEndpointRules::GetRulesBlob(), Aws::ConnectContactLens::ConnectContactLensEndpointRules::RulesBlobSize)
-    {}
+  ConnectContactLensEndpointProvider();
 
-    ~ConnectContactLensEndpointProvider()
-    {
-    }
+  ~ConnectContactLensEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ConnectContactLens
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ConnectContactLens
+}  // namespace Aws

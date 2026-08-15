@@ -6,12 +6,43 @@
  #pragma once
 
 #include <aws/core/Core_EXPORTS.h>
+#include <aws/core/client/UserAgent.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/DateTime.h>
+#include <aws/core/platform/Security.h>
 namespace Aws
 {
     namespace Auth
     {
+        /**
+         * Context class for credential resolution that tracks features used during credential retrieval.
+         */
+        class AWS_CORE_API CredentialsResolutionContext
+        {
+        public:
+          // Default constructor - no features tracked
+          CredentialsResolutionContext() = default;
+
+          /**
+           * Add a user agent feature to track credential usage.
+           */
+          void AddUserAgentFeature(Aws::Client::UserAgentFeature feature)
+          {
+            m_features.insert(feature);
+          }
+
+          /**
+           * Get all tracked credential features.
+           */
+          const Aws::Set<Aws::Client::UserAgentFeature> GetUserAgentFeatures() const
+          {
+            return m_features;
+          }
+
+        private:
+          Aws::Set<Aws::Client::UserAgentFeature> m_features;
+        };
+
         /**
          * Simple data object around aws credentials
          */
@@ -67,6 +98,42 @@ namespace Aws
                   m_sessionToken(sessionToken),
                   m_expiration(expiration),
                   m_accountId(accountId) {}
+
+            /**
+             * Copy constructor.
+             */
+            AWSCredentials(const AWSCredentials& other) = default;
+
+            /**
+             * Move constructor.
+             */
+            AWSCredentials(AWSCredentials&& other) noexcept = default;
+
+            /**
+             * Destructor that securely clears sensitive credential data from memory.
+             */
+            ~AWSCredentials()
+            {
+                // Securely clear sensitive credential data
+                if (!m_secretKey.empty())
+                {
+                    Aws::Security::SecureMemClear(reinterpret_cast<unsigned char*>(&m_secretKey[0]), m_secretKey.size());
+                }
+                if (!m_sessionToken.empty())
+                {
+                    Aws::Security::SecureMemClear(reinterpret_cast<unsigned char*>(&m_sessionToken[0]), m_sessionToken.size());
+                }
+            }
+
+            /**
+             * Copy assignment operator.
+             */
+            AWSCredentials& operator=(const AWSCredentials& other) = default;
+
+            /**
+             * Move assignment operator.
+             */
+            AWSCredentials& operator=(AWSCredentials&& other) noexcept = default;
 
             bool operator == (const AWSCredentials& other) const
             {
@@ -214,12 +281,24 @@ namespace Aws
                 m_expiration = expiration;
             }
 
+            /**
+             * Gets credential resolution context. this is information about the call
+             * such as what credentials provider was used to to resolve the credentials
+             */
+            inline CredentialsResolutionContext GetContext() { return m_context; }
+
+            /**
+             * Adds a user agent feature used during credentials resolution to the credentials
+             * context. This is useful to track which credentials provider was used.
+             */
+            inline void AddUserAgentFeature(Aws::Client::UserAgentFeature feature) { m_context.AddUserAgentFeature(feature); }
         private:
             Aws::String m_accessKeyId;
             Aws::String m_secretKey;
             Aws::String m_sessionToken;
             Aws::Utils::DateTime m_expiration;
             Aws::String m_accountId;
+            CredentialsResolutionContext m_context;
         };
     }
 }

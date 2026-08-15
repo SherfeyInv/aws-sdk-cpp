@@ -8,12 +8,13 @@
 
 #include <aws/braket/BraketClient.h>
 #include <aws/braket/BraketEndpointProvider.h>
-#include <aws/braket/BraketEndpointRules.h>
 #include <aws/braket/BraketErrorMarshaller.h>
 #include <aws/braket/BraketErrors.h>
 #include <aws/braket/BraketRequest.h>
 #include <aws/braket/BraketServiceClientModel.h>
 #include <aws/braket/Braket_EXPORTS.h>
+#include <aws/braket/internal/BraketEndpointRules.h>
+#include <aws/braket/model/ActionMetadata.h>
 #include <aws/braket/model/AlgorithmSpecification.h>
 #include <aws/braket/model/Association.h>
 #include <aws/braket/model/AssociationType.h>
@@ -28,12 +29,18 @@
 #include <aws/braket/model/CreateJobResult.h>
 #include <aws/braket/model/CreateQuantumTaskRequest.h>
 #include <aws/braket/model/CreateQuantumTaskResult.h>
+#include <aws/braket/model/CreateSpendingLimitRequest.h>
+#include <aws/braket/model/CreateSpendingLimitResult.h>
 #include <aws/braket/model/DataSource.h>
+#include <aws/braket/model/DeleteSpendingLimitRequest.h>
+#include <aws/braket/model/DeleteSpendingLimitResult.h>
 #include <aws/braket/model/DeviceConfig.h>
 #include <aws/braket/model/DeviceQueueInfo.h>
 #include <aws/braket/model/DeviceStatus.h>
 #include <aws/braket/model/DeviceSummary.h>
 #include <aws/braket/model/DeviceType.h>
+#include <aws/braket/model/ExperimentalCapabilities.h>
+#include <aws/braket/model/ExperimentalCapabilitiesEnablementType.h>
 #include <aws/braket/model/GetDeviceRequest.h>
 #include <aws/braket/model/GetDeviceResult.h>
 #include <aws/braket/model/GetJobRequest.h>
@@ -54,6 +61,7 @@
 #include <aws/braket/model/JobSummary.h>
 #include <aws/braket/model/ListTagsForResourceRequest.h>
 #include <aws/braket/model/ListTagsForResourceResult.h>
+#include <aws/braket/model/ProgramSetValidationFailure.h>
 #include <aws/braket/model/QuantumTaskAdditionalAttributeName.h>
 #include <aws/braket/model/QuantumTaskQueueInfo.h>
 #include <aws/braket/model/QuantumTaskStatus.h>
@@ -73,10 +81,20 @@
 #include <aws/braket/model/SearchQuantumTasksFilterOperator.h>
 #include <aws/braket/model/SearchQuantumTasksRequest.h>
 #include <aws/braket/model/SearchQuantumTasksResult.h>
+#include <aws/braket/model/SearchSpendingLimitsFilter.h>
+#include <aws/braket/model/SearchSpendingLimitsFilterOperator.h>
+#include <aws/braket/model/SearchSpendingLimitsRequest.h>
+#include <aws/braket/model/SearchSpendingLimitsResult.h>
+#include <aws/braket/model/SpendingLimitSummary.h>
 #include <aws/braket/model/TagResourceRequest.h>
 #include <aws/braket/model/TagResourceResult.h>
+#include <aws/braket/model/TimePeriod.h>
 #include <aws/braket/model/UntagResourceRequest.h>
 #include <aws/braket/model/UntagResourceResult.h>
+#include <aws/braket/model/UpdateSpendingLimitRequest.h>
+#include <aws/braket/model/UpdateSpendingLimitResult.h>
+#include <aws/braket/model/ValidationException.h>
+#include <aws/braket/model/ValidationExceptionReason.h>
 
 using BraketIncludeTest = ::testing::Test;
 

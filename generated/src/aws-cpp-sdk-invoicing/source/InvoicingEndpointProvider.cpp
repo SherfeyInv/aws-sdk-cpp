@@ -4,13 +4,15 @@
  */
 
 #include <aws/invoicing/InvoicingEndpointProvider.h>
+#include <aws/invoicing/internal/InvoicingEndpointRules.h>
 
-namespace Aws
-{
-namespace Invoicing
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace Invoicing
-} // namespace Aws
+namespace Aws {
+namespace Invoicing {
+namespace Endpoint {
+InvoicingEndpointProvider::InvoicingEndpointProvider()
+    : InvoicingDefaultEpProviderBase(Aws::Invoicing::InvoicingEndpointRules::GetRulesBlob(),
+                                     Aws::Invoicing::InvoicingEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace Invoicing
+}  // namespace Aws

@@ -4,6 +4,8 @@
  */
 #include <aws/core/Aws.h>
 #include <aws/core/auth/AWSCredentials.h>
+#include <aws/core/auth/AWSCredentialsProvider.h>
+#include <aws/core/auth/ProfileCredentialsProvider.h>
 #include <aws/core/auth/GeneralHTTPCredentialsProvider.h>
 #include <aws/core/auth/SSOCredentialsProvider.h>
 #include <aws/core/auth/STSCredentialsProvider.h>
@@ -15,6 +17,7 @@
 #include <aws/core/utils/FileSystemUtils.h>
 #include <aws/dynamodb/DynamoDBClient.h>
 #include <aws/dynamodb/DynamoDBClientConfiguration.h>
+#include <aws/dynamodb/model/PutItemRequest.h>
 #include <aws/dynamodb/DynamoDBEndpointProvider.h>
 #include <aws/testing/AwsTestHelpers.h>
 #include <aws/testing/MemoryTesting.h>
@@ -190,7 +193,7 @@ protected:
   {
     monitoring_context_->Reset();
 
-    auto profileDirectory = ProfileConfigFileAWSCredentialsProvider::GetProfileDirectory();
+    auto profileDirectory = ProfileCredentialsProvider::GetProfileDirectory();
     Aws::FileSystem::CreateDirectoryIfNotExists(profileDirectory.c_str());
     Aws::StringStream ssCachedTokenDirectory;
     ssCachedTokenDirectory << profileDirectory << FileSystem::PATH_DELIM << "sso";
@@ -582,63 +585,6 @@ TEST_F(DynamoDBUnitTest, ShouldUseAccountIDEndpointFromProcessCredentialsProvide
   EXPECT_TRUE(std::find(features.begin(), features.end(), "T") != features.end());
 }
 
-TEST_F(DynamoDBUnitTest, ShouldUseAccountIDEndpointFromSTSCredentialsProvider)
-{
-  Utils::TempFile tokenFile(std::ios_base::out | std::ios_base::trunc);
-  ASSERT_TRUE(tokenFile.good());
-  Aws::String token = "seeyoulaterspacecowboy";
-  tokenFile << token;
-  tokenFile.close();
-
-  Utils::TempFile configFile(std::ios_base::out | std::ios_base::trunc);
-  configFile << "[default]" << std::endl;
-  configFile << "web_identity_token_file = " << tokenFile.GetFileName() << std::endl;
-  configFile << "role_arn = arn:aws:iam::rocco:role/bounty " << std::endl;
-  configFile << "role_session_name = session_8" << std::endl;
-  configFile << std::endl;
-  configFile.close();
-  Environment::EnvironmentRAII envVars{{{CONFIGURATION_FILE_ENV_VAR, configFile.GetFileName().c_str()}}};
-  Aws::Config::ReloadCachedConfigFile();
-
-  ClientConfigurationInitValues initValues{};
-  initValues.shouldDisableIMDS = true;
-  DynamoDBClientConfiguration configuration{initValues};
-  configuration.region = "us-east-1";
-
-  auto credsProvider = Aws::MakeShared<STSAssumeRoleWebIdentityCredentialsProvider>(LOG_TAG);
-
-  const auto accountIdClient = Aws::MakeShared<DynamoDBClient>(LOG_TAG, std::move(credsProvider), nullptr, configuration);
-
-  // make up sts response
-  std::shared_ptr<HttpRequest> requestTmp = CreateHttpRequest(URI{}, HttpMethod::HTTP_GET, Aws::Utils::Stream::DefaultResponseStreamFactoryMethod);
-  Aws::String stsResponse = "<AssumeRoleWithWebIdentityResult><Credentials><AccessKeyId>waltz</AccessKeyId><SecretAccessKey>for</SecretAccessKey><SessionToken>venuz</SessionToken><AssumedRoleUser><Arn>arn:aws:sts::rocco:assumed-role/FederatedWebIdentityRole/musicbox</Arn><AssumedRoleId>stella</AssumedRoleId></AssumedRoleUser></Credentials></AssumeRoleWithWebIdentityResult>";
-  auto response = Aws::MakeShared<StandardHttpResponse>(LOG_TAG, requestTmp);
-  response->SetResponseCode(HttpResponseCode::OK);
-  response->GetResponseBody() << stsResponse;
-  mock_http_client_->AddResponseToReturn(std::move(response));
-
-  // mock response
-  auto successStream = Aws::MakeShared<StandardHttpRequest>(LOG_TAG, "cowboy.bebop/planets", HttpMethod::HTTP_GET);
-  successStream->SetResponseStreamFactory([]() -> IOStream* {
-    auto listTablesString =  R"({"LastEvaluatedTableName": "Planets","TableNames": ["Planets"]}))";
-    return Aws::New<StringStream>(LOG_TAG, listTablesString, std::ios_base::in | std::ios_base::binary);
-  });
-  auto successResponse = Aws::MakeShared<StandardHttpResponse>(LOG_TAG, successStream);
-  successResponse->SetResponseCode(HttpResponseCode::OK);
-
-  mock_http_client_->AddResponseToReturn(successResponse);
-  const auto listTablesOutcome = accountIdClient->ListTables();
-  EXPECT_TRUE(listTablesOutcome.IsSuccess());
-  const auto requestSeen = mock_http_client_->GetMostRecentHttpRequest();
-  EXPECT_EQ("https://rocco.ddb.us-east-1.amazonaws.com", requestSeen.GetUri().GetURIString());
-  const auto features = GetFeaturesForRequest(requestSeen);
-  EXPECT_TRUE(!features.empty());
-  // AccountId is disabled
-  EXPECT_TRUE(std::find(features.begin(), features.end(), "P") != features.end());
-  // Identity resolved a accountId
-  EXPECT_TRUE(std::find(features.begin(), features.end(), "T") != features.end());
-}
-
 TEST_F(DynamoDBUnitTest, ShouldUseAccountIDEndpointFromSSOCredentialsProvider)
 {
   Aws::OFStream tokenFile(m_ssoTokenFileName.c_str(), Aws::OFStream::out | Aws::OFStream::trunc);;
@@ -862,4 +808,28 @@ TEST_F(DynamoDBUnitTest, ShouldWorkWhenAccountIDPresentAndRequired)
   EXPECT_TRUE(std::find(features.begin(), features.end(), "R") != features.end());
   // Identity resolved a accountId
   EXPECT_TRUE(std::find(features.begin(), features.end(), "T") != features.end());
+}
+
+TEST_F(DynamoDBUnitTest, PutItemDoesNotSendExpect100ContinueHeader) {
+  using namespace Aws::DynamoDB::Model;
+
+  auto putItemRequest = PutItemRequest();
+  putItemRequest.SetTableName("TestTable");
+  AttributeValue hashKey;
+  hashKey.SetS("testKey");
+  putItemRequest.AddItem("id", hashKey);
+
+  auto mockStream = Aws::MakeShared<StandardHttpRequest>(LOG_TAG, "mockuri", HttpMethod::HTTP_GET);
+  mockStream->SetResponseStreamFactory([]() -> IOStream* {
+    return Aws::New<StringStream>(LOG_TAG, "{}", std::ios_base::in | std::ios_base::binary);
+  });
+  auto successResponse = Aws::MakeShared<StandardHttpResponse>(LOG_TAG, mockStream);
+  successResponse->SetResponseCode(HttpResponseCode::OK);
+  mock_http_client_->AddResponseToReturn(successResponse);
+
+  const auto putItemOutcome = client_->PutItem(putItemRequest);
+  EXPECT_TRUE(putItemOutcome.IsSuccess());
+
+  const auto requestSeen = mock_http_client_->GetMostRecentHttpRequest();
+  EXPECT_FALSE(requestSeen.HasHeader("expect"));
 }

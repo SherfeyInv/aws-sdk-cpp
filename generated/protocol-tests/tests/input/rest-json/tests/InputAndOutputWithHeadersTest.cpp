@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 #include <aws/core/utils/logging/LogMacros.h>
-#include <aws/testing/AwsProtocolTestHelpers.h>
 #include <aws/rest-json-protocol/RestJsonProtocolClient.h>
 #include <aws/rest-json-protocol/model/InputAndOutputWithHeadersRequest.h>
+#include <aws/testing/AwsProtocolTestHelpers.h>
 
 using InputAndOutputWithHeaders = AWS_PROTOCOL_TEST_SUITE;
 using RestJsonProtocolClient = Aws::RestJsonProtocol::RestJsonProtocolClient;
@@ -25,7 +25,7 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonInputAndOutputWithStringHea
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-String", R"(Hello)"}, {"X-StringList", R"(a, b, c)"}, {"X-StringSet", R"(a, b, c)"}};
+  expectedRq.headers = {{"X-StringList", R"(a, b, c)"}, {"X-String", R"(Hello)"}, {"X-StringSet", R"(a, b, c)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -65,7 +65,9 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonInputAndOutputWithNumericHe
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-Byte", R"(1)"}, {"X-Double", R"(1.1)"}, {"X-Float", R"(1.1)"}, {"X-Integer", R"(123)"}, {"X-IntegerList", R"(1, 2, 3)"}, {"X-Long", R"(123)"}, {"X-Short", R"(123)"}};
+  expectedRq.headers = {{"X-Integer", R"(123)"},        {"X-Short", R"(123)"},  {"X-Byte", R"(1)"},
+                        {"X-Long", R"(123)"},           {"X-Double", R"(1.1)"}, {"X-Float", R"(1.1)"},
+                        {"X-IntegerList", R"(1, 2, 3)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -84,7 +86,7 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonInputAndOutputWithBooleanHe
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-Boolean1", R"(true)"}, {"X-Boolean2", R"(false)"}, {"X-BooleanList", R"(true, false, true)"}};
+  expectedRq.headers = {{"X-BooleanList", R"(true, false, true)"}, {"X-Boolean1", R"(true)"}, {"X-Boolean2", R"(false)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -95,7 +97,8 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonInputAndOutputWithTimestamp
   SetMockResponse();
 
   InputAndOutputWithHeadersRequest request;
-  request.SetHeaderTimestampList({Aws::Utils::DateTime(1576540098L), Aws::Utils::DateTime(1576540098L)});
+  request.SetHeaderTimestampList(
+      {Aws::Utils::DateTime(static_cast<int64_t>(1576540098)), Aws::Utils::DateTime(static_cast<int64_t>(1576540098))});
 
   auto outcome = client.InputAndOutputWithHeaders(request);
   ExpectedRequest expectedRq;
@@ -113,13 +116,14 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonInputAndOutputWithEnumHeade
 
   InputAndOutputWithHeadersRequest request;
   request.SetHeaderEnum(FooEnumMapper::GetFooEnumForName(R"e(Foo)e"));
-  request.SetHeaderEnumList({FooEnumMapper::GetFooEnumForName(R"e(Foo)e"), FooEnumMapper::GetFooEnumForName(R"e(Bar)e"), FooEnumMapper::GetFooEnumForName(R"e(Baz)e")});
+  request.SetHeaderEnumList({FooEnumMapper::GetFooEnumForName(R"e(Foo)e"), FooEnumMapper::GetFooEnumForName(R"e(Bar)e"),
+                             FooEnumMapper::GetFooEnumForName(R"e(Baz)e")});
 
   auto outcome = client.InputAndOutputWithHeaders(request);
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-Enum", R"(Foo)"}, {"X-EnumList", R"(Foo, Bar, Baz)"}};
+  expectedRq.headers = {{"X-EnumList", R"(Foo, Bar, Baz)"}, {"X-Enum", R"(Foo)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -137,7 +141,7 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonInputAndOutputWithIntEnumHe
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-IntegerEnum", R"(1)"}, {"X-IntegerEnumList", R"(1, 2, 3)"}};
+  expectedRq.headers = {{"X-IntegerEnumList", R"(1, 2, 3)"}, {"X-IntegerEnum", R"(1)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -155,7 +159,7 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonSupportsNaNFloatHeaderInput
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-Double", R"(NaN)"}, {"X-Float", R"(NaN)"}};
+  expectedRq.headers = {{"X-Float", R"(NaN)"}, {"X-Double", R"(NaN)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -173,7 +177,7 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonSupportsInfinityFloatHeader
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-Double", R"(Infinity)"}, {"X-Float", R"(Infinity)"}};
+  expectedRq.headers = {{"X-Float", R"(Infinity)"}, {"X-Double", R"(Infinity)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -191,7 +195,7 @@ AWS_PROTOCOL_TEST(InputAndOutputWithHeaders, RestJsonSupportsNegativeInfinityFlo
   ExpectedRequest expectedRq;
   expectedRq.method = "POST";
   expectedRq.uri = "/InputAndOutputWithHeaders";
-  expectedRq.headers = {{"X-Double", R"(-Infinity)"}, {"X-Float", R"(-Infinity)"}};
+  expectedRq.headers = {{"X-Float", R"(-Infinity)"}, {"X-Double", R"(-Infinity)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }

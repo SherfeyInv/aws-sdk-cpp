@@ -8,12 +8,12 @@
 
 #include <aws/glacier/GlacierClient.h>
 #include <aws/glacier/GlacierEndpointProvider.h>
-#include <aws/glacier/GlacierEndpointRules.h>
 #include <aws/glacier/GlacierErrorMarshaller.h>
 #include <aws/glacier/GlacierErrors.h>
 #include <aws/glacier/GlacierRequest.h>
 #include <aws/glacier/GlacierServiceClientModel.h>
 #include <aws/glacier/Glacier_EXPORTS.h>
+#include <aws/glacier/internal/GlacierEndpointRules.h>
 #include <aws/glacier/model/AbortMultipartUploadRequest.h>
 #include <aws/glacier/model/AbortVaultLockRequest.h>
 #include <aws/glacier/model/ActionCode.h>
@@ -80,6 +80,7 @@
 #include <aws/glacier/model/ListVaultsRequest.h>
 #include <aws/glacier/model/ListVaultsResult.h>
 #include <aws/glacier/model/MissingParameterValueException.h>
+#include <aws/glacier/model/NoLongerSupportedException.h>
 #include <aws/glacier/model/OutputLocation.h>
 #include <aws/glacier/model/OutputSerialization.h>
 #include <aws/glacier/model/PartListElement.h>

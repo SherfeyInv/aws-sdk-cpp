@@ -8,12 +8,12 @@
 
 #include <aws/gamelift/GameLiftClient.h>
 #include <aws/gamelift/GameLiftEndpointProvider.h>
-#include <aws/gamelift/GameLiftEndpointRules.h>
 #include <aws/gamelift/GameLiftErrorMarshaller.h>
 #include <aws/gamelift/GameLiftErrors.h>
 #include <aws/gamelift/GameLiftRequest.h>
 #include <aws/gamelift/GameLiftServiceClientModel.h>
 #include <aws/gamelift/GameLift_EXPORTS.h>
+#include <aws/gamelift/internal/GameLiftEndpointRules.h>
 #include <aws/gamelift/model/AcceptMatchRequest.h>
 #include <aws/gamelift/model/AcceptMatchResult.h>
 #include <aws/gamelift/model/AcceptanceType.h>
@@ -47,6 +47,7 @@
 #include <aws/gamelift/model/ContainerFleetStatus.h>
 #include <aws/gamelift/model/ContainerGroupDefinition.h>
 #include <aws/gamelift/model/ContainerGroupDefinitionStatus.h>
+#include <aws/gamelift/model/ContainerGroupPortMapping.h>
 #include <aws/gamelift/model/ContainerGroupType.h>
 #include <aws/gamelift/model/ContainerHealthCheck.h>
 #include <aws/gamelift/model/ContainerIdentifier.h>
@@ -54,6 +55,7 @@
 #include <aws/gamelift/model/ContainerMountPointAccessLevel.h>
 #include <aws/gamelift/model/ContainerOperatingSystem.h>
 #include <aws/gamelift/model/ContainerPortConfiguration.h>
+#include <aws/gamelift/model/ContainerPortMapping.h>
 #include <aws/gamelift/model/ContainerPortRange.h>
 #include <aws/gamelift/model/CreateAliasRequest.h>
 #include <aws/gamelift/model/CreateAliasResult.h>
@@ -132,6 +134,8 @@
 #include <aws/gamelift/model/DescribeContainerFleetResult.h>
 #include <aws/gamelift/model/DescribeContainerGroupDefinitionRequest.h>
 #include <aws/gamelift/model/DescribeContainerGroupDefinitionResult.h>
+#include <aws/gamelift/model/DescribeContainerGroupPortMappingsRequest.h>
+#include <aws/gamelift/model/DescribeContainerGroupPortMappingsResult.h>
 #include <aws/gamelift/model/DescribeEC2InstanceLimitsRequest.h>
 #include <aws/gamelift/model/DescribeEC2InstanceLimitsResult.h>
 #include <aws/gamelift/model/DescribeFleetAttributesRequest.h>
@@ -217,6 +221,7 @@
 #include <aws/gamelift/model/GameServerHealthCheck.h>
 #include <aws/gamelift/model/GameServerInstance.h>
 #include <aws/gamelift/model/GameServerInstanceStatus.h>
+#include <aws/gamelift/model/GameServerIpProtocolSupported.h>
 #include <aws/gamelift/model/GameServerProtectionPolicy.h>
 #include <aws/gamelift/model/GameServerUtilizationStatus.h>
 #include <aws/gamelift/model/GameSession.h>
@@ -237,6 +242,8 @@
 #include <aws/gamelift/model/GetGameSessionLogUrlResult.h>
 #include <aws/gamelift/model/GetInstanceAccessRequest.h>
 #include <aws/gamelift/model/GetInstanceAccessResult.h>
+#include <aws/gamelift/model/GetPlayerConnectionDetailsRequest.h>
+#include <aws/gamelift/model/GetPlayerConnectionDetailsResult.h>
 #include <aws/gamelift/model/Instance.h>
 #include <aws/gamelift/model/InstanceAccess.h>
 #include <aws/gamelift/model/InstanceCredentials.h>
@@ -246,6 +253,8 @@
 #include <aws/gamelift/model/IpPermission.h>
 #include <aws/gamelift/model/IpProtocol.h>
 #include <aws/gamelift/model/LaunchTemplateSpecification.h>
+#include <aws/gamelift/model/LinuxCapabilities.h>
+#include <aws/gamelift/model/LinuxCapability.h>
 #include <aws/gamelift/model/ListAliasesRequest.h>
 #include <aws/gamelift/model/ListAliasesResult.h>
 #include <aws/gamelift/model/ListBuildsRequest.h>
@@ -282,6 +291,7 @@
 #include <aws/gamelift/model/LocationalDeployment.h>
 #include <aws/gamelift/model/LogConfiguration.h>
 #include <aws/gamelift/model/LogDestination.h>
+#include <aws/gamelift/model/ManagedCapacityConfiguration.h>
 #include <aws/gamelift/model/MatchedPlayerSession.h>
 #include <aws/gamelift/model/MatchmakingConfiguration.h>
 #include <aws/gamelift/model/MatchmakingConfigurationStatus.h>
@@ -289,9 +299,15 @@
 #include <aws/gamelift/model/MatchmakingTicket.h>
 #include <aws/gamelift/model/MetricName.h>
 #include <aws/gamelift/model/OperatingSystem.h>
+#include <aws/gamelift/model/PingBeacon.h>
 #include <aws/gamelift/model/PlacedPlayerSession.h>
 #include <aws/gamelift/model/PlacementFallbackStrategy.h>
 #include <aws/gamelift/model/Player.h>
+#include <aws/gamelift/model/PlayerConnectionDetail.h>
+#include <aws/gamelift/model/PlayerConnectionEndpoint.h>
+#include <aws/gamelift/model/PlayerGatewayConfiguration.h>
+#include <aws/gamelift/model/PlayerGatewayMode.h>
+#include <aws/gamelift/model/PlayerGatewayStatus.h>
 #include <aws/gamelift/model/PlayerLatency.h>
 #include <aws/gamelift/model/PlayerLatencyPolicy.h>
 #include <aws/gamelift/model/PlayerSession.h>
@@ -353,6 +369,7 @@
 #include <aws/gamelift/model/TerminateGameSessionRequest.h>
 #include <aws/gamelift/model/TerminateGameSessionResult.h>
 #include <aws/gamelift/model/TerminationMode.h>
+#include <aws/gamelift/model/UDPEndpoint.h>
 #include <aws/gamelift/model/UntagResourceRequest.h>
 #include <aws/gamelift/model/UntagResourceResult.h>
 #include <aws/gamelift/model/UpdateAliasRequest.h>
@@ -388,6 +405,7 @@
 #include <aws/gamelift/model/VpcPeeringAuthorization.h>
 #include <aws/gamelift/model/VpcPeeringConnection.h>
 #include <aws/gamelift/model/VpcPeeringConnectionStatus.h>
+#include <aws/gamelift/model/ZeroCapacityStrategy.h>
 
 using GameLiftIncludeTest = ::testing::Test;
 

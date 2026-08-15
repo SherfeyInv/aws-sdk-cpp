@@ -148,6 +148,194 @@
                 },
                 "smithy.api#documentation": "<p>Welcome to the <i>Entity Resolution API Reference</i>.</p> <p>Entity Resolution is an Amazon Web Services service that provides pre-configured entity resolution capabilities that enable developers and analysts at advertising and marketing companies to build an accurate and complete view of their consumers.</p> <p> With Entity Resolution, you can match source records containing consumer identifiers, such as name, email address, and phone number. This is true even when these records have incomplete or conflicting identifiers. For example, Entity Resolution can effectively match a source record from a customer relationship management (CRM) system with a source record from a marketing system containing campaign information.</p> <p>To learn more about Entity Resolution concepts, procedures, and best practices, see the <a href=\"https://docs.aws.amazon.com/entityresolution/latest/userguide/what-is-service.html\">Entity Resolution User Guide</a>.</p>",
                 "smithy.api#title": "AWS EntityResolution",
+                "smithy.rules#endpointBdd": {
+                    "version": "1.1",
+                    "parameters": {
+                        "Region": {
+                            "builtIn": "AWS::Region",
+                            "required": false,
+                            "documentation": "The AWS region used to dispatch the request.",
+                            "type": "string"
+                        },
+                        "UseDualStack": {
+                            "builtIn": "AWS::UseDualStack",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
+                            "type": "boolean"
+                        },
+                        "UseFIPS": {
+                            "builtIn": "AWS::UseFIPS",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
+                            "type": "boolean"
+                        },
+                        "Endpoint": {
+                            "builtIn": "SDK::Endpoint",
+                            "required": false,
+                            "documentation": "Override the endpoint used to send this request",
+                            "type": "string"
+                        }
+                    },
+                    "conditions": [
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Endpoint"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "aws.partition",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ],
+                            "assign": "PartitionResult"
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseFIPS"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseDualStack"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsDualStack"
+                                    ]
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsFIPS"
+                                    ]
+                                },
+                                true
+                            ]
+                        }
+                    ],
+                    "results": [
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: FIPS and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Dualstack and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": {
+                                    "ref": "Endpoint"
+                                },
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://entityresolution-fips.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS and DualStack are enabled, but this partition does not support one or both",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://entityresolution-fips.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS is enabled but this partition does not support FIPS",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://entityresolution.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "DualStack is enabled but this partition does not support DualStack",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://entityresolution.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Missing Region",
+                            "type": "error"
+                        }
+                    ],
+                    "root": 2,
+                    "nodeCount": 13,
+                    "nodes": "/////wAAAAH/////AAAAAAAAAAwAAAADAAAAAQAAAAQF9eELAAAAAgAAAAUF9eELAAAAAwAAAAgAAAAGAAAABAAAAAcF9eEKAAAABQX14QgF9eEJAAAABAAAAAoAAAAJAAAABgX14QYF9eEHAAAABQAAAAsF9eEFAAAABgX14QQF9eEFAAAAAwX14QEAAAANAAAABAX14QIF9eED"
+                },
                 "smithy.rules#endpointRuleSet": {
                     "version": "1.0",
                     "parameters": {
@@ -155,27 +343,27 @@
                             "builtIn": "AWS::Region",
                             "required": false,
                             "documentation": "The AWS region used to dispatch the request.",
-                            "type": "String"
+                            "type": "string"
                         },
                         "UseDualStack": {
                             "builtIn": "AWS::UseDualStack",
                             "required": true,
                             "default": false,
                             "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "UseFIPS": {
                             "builtIn": "AWS::UseFIPS",
                             "required": true,
                             "default": false,
                             "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "Endpoint": {
                             "builtIn": "SDK::Endpoint",
                             "required": false,
                             "documentation": "Override the endpoint used to send this request",
-                            "type": "String"
+                            "type": "string"
                         }
                     },
                     "rules": [
@@ -657,17 +845,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -678,17 +855,6 @@
                                 "Region": "us-iso-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-iso-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -705,17 +871,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -726,17 +881,6 @@
                                 "Region": "us-isob-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-isob-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -1086,7 +1230,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>The request could not be processed because of conflict in the current state of the resource. Example: Workflow already exists, Schema already exists, Workflow is currently running, etc. </p>",
+                "smithy.api#documentation": "<p>The request couldn't be processed because of conflict in the current state of the resource. Example: Workflow already exists, Schema already exists, Workflow is currently running, etc. </p>",
                 "smithy.api#error": "client",
                 "smithy.api#httpError": 400
             }
@@ -1120,7 +1264,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>Creates an <code>IdMappingWorkflow</code> object which stores the configuration of the data processing job to be run. Each <code>IdMappingWorkflow</code> must have a unique workflow name. To modify an existing workflow, use the <code>UpdateIdMappingWorkflow</code> API.</p>",
+                "smithy.api#documentation": "<p>Creates an <code>IdMappingWorkflow</code> object which stores the configuration of the data processing job to be run. Each <code>IdMappingWorkflow</code> must have a unique workflow name. To modify an existing workflow, use the UpdateIdMappingWorkflow API.</p> <important> <p>Incremental processing is not supported for ID mapping workflows. </p> </important>",
                 "smithy.api#http": {
                     "code": 200,
                     "method": "POST",
@@ -1154,7 +1298,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#IdMappingWorkflowOutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>IdMappingWorkflowOutputSource</code> objects, each of which contains fields <code>OutputS3Path</code> and <code>Output</code>.</p>"
+                        "smithy.api#documentation": "<p>A list of <code>IdMappingWorkflowOutputSource</code> objects, each of which contains fields <code>outputS3Path</code> and <code>KMSArn</code>.</p>"
                     }
                 },
                 "idMappingTechniques": {
@@ -1162,6 +1306,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>An object which defines the ID mapping technique and any additional configurations.</p>",
                         "smithy.api#required": {}
+                    }
+                },
+                "incrementalRunConfig": {
+                    "target": "com.amazonaws.entityresolution#IdMappingIncrementalRunConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The incremental run configuration for the ID mapping workflow.</p>"
                     }
                 },
                 "roleArn": {
@@ -1216,7 +1366,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#IdMappingWorkflowOutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>IdMappingWorkflowOutputSource</code> objects, each of which contains fields <code>OutputS3Path</code> and <code>Output</code>.</p>"
+                        "smithy.api#documentation": "<p>A list of <code>IdMappingWorkflowOutputSource</code> objects, each of which contains fields <code>outputS3Path</code> and <code>KMSArn</code>.</p>"
                     }
                 },
                 "idMappingTechniques": {
@@ -1224,6 +1374,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>An object which defines the ID mapping technique and any additional configurations.</p>",
                         "smithy.api#required": {}
+                    }
+                },
+                "incrementalRunConfig": {
+                    "target": "com.amazonaws.entityresolution#IdMappingIncrementalRunConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The incremental run configuration for the ID mapping workflow.</p>"
                     }
                 },
                 "roleArn": {
@@ -1268,7 +1424,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>Creates an ID namespace object which will help customers provide metadata explaining their dataset and how to use it. Each ID namespace must have a unique name. To modify an existing ID namespace, use the <code>UpdateIdNamespace</code> API.</p>",
+                "smithy.api#documentation": "<p>Creates an ID namespace object which will help customers provide metadata explaining their dataset and how to use it. Each ID namespace must have a unique name. To modify an existing ID namespace, use the UpdateIdNamespace API.</p>",
                 "smithy.api#http": {
                     "code": 200,
                     "method": "POST",
@@ -1430,7 +1586,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>Creates a <code>MatchingWorkflow</code> object which stores the configuration of the data processing job to be run. It is important to note that there should not be a pre-existing <code>MatchingWorkflow</code> with the same name. To modify an existing workflow, utilize the <code>UpdateMatchingWorkflow</code> API.</p>",
+                "smithy.api#documentation": "<p>Creates a matching workflow that defines the configuration for a data processing job. The workflow name must be unique. To modify an existing workflow, use <code>UpdateMatchingWorkflow</code>. </p> <important> <p>For workflows where <code>resolutionType</code> is <code>PROVIDER</code>, incremental processing is not supported. </p> </important>",
                 "smithy.api#http": {
                     "code": 200,
                     "method": "POST",
@@ -1464,7 +1620,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#OutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code>, <code>ApplyNormalization</code>, and <code>Output</code>.</p>",
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code>, <code>applyNormalization</code>, <code>KMSArn</code>, and <code>output</code>.</p>",
                         "smithy.api#required": {}
                     }
                 },
@@ -1478,7 +1634,7 @@
                 "incrementalRunConfig": {
                     "target": "com.amazonaws.entityresolution#IncrementalRunConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>An object which defines an incremental run type and has only <code>incrementalRunType</code> as a field.</p>"
+                        "smithy.api#documentation": "<p>Optional. An object that defines the incremental run type. This object contains only the <code>incrementalRunType</code> field, which appears as \"Automatic\" in the console. </p> <important> <p>For workflows where <code>resolutionType</code> is <code>PROVIDER</code>, incremental processing is not supported. </p> </important>"
                     }
                 },
                 "roleArn": {
@@ -1532,7 +1688,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#OutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code>, <code>ApplyNormalization</code>, and <code>Output</code>.</p>",
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code>, <code>applyNormalization</code>, <code>KMSArn</code>, and <code>output</code>.</p>",
                         "smithy.api#required": {}
                     }
                 },
@@ -1666,6 +1822,40 @@
             },
             "traits": {
                 "smithy.api#output": {}
+            }
+        },
+        "com.amazonaws.entityresolution#CustomerProfilesDomainArn": {
+            "type": "string",
+            "traits": {
+                "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255})$"
+            }
+        },
+        "com.amazonaws.entityresolution#CustomerProfilesIntegrationConfig": {
+            "type": "structure",
+            "members": {
+                "domainArn": {
+                    "target": "com.amazonaws.entityresolution#CustomerProfilesDomainArn",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Amazon Resource Name (ARN) of the Customer Profiles domain where the matched output will be sent.</p>",
+                        "smithy.api#required": {}
+                    }
+                },
+                "objectTypeArn": {
+                    "target": "com.amazonaws.entityresolution#CustomerProfilesObjectTypeArn",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Amazon Resource Name (ARN) of the Customer Profiles object type that defines the structure for the matched customer data.</p>",
+                        "smithy.api#required": {}
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>Specifies the configuration for integrating with Customer Profiles. This configuration enables Entity Resolution to send matched output directly to Customer Profiles instead of Amazon S3, creating a unified customer view by automatically updating customer profiles based on match clusters.</p>"
+            }
+        },
+        "com.amazonaws.entityresolution#CustomerProfilesObjectTypeArn": {
+            "type": "string",
+            "traits": {
+                "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):profile:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(domains/[a-zA-Z_0-9-]{1,255}/object-types/[a-zA-Z_0-9-]{1,255})$"
             }
         },
         "com.amazonaws.entityresolution#DeleteIdMappingWorkflow": {
@@ -2025,20 +2215,20 @@
                 "uniqueId": {
                     "target": "com.amazonaws.entityresolution#HeaderSafeUniqueId",
                     "traits": {
-                        "smithy.api#documentation": "<p>The unique ID that could not be deleted.</p>",
+                        "smithy.api#documentation": "<p>The unique ID that couldn't be deleted.</p>",
                         "smithy.api#required": {}
                     }
                 },
                 "errorType": {
                     "target": "com.amazonaws.entityresolution#DeleteUniqueIdErrorType",
                     "traits": {
-                        "smithy.api#documentation": "<p> The error type for the batch delete unique ID operation.</p>",
+                        "smithy.api#documentation": "<p> The error type for the delete unique ID operation.</p> <p>The <code>SERVICE_ERROR</code> value indicates that an internal service-side problem occurred during the deletion operation.</p> <p>The <code>VALIDATION_ERROR</code> value indicates that the deletion operation couldn't complete because of invalid input parameters or data.</p>",
                         "smithy.api#required": {}
                     }
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>The Delete Unique Id error.</p>"
+                "smithy.api#documentation": "<p>The error information provided when the delete unique ID operation doesn't complete.</p>"
             }
         },
         "com.amazonaws.entityresolution#DeleteUniqueIdErrorType": {
@@ -2190,10 +2380,9 @@
             "type": "structure",
             "members": {
                 "inputSourceARN": {
-                    "target": "smithy.api#String",
+                    "target": "com.amazonaws.entityresolution#InputSourceARN",
                     "traits": {
                         "smithy.api#documentation": "<p> The input source ARN of the record that didn't generate a Match ID.</p>",
-                        "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$",
                         "smithy.api#required": {}
                     }
                 },
@@ -2281,7 +2470,7 @@
                 "processingType": {
                     "target": "com.amazonaws.entityresolution#ProcessingType",
                     "traits": {
-                        "smithy.api#documentation": "<p>The processing mode that determines how Match IDs are generated and results are saved. Each mode provides different levels of accuracy, response time, and completeness of results.</p> <p>If not specified, defaults to <code>CONSISTENT</code>.</p> <p> <code>CONSISTENT</code>: Performs immediate lookup and matching against all existing records, with results saved synchronously. Provides highest accuracy but slower response time.</p> <p> <code>EVENTUAL</code> (shown as <i>Background</i> in the console): Performs initial match ID lookup or generation immediately, with record updates processed asynchronously in the background. Offers faster initial response time, with complete matching results available later in S3. </p> <p> <code>EVENTUAL_NO_LOOKUP</code> (shown as <i>Quick ID generation</i> in the console): Generates new match IDs without checking existing matches, with updates processed asynchronously. Provides fastest response time but should only be used for records known to be unique. </p>"
+                        "smithy.api#documentation": "<p>The processing mode that determines how Match IDs are generated and results are saved. Each mode provides different levels of accuracy, response time, and completeness of results.</p> <p>If not specified, defaults to <code>CONSISTENT</code>.</p> <p> <code>CONSISTENT</code>: Performs immediate lookup and matching against all existing records, with results saved synchronously. Provides highest accuracy but slower response time.</p> <p> <code>EVENTUAL</code> (shown as <i>Background</i> in the console): Performs initial match ID lookup or generation immediately, with record updates processed asynchronously in the background. Offers faster initial response time, with complete matching results available later in S3. </p> <p> <code>EVENTUAL_NO_LOOKUP</code> (shown as <i>Quick ID generation</i> in the console): Generates new match IDs without checking existing matches, with updates processed asynchronously. Provides fastest response time but should only be used for records known to be unique. </p> <note> <p>Advanced matching workflows don't support the <code>processingType</code> field.</p> </note>"
                     }
                 }
             },
@@ -2414,6 +2603,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects.</p>"
                     }
+                },
+                "jobType": {
+                    "target": "com.amazonaws.entityresolution#JobType",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The job type of the ID mapping job.</p> <p>A value of <code>INCREMENTAL</code> indicates that only new or changed data was processed since the last job run. This is the default job type if the workflow was created with an <code>incrementalRunConfig</code>.</p> <p>A value of <code>BATCH</code> indicates that all data was processed from the input source, regardless of previous job runs. This is the default job type if the workflow wasn't created with an <code>incrementalRunConfig</code>.</p> <p>A value of <code>DELETE_ONLY</code> indicates that only deletion requests from <code>BatchDeleteUniqueIds</code> were processed.</p>"
+                    }
                 }
             },
             "traits": {
@@ -2504,7 +2699,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#IdMappingWorkflowOutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code> and <code>KMSArn</code>.</p>"
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code> and <code>KMSArn</code>.</p>"
                     }
                 },
                 "idMappingTechniques": {
@@ -2526,6 +2721,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The timestamp of when the workflow was last updated.</p>",
                         "smithy.api#required": {}
+                    }
+                },
+                "incrementalRunConfig": {
+                    "target": "com.amazonaws.entityresolution#IdMappingIncrementalRunConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The incremental run configuration for the ID mapping workflow.</p>"
                     }
                 },
                 "roleArn": {
@@ -2697,7 +2898,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>Returns the corresponding Match ID of a customer record if the record has been processed in a rule-based matching workflow or ML matching workflow.</p> <p>You can call this API as a dry run of an incremental load on the rule-based matching workflow.</p>",
+                "smithy.api#documentation": "<p>Returns the corresponding Match ID of a customer record if the record has been processed in a rule-based matching workflow.</p> <p>You can call this API as a dry run of an incremental load on the rule-based matching workflow.</p>",
                 "smithy.api#http": {
                     "code": 200,
                     "method": "POST",
@@ -2952,7 +3153,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#OutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code>, <code>ApplyNormalization</code>, and <code>Output</code>.</p>",
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code>, <code>applyNormalization</code>, <code>KMSArn</code>, and <code>output</code>.</p>",
                         "smithy.api#required": {}
                     }
                 },
@@ -3356,6 +3557,31 @@
                 "smithy.api#pattern": "^[a-zA-Z_0-9-+=/,]*$"
             }
         },
+        "com.amazonaws.entityresolution#IdMappingIncrementalRunConfig": {
+            "type": "structure",
+            "members": {
+                "incrementalRunType": {
+                    "target": "com.amazonaws.entityresolution#IdMappingIncrementalRunType",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The incremental run type for an ID mapping workflow.</p> <p>It takes only one value: <code>ON_DEMAND</code>. This setting runs the ID mapping workflow when it's manually triggered through the <code>StartIdMappingJob</code> API.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p> Incremental run configuration for an ID mapping workflow.</p>"
+            }
+        },
+        "com.amazonaws.entityresolution#IdMappingIncrementalRunType": {
+            "type": "enum",
+            "members": {
+                "ON_DEMAND": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "ON_DEMAND"
+                    }
+                }
+            }
+        },
         "com.amazonaws.entityresolution#IdMappingJobMetrics": {
             "type": "structure",
             "members": {
@@ -3375,6 +3601,12 @@
                     "target": "smithy.api#Integer",
                     "traits": {
                         "smithy.api#documentation": "<p>The total number of records that did not get processed.</p>"
+                    }
+                },
+                "deleteRecordsProcessed": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The number of records processed that were marked for deletion in the input file using the DELETE schema mapping field. These are the records to be removed from the ID mapping table.</p>"
                     }
                 },
                 "totalMappedRecords": {
@@ -3398,7 +3630,49 @@
                 "uniqueRecordsLoaded": {
                     "target": "smithy.api#Integer",
                     "traits": {
-                        "smithy.api#documentation": "<p>The number of records remaining after loading and aggregating duplicate records. Duplicates are determined by the field marked as UNIQUE_ID in your schema mapping - records sharing the same value in this field are considered duplicates. For example, if you specified \"customer_id\" as a UNIQUE_ID field and had three records with the same customer_id value, they would count as one unique record in this metric. </p>"
+                        "smithy.api#documentation": "<p>The number of de-duplicated processed records across all runs, excluding deletion-related records. Duplicates are determined by the field marked as UNIQUE_ID in your schema mapping. Records sharing the same value in this field are considered duplicates. For example, if you specified \"customer_id\" as a UNIQUE_ID field and had three records with the same customer_id value, they would count as one unique record in this metric. </p>"
+                    }
+                },
+                "newMappedRecords": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The number of new mapped records.</p>"
+                    }
+                },
+                "newMappedSourceRecords": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The number of new source records mapped.</p>"
+                    }
+                },
+                "newMappedTargetRecords": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The number of new mapped target records.</p>"
+                    }
+                },
+                "newUniqueRecordsLoaded": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The number of new unique records processed in the current job run, after removing duplicates. This metric excludes deletion-related records. Duplicates are determined by the field marked as UNIQUE_ID in your schema mapping. Records sharing the same value in this field are considered duplicates. For example, if your current run processes five new records with the same UNIQUE_ID value, they would count as one new unique record in this metric.</p>"
+                    }
+                },
+                "mappedRecordsRemoved": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The number of mapped records removed.</p>"
+                    }
+                },
+                "mappedSourceRecordsRemoved": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The number of source records removed due to ID mapping.</p>"
+                    }
+                },
+                "mappedTargetRecordsRemoved": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The number of mapped target records removed.</p>"
                     }
                 }
             },
@@ -3431,7 +3705,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>KMSArn</code>, <code>OutputS3Path</code>, and <code>RoleARN</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>KMSArn</code>, <code>outputS3Path</code>, and <code>roleARN</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#IdMappingJobOutputSourceConfig": {
@@ -3479,7 +3753,7 @@
                 "attributeMatchingModel": {
                     "target": "com.amazonaws.entityresolution#AttributeMatchingModel",
                     "traits": {
-                        "smithy.api#documentation": "<p>The comparison type. You can either choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code> as the <code>attributeMatchingModel</code>. </p> <p>If you choose <code>MANY_TO_MANY</code>, the system can match attributes across the sub-types of an attribute type. For example, if the value of the <code>Email</code> field of Profile A matches the value of the <code>BusinessEmail</code> field of Profile B, the two profiles are matched on the <code>Email</code> attribute type. </p> <p>If you choose <code>ONE_TO_ONE</code>, the system can only match attributes if the sub-types are an exact match. For example, for the <code>Email</code> attribute type, the system will only consider it a match if the value of the <code>Email</code> field of Profile A matches the value of the <code>Email</code> field of Profile B.</p>",
+                        "smithy.api#documentation": "<p>The comparison type. You can either choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code> as the <code>attributeMatchingModel</code>. </p> <p>If you choose <code>ONE_TO_ONE</code>, the system can only match attributes if the sub-types are an exact match. For example, for the <code>Email</code> attribute type, the system will only consider it a match if the value of the <code>Email</code> field of Profile A matches the value of the <code>Email</code> field of Profile B.</p> <p>If you choose <code>MANY_TO_MANY</code>, the system can match attributes across the sub-types of an attribute type. For example, if the value of the <code>Email</code> field of Profile A matches the value of the <code>BusinessEmail</code> field of Profile B, the two profiles are matched on the <code>Email</code> attribute type. </p>",
                         "smithy.api#required": {}
                     }
                 },
@@ -3549,10 +3823,9 @@
             "type": "structure",
             "members": {
                 "inputSourceARN": {
-                    "target": "smithy.api#String",
+                    "target": "com.amazonaws.entityresolution#InputSourceARN",
                     "traits": {
                         "smithy.api#documentation": "<p>An Glue table Amazon Resource Name (ARN) or a matching workflow ARN for the input source table.</p>",
-                        "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$",
                         "smithy.api#required": {}
                     }
                 },
@@ -3570,7 +3843,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>InputSourceARN</code>, <code>SchemaName</code>, and <code>Type</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>inputSourceARN</code>, <code>schemaName</code>, and <code>type</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#IdMappingWorkflowInputSourceConfig": {
@@ -3594,17 +3867,17 @@
         "com.amazonaws.entityresolution#IdMappingWorkflowOutputSource": {
             "type": "structure",
             "members": {
+                "KMSArn": {
+                    "target": "com.amazonaws.entityresolution#KMSArn",
+                    "traits": {
+                        "smithy.api#documentation": "<p>Customer KMS ARN for encryption at rest. If not provided, system will use an Entity Resolution managed KMS key.</p>"
+                    }
+                },
                 "outputS3Path": {
                     "target": "com.amazonaws.entityresolution#S3Path",
                     "traits": {
                         "smithy.api#documentation": "<p>The S3 path to which Entity Resolution will write the output table.</p>",
                         "smithy.api#required": {}
-                    }
-                },
-                "KMSArn": {
-                    "target": "com.amazonaws.entityresolution#KMSArn",
-                    "traits": {
-                        "smithy.api#documentation": "<p>Customer KMS ARN for encryption at rest. If not provided, system will use an Entity Resolution managed KMS key.</p>"
                     }
                 }
             },
@@ -3740,7 +4013,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>IdMappingType</code>, <code>ProviderProperties</code>, and <code>RuleBasedProperties</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>idMappingType</code>, <code>providerProperties</code>, and <code>ruleBasedProperties</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#IdNamespaceIdMappingWorkflowPropertiesList": {
@@ -3759,10 +4032,9 @@
             "type": "structure",
             "members": {
                 "inputSourceARN": {
-                    "target": "smithy.api#String",
+                    "target": "com.amazonaws.entityresolution#InputSourceARN",
                     "traits": {
                         "smithy.api#documentation": "<p>An Glue table Amazon Resource Name (ARN) or a matching workflow ARN for the input source table.</p>",
-                        "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$",
                         "smithy.api#required": {}
                     }
                 },
@@ -3774,7 +4046,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>InputSourceARN</code> and <code>SchemaName</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>inputSourceARN</code> and <code>schemaName</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#IdNamespaceInputSourceConfig": {
@@ -3873,12 +4145,12 @@
                 "incrementalRunType": {
                     "target": "com.amazonaws.entityresolution#IncrementalRunType",
                     "traits": {
-                        "smithy.api#documentation": "<p>The type of incremental run. It takes only one value: <code>IMMEDIATE</code>.</p>"
+                        "smithy.api#documentation": "<p>The type of incremental run. The only valid value is <code>IMMEDIATE</code>. This appears as \"Automatic\" in the console.</p> <important> <p>For workflows where <code>resolutionType</code> is <code>PROVIDER</code>, incremental processing is not supported. </p> </important>"
                     }
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object which defines an incremental run type and has only <code>incrementalRunType</code> as a field.</p>"
+                "smithy.api#documentation": "<p>Optional. An object that defines the incremental run type. This object contains only the <code>incrementalRunType</code> field, which appears as \"Automatic\" in the console. </p> <important> <p>For workflows where <code>resolutionType</code> is <code>PROVIDER</code>, incremental processing is not supported. </p> </important>"
             }
         },
         "com.amazonaws.entityresolution#IncrementalRunType": {
@@ -3896,10 +4168,9 @@
             "type": "structure",
             "members": {
                 "inputSourceARN": {
-                    "target": "smithy.api#String",
+                    "target": "com.amazonaws.entityresolution#InputSourceARN",
                     "traits": {
                         "smithy.api#documentation": "<p>An Glue table Amazon Resource Name (ARN) for the input source table.</p>",
-                        "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$",
                         "smithy.api#required": {}
                     }
                 },
@@ -3918,7 +4189,13 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>InputSourceARN</code>, <code>SchemaName</code>, and <code>ApplyNormalization</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>inputSourceARN</code>, <code>schemaName</code>, and <code>applyNormalization</code>.</p>"
+            }
+        },
+        "com.amazonaws.entityresolution#InputSourceARN": {
+            "type": "string",
+            "traits": {
+                "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$"
             }
         },
         "com.amazonaws.entityresolution#InputSourceConfig": {
@@ -3995,6 +4272,12 @@
                         "smithy.api#documentation": "<p>The total number of records that did not get processed.</p>"
                     }
                 },
+                "deleteRecordsProcessed": {
+                    "target": "smithy.api#Integer",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The number of records processed that were marked for deletion (<code>DELETE</code> = True) in the input file. This metric tracks records flagged for removal during the job execution.</p>"
+                    }
+                },
                 "matchIDs": {
                     "target": "smithy.api#Integer",
                     "traits": {
@@ -4003,7 +4286,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>InputRecords</code>, <code>TotalRecordsProcessed</code>, <code>MatchIDs</code>, and <code>RecordsNotProcessed</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>inputRecords</code>, <code>totalRecordsProcessed</code>, <code>matchIDs</code>, and <code>recordsNotProcessed</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#JobOutputSource": {
@@ -4031,7 +4314,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>KMSArn</code>, <code>OutputS3Path</code>, and <code>RoleArn</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>KMSArn</code>, <code>outputS3Path</code>, and <code>roleArn</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#JobOutputSourceConfig": {
@@ -4107,7 +4390,30 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing the <code>JobId</code>, <code>Status</code>, <code>StartTime</code>, and <code>EndTime</code> of a job.</p>"
+                "smithy.api#documentation": "<p>An object containing the <code>jobId</code>, <code>status</code>, <code>startTime</code>, and <code>endTime</code> of a job.</p>"
+            }
+        },
+        "com.amazonaws.entityresolution#JobType": {
+            "type": "enum",
+            "members": {
+                "BATCH": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "BATCH"
+                    }
+                },
+                "INCREMENTAL": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "INCREMENTAL"
+                    }
+                },
+                "DELETE_ONLY": {
+                    "target": "smithy.api#Unit",
+                    "traits": {
+                        "smithy.api#enumValue": "DELETE_ONLY"
+                    }
+                }
             }
         },
         "com.amazonaws.entityresolution#KMSArn": {
@@ -4541,7 +4847,7 @@
                 "workflowSummaries": {
                     "target": "com.amazonaws.entityresolution#MatchingWorkflowList",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>MatchingWorkflowSummary</code> objects, each of which contain the fields <code>WorkflowName</code>, <code>WorkflowArn</code>, <code>CreatedAt</code>, and <code>UpdatedAt</code>.</p>"
+                        "smithy.api#documentation": "<p>A list of <code>MatchingWorkflowSummary</code> objects, each of which contain the fields <code>workflowName</code>, <code>workflowArn</code>, <code>resolutionType</code>, <code>createdAt</code>, and <code>updatedAt</code>.</p>"
                     }
                 },
                 "nextToken": {
@@ -4844,10 +5150,9 @@
             "type": "structure",
             "members": {
                 "inputSourceARN": {
-                    "target": "smithy.api#String",
+                    "target": "com.amazonaws.entityresolution#InputSourceARN",
                     "traits": {
                         "smithy.api#documentation": "<p> The input source ARN of the matched record.</p>",
-                        "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$",
                         "smithy.api#required": {}
                     }
                 },
@@ -4867,6 +5172,20 @@
             "type": "list",
             "member": {
                 "target": "com.amazonaws.entityresolution#MatchedRecord"
+            }
+        },
+        "com.amazonaws.entityresolution#MatchingConfig": {
+            "type": "structure",
+            "members": {
+                "enableTransitiveMatching": {
+                    "target": "smithy.api#Boolean",
+                    "traits": {
+                        "smithy.api#documentation": "<p>Enables transitive matching for the rule-based matching workflow. When enabled, records that match through different rules are grouped together into the same match group.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>An object that contains configuration settings for the matching process in a rule-based matching workflow.</p>"
             }
         },
         "com.amazonaws.entityresolution#MatchingKeys": {
@@ -4927,7 +5246,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>A list of <code>MatchingWorkflowSummary</code> objects, each of which contain the fields <code>WorkflowName</code>, <code>WorkflowArn</code>, <code>CreatedAt</code>, <code>UpdatedAt</code>.</p>"
+                "smithy.api#documentation": "<p>A list of <code>MatchingWorkflowSummary</code> objects, each of which contain the fields <code>workflowName</code>, <code>workflowArn</code>, <code>resolutionType</code>, <code>createdAt</code>, <code>updatedAt</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#NamespaceProviderProperties": {
@@ -4948,7 +5267,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>ProviderConfiguration</code> and <code>ProviderServiceArn</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>providerConfiguration</code> and <code>providerServiceArn</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#NamespaceRuleBasedProperties": {
@@ -4973,7 +5292,7 @@
                 "attributeMatchingModel": {
                     "target": "com.amazonaws.entityresolution#AttributeMatchingModel",
                     "traits": {
-                        "smithy.api#documentation": "<p>The comparison type. You can either choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code> as the <code>attributeMatchingModel</code>. </p> <p>If you choose <code>MANY_TO_MANY</code>, the system can match attributes across the sub-types of an attribute type. For example, if the value of the <code>Email</code> field of Profile A matches the value of <code>BusinessEmail</code> field of Profile B, the two profiles are matched on the <code>Email</code> attribute type. </p> <p>If you choose <code>ONE_TO_ONE</code>, the system can only match attributes if the sub-types are an exact match. For example, for the <code>Email</code> attribute type, the system will only consider it a match if the value of the <code>Email</code> field of Profile A matches the value of the <code>Email</code> field of Profile B.</p>"
+                        "smithy.api#documentation": "<p>The comparison type. You can either choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code> as the <code>attributeMatchingModel</code>. </p> <p>If you choose <code>ONE_TO_ONE</code>, the system can only match attributes if the sub-types are an exact match. For example, for the <code>Email</code> attribute type, the system will only consider it a match if the value of the <code>Email</code> field of Profile A matches the value of the <code>Email</code> field of Profile B.</p> <p>If you choose <code>MANY_TO_MANY</code>, the system can match attributes across the sub-types of an attribute type. For example, if the value of the <code>Email</code> field of Profile A matches the value of <code>BusinessEmail</code> field of Profile B, the two profiles are matched on the <code>Email</code> attribute type. </p>"
                     }
                 },
                 "recordMatchingModels": {
@@ -4995,6 +5314,16 @@
                     "max": 1024
                 },
                 "smithy.api#pattern": "^[a-zA-Z_0-9-=+/]*$"
+            }
+        },
+        "com.amazonaws.entityresolution#OptionalS3Path": {
+            "type": "string",
+            "traits": {
+                "smithy.api#length": {
+                    "min": 0,
+                    "max": 1024
+                },
+                "smithy.api#pattern": "^$|^s3://[a-z0-9][\\.\\-a-z0-9]{1,61}[a-z0-9](/.*)?$"
             }
         },
         "com.amazonaws.entityresolution#OutputAttribute": {
@@ -5027,17 +5356,18 @@
         "com.amazonaws.entityresolution#OutputSource": {
             "type": "structure",
             "members": {
-                "outputS3Path": {
-                    "target": "com.amazonaws.entityresolution#S3Path",
-                    "traits": {
-                        "smithy.api#documentation": "<p>The S3 path to which Entity Resolution will write the output table.</p>",
-                        "smithy.api#required": {}
-                    }
-                },
                 "KMSArn": {
                     "target": "com.amazonaws.entityresolution#KMSArn",
                     "traits": {
                         "smithy.api#documentation": "<p>Customer KMS ARN for encryption at rest. If not provided, system will use an Entity Resolution managed KMS key.</p>"
+                    }
+                },
+                "outputS3Path": {
+                    "target": "com.amazonaws.entityresolution#OptionalS3Path",
+                    "traits": {
+                        "smithy.api#addedDefault": {},
+                        "smithy.api#default": "",
+                        "smithy.api#documentation": "<p>The S3 path to which Entity Resolution will write the output table.</p>"
                     }
                 },
                 "output": {
@@ -5054,6 +5384,12 @@
                     "target": "smithy.api#Boolean",
                     "traits": {
                         "smithy.api#documentation": "<p>Normalizes the attributes defined in the schema in the input data. For example, if an attribute has an <code>AttributeType</code> of <code>PHONE_NUMBER</code>, and the data in the input table is in a format of 1234567890, Entity Resolution will normalize this field in the output to (123)-456-7890.</p>"
+                    }
+                },
+                "customerProfilesIntegrationConfig": {
+                    "target": "com.amazonaws.entityresolution#CustomerProfilesIntegrationConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>Specifies the Customer Profiles integration configuration for sending matched output directly to Customer Profiles. When configured, Entity Resolution automatically creates and updates customer profiles based on match clusters, eliminating the need for manual Amazon S3 integration setup.</p>"
                     }
                 }
             },
@@ -5464,10 +5800,9 @@
             "type": "structure",
             "members": {
                 "inputSourceARN": {
-                    "target": "smithy.api#String",
+                    "target": "com.amazonaws.entityresolution#InputSourceARN",
                     "traits": {
                         "smithy.api#documentation": "<p> The input source ARN of the record.</p>",
-                        "smithy.api#pattern": "^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(idnamespace/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):entityresolution:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(matchingworkflow/[a-zA-Z_0-9-]{1,255})$|^arn:(aws|aws-us-gov|aws-cn):glue:[a-z]{2}-[a-z]{1,10}-[0-9]:[0-9]{12}:(table/[a-zA-Z_0-9-]{1,255}/[a-zA-Z_0-9-]{1,255})$",
                         "smithy.api#required": {}
                     }
                 },
@@ -5577,14 +5912,26 @@
                 "resolutionType": {
                     "target": "com.amazonaws.entityresolution#ResolutionType",
                     "traits": {
-                        "smithy.api#documentation": "<p>The type of matching. There are three types of matching: <code>RULE_MATCHING</code>, <code>ML_MATCHING</code>, and <code>PROVIDER</code>.</p>",
+                        "smithy.api#documentation": "<p>The type of matching workflow to create. Specify one of the following types: </p> <ul> <li> <p> <code>RULE_MATCHING</code>: Match records using configurable rule-based criteria </p> </li> <li> <p> <code>ML_MATCHING</code>: Match records using machine learning models </p> </li> <li> <p> <code>PROVIDER</code>: Match records using a third-party matching provider</p> </li> </ul>",
                         "smithy.api#required": {}
                     }
                 },
                 "ruleBasedProperties": {
                     "target": "com.amazonaws.entityresolution#RuleBasedProperties",
                     "traits": {
-                        "smithy.api#documentation": "<p>An object which defines the list of matching rules to run and has a field <code>Rules</code>, which is a list of rule objects.</p>"
+                        "smithy.api#documentation": "<p>An object which defines the list of matching rules to run and has a field <code>rules</code>, which is a list of rule objects.</p>"
+                    }
+                },
+                "ruleConditionProperties": {
+                    "target": "com.amazonaws.entityresolution#RuleConditionProperties",
+                    "traits": {
+                        "smithy.api#documentation": "<p>An object containing the <code>rules</code> for a matching workflow.</p>"
+                    }
+                },
+                "enableRealTimeMatching": {
+                    "target": "smithy.api#Boolean",
+                    "traits": {
+                        "smithy.api#documentation": "<p>Specifies whether real-time matching is enabled for the rule-based matching workflow. When you enable real-time matching, you can use the <code>GenerateMatchId</code> operation with the workflow.</p>"
                     }
                 },
                 "providerProperties": {
@@ -5629,7 +5976,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>The resource could not be found. </p>",
+                "smithy.api#documentation": "<p>The resource couldn't be found. </p>",
                 "smithy.api#error": "client",
                 "smithy.api#httpError": 404
             }
@@ -5670,7 +6017,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>RuleName</code>, and <code>MatchingKeys</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing the <code>ruleName</code> and <code>matchingKeys</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#RuleBasedProperties": {
@@ -5690,7 +6037,7 @@
                 "attributeMatchingModel": {
                     "target": "com.amazonaws.entityresolution#AttributeMatchingModel",
                     "traits": {
-                        "smithy.api#documentation": "<p>The comparison type. You can either choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code> as the <code>attributeMatchingModel</code>. </p> <p>If you choose <code>MANY_TO_MANY</code>, the system can match attributes across the sub-types of an attribute type. For example, if the value of the <code>Email</code> field of Profile A and the value of <code>BusinessEmail</code> field of Profile B matches, the two profiles are matched on the <code>Email</code> attribute type. </p> <p>If you choose <code>ONE_TO_ONE</code>, the system can only match attributes if the sub-types are an exact match. For example, for the <code>Email</code> attribute type, the system will only consider it a match if the value of the <code>Email</code> field of Profile A matches the value of the <code>Email</code> field of Profile B.</p>",
+                        "smithy.api#documentation": "<p>The comparison type. You can choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code> as the <code>attributeMatchingModel</code>. </p> <p>If you choose <code>ONE_TO_ONE</code>, the system can only match attributes if the sub-types are an exact match. For example, for the <code>Email</code> attribute type, the system will only consider it a match if the value of the <code>Email</code> field of Profile A matches the value of the <code>Email</code> field of Profile B.</p> <p>If you choose <code>MANY_TO_MANY</code>, the system can match attributes across the sub-types of an attribute type. For example, if the value of the <code>Email</code> field of Profile A and the value of <code>BusinessEmail</code> field of Profile B matches, the two profiles are matched on the <code>Email</code> attribute type. </p>",
                         "smithy.api#required": {}
                     }
                 },
@@ -5702,7 +6049,67 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object which defines the list of matching rules to run in a matching workflow. RuleBasedProperties contain a <code>Rules</code> field, which is a list of rule objects.</p>"
+                "smithy.api#documentation": "<p>An object which defines the list of matching rules to run in a matching workflow. </p>"
+            }
+        },
+        "com.amazonaws.entityresolution#RuleCondition": {
+            "type": "structure",
+            "members": {
+                "ruleName": {
+                    "target": "smithy.api#String",
+                    "traits": {
+                        "smithy.api#documentation": "<p>A name for the matching rule.</p> <p>For example: <code>Rule1</code> </p>",
+                        "smithy.api#length": {
+                            "max": 255
+                        },
+                        "smithy.api#pattern": "^[a-zA-Z_0-9- ]*$",
+                        "smithy.api#required": {}
+                    }
+                },
+                "condition": {
+                    "target": "smithy.api#String",
+                    "traits": {
+                        "smithy.api#documentation": "<p>A statement that specifies the conditions for a matching rule.</p> <p>If your data is accurate, use an Exact matching function: <code>Exact</code> or <code>ExactManyToMany</code>. </p> <p>If your data has variations in spelling or pronunciation, use a Fuzzy matching function: <code>Cosine</code>, <code>Levenshtein</code>, or <code>Soundex</code>. </p> <p>Use operators if you want to combine (<code>AND</code>), separate (<code>OR</code>), or group matching functions <code>(...)</code>.</p> <p>For example: <code>(Cosine(a, 10) AND Exact(b, true)) OR ExactManyToMany(c, d)</code> </p>",
+                        "smithy.api#length": {
+                            "max": 2048
+                        },
+                        "smithy.api#required": {}
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>An object that defines the <code>ruleCondition</code> and the <code>ruleName</code> to use in a matching workflow.</p>"
+            }
+        },
+        "com.amazonaws.entityresolution#RuleConditionList": {
+            "type": "list",
+            "member": {
+                "target": "com.amazonaws.entityresolution#RuleCondition"
+            }
+        },
+        "com.amazonaws.entityresolution#RuleConditionProperties": {
+            "type": "structure",
+            "members": {
+                "rules": {
+                    "target": "com.amazonaws.entityresolution#RuleConditionList",
+                    "traits": {
+                        "smithy.api#documentation": "<p> A list of rule objects, each of which have fields <code>ruleName</code> and <code>condition</code>. </p>",
+                        "smithy.api#length": {
+                            "min": 1,
+                            "max": 25
+                        },
+                        "smithy.api#required": {}
+                    }
+                },
+                "matchingConfig": {
+                    "target": "com.amazonaws.entityresolution#MatchingConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p>An object that contains configuration settings for the matching process.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>The properties of a rule condition that provides the ability to use more complex syntax.</p>"
             }
         },
         "com.amazonaws.entityresolution#RuleList": {
@@ -5980,7 +6387,7 @@
                 }
             },
             "traits": {
-                "smithy.api#documentation": "<p>An object containing <code>SchemaName</code>, <code>SchemaArn</code>, <code>CreatedAt</code>, and<code>UpdatedAt</code>.</p>"
+                "smithy.api#documentation": "<p>An object containing <code>schemaName</code>, <code>schemaArn</code>, <code>createdAt</code>, <code>updatedAt</code>, and <code>hasWorkflows</code>.</p>"
             }
         },
         "com.amazonaws.entityresolution#Schemas": {
@@ -6062,6 +6469,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects.</p>"
                     }
+                },
+                "jobType": {
+                    "target": "com.amazonaws.entityresolution#JobType",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The job type for the ID mapping job.</p> <p>If the <code>jobType</code> value is set to <code>INCREMENTAL</code>, only new or changed data is processed since the last job run. This is the default value if the <code>CreateIdMappingWorkflow</code> API is configured with an <code>incrementalRunConfig</code>.</p> <p>If the <code>jobType</code> value is set to <code>BATCH</code>, all data is processed from the input source, regardless of previous job runs. This is the default value if the <code>CreateIdMappingWorkflow</code> API isn't configured with an <code>incrementalRunConfig</code>.</p> <p>If the <code>jobType</code> value is set to <code>DELETE_ONLY</code>, only deletion requests from <code>BatchDeleteUniqueIds</code> are processed.</p>"
+                    }
                 }
             },
             "traits": {
@@ -6082,6 +6495,12 @@
                     "target": "com.amazonaws.entityresolution#IdMappingJobOutputSourceConfig",
                     "traits": {
                         "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects.</p>"
+                    }
+                },
+                "jobType": {
+                    "target": "com.amazonaws.entityresolution#JobType",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The job type for the started ID mapping job.</p> <p>A value of <code>INCREMENTAL</code> indicates that only new or changed data was processed since the last job run. This is the default job type if the workflow was created with an <code>incrementalRunConfig</code>.</p> <p>A value of <code>BATCH</code> indicates that all data was processed from the input source, regardless of previous job runs. This is the default job type if the workflow wasn't created with an <code>incrementalRunConfig</code>.</p> <p>A value of <code>DELETE_ONLY</code> indicates that only deletion requests from <code>BatchDeleteUniqueIds</code> were processed.</p>"
                     }
                 }
             },
@@ -6454,7 +6873,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>Updates an existing <code>IdMappingWorkflow</code>. This method is identical to <code>CreateIdMappingWorkflow</code>, except it uses an HTTP <code>PUT</code> request instead of a <code>POST</code> request, and the <code>IdMappingWorkflow</code> must already exist for the method to succeed.</p>",
+                "smithy.api#documentation": "<p>Updates an existing <code>IdMappingWorkflow</code>. This method is identical to CreateIdMappingWorkflow, except it uses an HTTP <code>PUT</code> request instead of a <code>POST</code> request, and the <code>IdMappingWorkflow</code> must already exist for the method to succeed.</p> <important> <p>Incremental processing is not supported for ID mapping workflows. </p> </important>",
                 "smithy.api#http": {
                     "code": 200,
                     "method": "PUT",
@@ -6490,7 +6909,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#IdMappingWorkflowOutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code> and <code>KMSArn</code>.</p>"
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code> and <code>KMSArn</code>.</p>"
                     }
                 },
                 "idMappingTechniques": {
@@ -6498,6 +6917,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>An object which defines the ID mapping technique and any additional configurations.</p>",
                         "smithy.api#required": {}
+                    }
+                },
+                "incrementalRunConfig": {
+                    "target": "com.amazonaws.entityresolution#IdMappingIncrementalRunConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The incremental run configuration for the update ID mapping workflow.</p>"
                     }
                 },
                 "roleArn": {
@@ -6546,7 +6971,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#IdMappingWorkflowOutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code> and <code>KMSArn</code>.</p>"
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code> and <code>KMSArn</code>.</p>"
                     }
                 },
                 "idMappingTechniques": {
@@ -6554,6 +6979,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>An object which defines the ID mapping technique and any additional configurations.</p>",
                         "smithy.api#required": {}
+                    }
+                },
+                "incrementalRunConfig": {
+                    "target": "com.amazonaws.entityresolution#IdMappingIncrementalRunConfig",
+                    "traits": {
+                        "smithy.api#documentation": "<p> The incremental run configuration for the update ID mapping workflow output.</p>"
                     }
                 },
                 "roleArn": {
@@ -6737,7 +7168,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>Updates an existing <code>MatchingWorkflow</code>. This method is identical to <code>CreateMatchingWorkflow</code>, except it uses an HTTP <code>PUT</code> request instead of a <code>POST</code> request, and the <code>MatchingWorkflow</code> must already exist for the method to succeed.</p>",
+                "smithy.api#documentation": "<p>Updates an existing matching workflow. The workflow must already exist for this operation to succeed.</p> <important> <p>For workflows where <code>resolutionType</code> is <code>PROVIDER</code>, incremental processing is not supported. </p> </important>",
                 "smithy.api#http": {
                     "code": 200,
                     "method": "PUT",
@@ -6773,7 +7204,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#OutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code>, <code>ApplyNormalization</code>, and <code>Output</code>.</p>",
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code>, <code>applyNormalization</code>, <code>KMSArn</code>, and <code>output</code>.</p>",
                         "smithy.api#required": {}
                     }
                 },
@@ -6787,7 +7218,7 @@
                 "incrementalRunConfig": {
                     "target": "com.amazonaws.entityresolution#IncrementalRunConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>An object which defines an incremental run type and has only <code>incrementalRunType</code> as a field.</p>"
+                        "smithy.api#documentation": "<p>Optional. An object that defines the incremental run type. This object contains only the <code>incrementalRunType</code> field, which appears as \"Automatic\" in the console. </p> <important> <p>For workflows where <code>resolutionType</code> is <code>PROVIDER</code>, incremental processing is not supported. </p> </important>"
                     }
                 },
                 "roleArn": {
@@ -6828,7 +7259,7 @@
                 "outputSourceConfig": {
                     "target": "com.amazonaws.entityresolution#OutputSourceConfig",
                     "traits": {
-                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>OutputS3Path</code>, <code>ApplyNormalization</code>, and <code>Output</code>.</p>",
+                        "smithy.api#documentation": "<p>A list of <code>OutputSource</code> objects, each of which contains fields <code>outputS3Path</code>, <code>applyNormalization</code>, <code>KMSArn</code>, and <code>output</code>.</p>",
                         "smithy.api#required": {}
                     }
                 },

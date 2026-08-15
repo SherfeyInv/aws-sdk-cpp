@@ -4,62 +4,62 @@
  */
 
 #include <aws/bcm-pricing-calculator/model/UpdatePreferencesRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
+#include <aws/crt/cbor/Cbor.h>
 
 #include <utility>
 
 using namespace Aws::BCMPricingCalculator::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String UpdatePreferencesRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String UpdatePreferencesRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_managementAccountRateTypeSelectionsHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> managementAccountRateTypeSelectionsJsonList(m_managementAccountRateTypeSelections.size());
-   for(unsigned managementAccountRateTypeSelectionsIndex = 0; managementAccountRateTypeSelectionsIndex < managementAccountRateTypeSelectionsJsonList.GetLength(); ++managementAccountRateTypeSelectionsIndex)
-   {
-     managementAccountRateTypeSelectionsJsonList[managementAccountRateTypeSelectionsIndex].AsString(RateTypeMapper::GetNameForRateType(m_managementAccountRateTypeSelections[managementAccountRateTypeSelectionsIndex]));
-   }
-   payload.WithArray("managementAccountRateTypeSelections", std::move(managementAccountRateTypeSelectionsJsonList));
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_managementAccountRateTypeSelectionsHasBeenSet) {
+    mapSize++;
+  }
+  if (m_memberAccountRateTypeSelectionsHasBeenSet) {
+    mapSize++;
+  }
+  if (m_standaloneAccountRateTypeSelectionsHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_memberAccountRateTypeSelectionsHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> memberAccountRateTypeSelectionsJsonList(m_memberAccountRateTypeSelections.size());
-   for(unsigned memberAccountRateTypeSelectionsIndex = 0; memberAccountRateTypeSelectionsIndex < memberAccountRateTypeSelectionsJsonList.GetLength(); ++memberAccountRateTypeSelectionsIndex)
-   {
-     memberAccountRateTypeSelectionsJsonList[memberAccountRateTypeSelectionsIndex].AsString(RateTypeMapper::GetNameForRateType(m_memberAccountRateTypeSelections[memberAccountRateTypeSelectionsIndex]));
-   }
-   payload.WithArray("memberAccountRateTypeSelections", std::move(memberAccountRateTypeSelectionsJsonList));
+  encoder.WriteMapStart(mapSize);
 
+  if (m_managementAccountRateTypeSelectionsHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("managementAccountRateTypeSelections"));
+    encoder.WriteArrayStart(m_managementAccountRateTypeSelections.size());
+    for (const auto& item_0 : m_managementAccountRateTypeSelections) {
+      encoder.WriteText(Aws::Crt::ByteCursorFromCString(RateTypeMapper::GetNameForRateType(item_0).c_str()));
+    }
   }
 
-  if(m_standaloneAccountRateTypeSelectionsHasBeenSet)
-  {
-   Aws::Utils::Array<JsonValue> standaloneAccountRateTypeSelectionsJsonList(m_standaloneAccountRateTypeSelections.size());
-   for(unsigned standaloneAccountRateTypeSelectionsIndex = 0; standaloneAccountRateTypeSelectionsIndex < standaloneAccountRateTypeSelectionsJsonList.GetLength(); ++standaloneAccountRateTypeSelectionsIndex)
-   {
-     standaloneAccountRateTypeSelectionsJsonList[standaloneAccountRateTypeSelectionsIndex].AsString(RateTypeMapper::GetNameForRateType(m_standaloneAccountRateTypeSelections[standaloneAccountRateTypeSelectionsIndex]));
-   }
-   payload.WithArray("standaloneAccountRateTypeSelections", std::move(standaloneAccountRateTypeSelectionsJsonList));
-
+  if (m_memberAccountRateTypeSelectionsHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("memberAccountRateTypeSelections"));
+    encoder.WriteArrayStart(m_memberAccountRateTypeSelections.size());
+    for (const auto& item_0 : m_memberAccountRateTypeSelections) {
+      encoder.WriteText(Aws::Crt::ByteCursorFromCString(RateTypeMapper::GetNameForRateType(item_0).c_str()));
+    }
   }
 
-  return payload.View().WriteReadable();
+  if (m_standaloneAccountRateTypeSelectionsHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("standaloneAccountRateTypeSelections"));
+    encoder.WriteArrayStart(m_standaloneAccountRateTypeSelections.size());
+    for (const auto& item_0 : m_standaloneAccountRateTypeSelections) {
+      encoder.WriteText(Aws::Crt::ByteCursorFromCString(RateTypeMapper::GetNameForRateType(item_0).c_str()));
+    }
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection UpdatePreferencesRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection UpdatePreferencesRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "AWSBCMPricingCalculator.UpdatePreferences"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

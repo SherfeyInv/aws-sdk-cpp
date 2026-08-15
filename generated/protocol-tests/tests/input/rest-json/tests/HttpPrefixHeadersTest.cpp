@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 #include <aws/core/utils/logging/LogMacros.h>
-#include <aws/testing/AwsProtocolTestHelpers.h>
 #include <aws/rest-json-protocol/RestJsonProtocolClient.h>
 #include <aws/rest-json-protocol/model/HttpPrefixHeadersRequest.h>
+#include <aws/testing/AwsProtocolTestHelpers.h>
 
 using HttpPrefixHeaders = AWS_PROTOCOL_TEST_SUITE;
 using RestJsonProtocolClient = Aws::RestJsonProtocol::RestJsonProtocolClient;
@@ -18,13 +18,13 @@ AWS_PROTOCOL_TEST(HttpPrefixHeaders, RestJsonHttpPrefixHeadersArePresent) {
 
   HttpPrefixHeadersRequest request;
   request.SetFoo(R"(Foo)");
-  request.SetFooMap({{"abc",  R"(Abc value)"}, {"def",  R"(Def value)"}});
+  request.SetFooMap({{"abc", R"(Abc value)"}, {"def", R"(Def value)"}});
 
   auto outcome = client.HttpPrefixHeaders(request);
   ExpectedRequest expectedRq;
   expectedRq.method = "GET";
   expectedRq.uri = "/HttpPrefixHeaders";
-  expectedRq.headers = {{"x-foo", R"(Foo)"}, {"x-foo-abc", R"(Abc value)"}, {"x-foo-def", R"(Def value)"}};
+  expectedRq.headers = {{"x-foo", R"(Foo)"}, {"x-foo-def", R"(Def value)"}, {"x-foo-abc", R"(Abc value)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -53,7 +53,7 @@ AWS_PROTOCOL_TEST(HttpPrefixHeaders, RestJsonHttpPrefixEmptyHeaders) {
   SetMockResponse();
 
   HttpPrefixHeadersRequest request;
-  request.SetFooMap({{"abc",  R"()"}});
+  request.SetFooMap({{"abc", R"()"}});
 
   auto outcome = client.HttpPrefixHeaders(request);
   ExpectedRequest expectedRq;

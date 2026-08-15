@@ -27,6 +27,7 @@ const std::pair<UserAgentFeature, const char*> BUSINESS_METRIC_MAPPING[] = {
     {UserAgentFeature::S3_TRANSFER, "G"},
     {UserAgentFeature::S3_CRYPTO_V1N, "H"},
     {UserAgentFeature::S3_CRYPTO_V2, "I"},
+    {UserAgentFeature::S3_EXPRESS_BUCKET, "J"},
     {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_CRC32, "U"},
     {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_CRC32C, "V"},
     {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_CRC64, "W"},
@@ -37,21 +38,30 @@ const std::pair<UserAgentFeature, const char*> BUSINESS_METRIC_MAPPING[] = {
     {UserAgentFeature::FLEXIBLE_CHECKSUMS_RES_WHEN_SUPPORTED, "b"},
     {UserAgentFeature::FLEXIBLE_CHECKSUMS_RES_WHEN_REQUIRED, "c"},
     {UserAgentFeature::ACCOUNT_ID_MODE_PREFERRED, "P"},
-    {UserAgentFeature::ACCOUNT_ID_MODE_DISABLED , "Q"},
+    {UserAgentFeature::ACCOUNT_ID_MODE_DISABLED, "Q"},
     {UserAgentFeature::ACCOUNT_ID_MODE_REQUIRED, "R"},
     {UserAgentFeature::RESOLVED_ACCOUNT_ID, "T"},
+    {UserAgentFeature::GZIP_REQUEST_COMPRESSION, "L"},
+    {UserAgentFeature::CREDENTIALS_ENV_VARS, "g"},
+    {UserAgentFeature::CREDENTIALS_PROFILE, "n"},
+    {UserAgentFeature::CREDENTIALS_PROFILE_PROCESS, "v"},
+    {UserAgentFeature::CREDENTIALS_IMDS, "0"},
+    {UserAgentFeature::CREDENTIALS_STS_ASSUME_ROLE, "i"},
+    {UserAgentFeature::CREDENTIALS_STS_WEB_IDENTITY_TOKEN, "q"},
+    {UserAgentFeature::CREDENTIALS_HTTP, "z"},
+    {UserAgentFeature::CREDENTIALS_SSO, "s"},
+    {UserAgentFeature::CREDENTIALS_SSO_LEGACY, "u"},
+    {UserAgentFeature::CREDENTIALS_PROFILE_SOURCE_PROFILE, "p"},
+    {UserAgentFeature::CREDENTIALS_LOGIN, "AD"},
+    {UserAgentFeature::PROTOCOL_RPC_V2_CBOR, "M"},
+    {UserAgentFeature::BEARER_SERVICE_ENV_VARS, "3"},
+    {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_SHA512, "AE"},
+    {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_XXHASH64, "AG"},
+    {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_XXHASH3, "AF"},
+    {UserAgentFeature::FLEXIBLE_CHECKSUMS_REQ_XXHASH128, "AH"},
+    {UserAgentFeature::PAGINATOR, "C"},
+    {UserAgentFeature::WAITER, "B"},
 };
-
-Aws::String BusinessMetricForFeature(UserAgentFeature feature) {
-  const auto* const metric =
-      std::find_if(std::begin(BUSINESS_METRIC_MAPPING), std::end(BUSINESS_METRIC_MAPPING),
-                   [feature](const std::pair<UserAgentFeature, const char*>& pair) -> bool { return pair.first == feature; });
-  if (metric == std::end(BUSINESS_METRIC_MAPPING)) {
-    AWS_LOGSTREAM_ERROR(LOG_TAG, "business metric mapping not found for feature");
-    return {};
-  }
-  return metric->second;
-}
 
 const std::pair<const char*, UserAgentFeature> RETRY_FEATURE_MAPPING[] = {
     {"default", UserAgentFeature::RETRY_MODE_LEGACY},
@@ -94,6 +104,17 @@ const char* APP_ID = "app";
 const char* BUSINESS_METRICS = "m";
 }  // namespace
 
+Aws::String UserAgent::BusinessMetricForFeature(UserAgentFeature feature) {
+  const auto* const metric =
+      std::find_if(std::begin(BUSINESS_METRIC_MAPPING), std::end(BUSINESS_METRIC_MAPPING),
+                   [feature](const std::pair<UserAgentFeature, const char*>& pair) -> bool { return pair.first == feature; });
+  if (metric == std::end(BUSINESS_METRIC_MAPPING)) {
+    AWS_LOGSTREAM_ERROR(LOG_TAG, "business metric mapping not found for feature");
+    return {};
+  }
+  return metric->second;
+}
+
 UserAgent::UserAgent(const ClientConfiguration& clientConfiguration,
   const Aws::String& retryStrategyName,
   const Aws::String& apiName)
@@ -107,7 +128,8 @@ UserAgent::UserAgent(const ClientConfiguration& clientConfiguration,
       m_compilerMetadata{FilterUserAgentToken(Version::GetCompilerVersionString())},
       m_retryStrategyName{retryStrategyName},
       m_execEnv{FilterUserAgentToken(Aws::Environment::GetEnv(EXEC_ENV_VAR).c_str())},
-      m_appId{FilterUserAgentToken(clientConfiguration.appId.c_str())}
+      m_appId{FilterUserAgentToken(clientConfiguration.appId.c_str())},
+      m_overrideUserAgent{clientConfiguration.userAgent}
 #if defined(AWS_USER_AGENT_CUSTOMIZATION)
 #define XSTR(V) STR(V)
 #define STR(V) #V
@@ -123,6 +145,10 @@ UserAgent::UserAgent(const ClientConfiguration& clientConfiguration,
 }
 
 Aws::String UserAgent::SerializeWithFeatures(const Aws::Set<UserAgentFeature>& features) const {
+  if (!m_overrideUserAgent.empty()) {
+    return m_overrideUserAgent;
+  }
+
   // Need to be in order
   Aws::StringStream userAgentValue;
 
@@ -163,6 +189,15 @@ Aws::String UserAgent::SerializeWithFeatures(const Aws::Set<UserAgentFeature>& f
   if (!m_compilerMetadata.empty()) {
     SerializeMetadata(METADATA, m_compilerMetadata);
   }
+
+  // Add HTTP client metadata
+#if AWS_SDK_USE_CRT_HTTP
+  SerializeMetadata(METADATA, "http#crt");
+#elif ENABLE_CURL_CLIENT
+  SerializeMetadata(METADATA, "http#curl");
+#elif ENABLE_WINDOWS_CLIENT
+  SerializeMetadata(METADATA, "http#winhttp");
+#endif
 
   // metrics
   Aws::Vector<Aws::String> encodedMetrics{};

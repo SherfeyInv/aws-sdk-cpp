@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/clouddirectory/CloudDirectoryEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CloudDirectory
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CloudDirectory {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CloudDirectoryClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CloudDirectoryDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CLOUDDIRECTORY_API CloudDirectoryEndpointProvider : public CloudDirectoryDefaultEpProviderBase
-{
-public:
-    using CloudDirectoryResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CLOUDDIRECTORY_API CloudDirectoryEndpointProvider : public CloudDirectoryDefaultEpProviderBase {
+ public:
+  using CloudDirectoryResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CloudDirectoryEndpointProvider()
-      : CloudDirectoryDefaultEpProviderBase(Aws::CloudDirectory::CloudDirectoryEndpointRules::GetRulesBlob(), Aws::CloudDirectory::CloudDirectoryEndpointRules::RulesBlobSize)
-    {}
+  CloudDirectoryEndpointProvider();
 
-    ~CloudDirectoryEndpointProvider()
-    {
-    }
+  ~CloudDirectoryEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CloudDirectory
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CloudDirectory
+}  // namespace Aws

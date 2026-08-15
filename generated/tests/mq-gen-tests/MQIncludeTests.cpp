@@ -8,12 +8,12 @@
 
 #include <aws/mq/MQClient.h>
 #include <aws/mq/MQEndpointProvider.h>
-#include <aws/mq/MQEndpointRules.h>
 #include <aws/mq/MQErrorMarshaller.h>
 #include <aws/mq/MQErrors.h>
 #include <aws/mq/MQRequest.h>
 #include <aws/mq/MQServiceClientModel.h>
 #include <aws/mq/MQ_EXPORTS.h>
+#include <aws/mq/internal/MQEndpointRules.h>
 #include <aws/mq/model/ActionRequired.h>
 #include <aws/mq/model/AuthenticationStrategy.h>
 #include <aws/mq/model/AvailabilityZone.h>
@@ -59,6 +59,8 @@
 #include <aws/mq/model/DescribeConfigurationResult.h>
 #include <aws/mq/model/DescribeConfigurationRevisionRequest.h>
 #include <aws/mq/model/DescribeConfigurationRevisionResult.h>
+#include <aws/mq/model/DescribeSharedResourcesRequest.h>
+#include <aws/mq/model/DescribeSharedResourcesResult.h>
 #include <aws/mq/model/DescribeUserRequest.h>
 #include <aws/mq/model/DescribeUserResult.h>
 #include <aws/mq/model/EncryptionOptions.h>
@@ -87,8 +89,14 @@
 #include <aws/mq/model/PromoteResult.h>
 #include <aws/mq/model/RebootBrokerRequest.h>
 #include <aws/mq/model/RebootBrokerResult.h>
+#include <aws/mq/model/ResourceShareError.h>
 #include <aws/mq/model/SanitizationWarning.h>
 #include <aws/mq/model/SanitizationWarningReason.h>
+#include <aws/mq/model/SharedResource.h>
+#include <aws/mq/model/SharedResourceError.h>
+#include <aws/mq/model/SharedResourceErrorCode.h>
+#include <aws/mq/model/SharedResourceStatus.h>
+#include <aws/mq/model/SharedResourceType.h>
 #include <aws/mq/model/UnauthorizedException.h>
 #include <aws/mq/model/UpdateBrokerRequest.h>
 #include <aws/mq/model/UpdateBrokerResult.h>

@@ -8,12 +8,12 @@
 
 #include <aws/ivs-realtime/IvsrealtimeClient.h>
 #include <aws/ivs-realtime/IvsrealtimeEndpointProvider.h>
-#include <aws/ivs-realtime/IvsrealtimeEndpointRules.h>
 #include <aws/ivs-realtime/IvsrealtimeErrorMarshaller.h>
 #include <aws/ivs-realtime/IvsrealtimeErrors.h>
 #include <aws/ivs-realtime/IvsrealtimeRequest.h>
 #include <aws/ivs-realtime/IvsrealtimeServiceClientModel.h>
 #include <aws/ivs-realtime/Ivsrealtime_EXPORTS.h>
+#include <aws/ivs-realtime/internal/IvsrealtimeEndpointRules.h>
 #include <aws/ivs-realtime/model/AccessDeniedException.h>
 #include <aws/ivs-realtime/model/AutoParticipantRecordingConfiguration.h>
 #include <aws/ivs-realtime/model/ChannelDestinationConfiguration.h>
@@ -55,6 +55,7 @@
 #include <aws/ivs-realtime/model/Event.h>
 #include <aws/ivs-realtime/model/EventErrorCode.h>
 #include <aws/ivs-realtime/model/EventName.h>
+#include <aws/ivs-realtime/model/ExchangedParticipantToken.h>
 #include <aws/ivs-realtime/model/GetCompositionRequest.h>
 #include <aws/ivs-realtime/model/GetCompositionResult.h>
 #include <aws/ivs-realtime/model/GetEncoderConfigurationRequest.h>
@@ -123,6 +124,7 @@
 #include <aws/ivs-realtime/model/PublicKeySummary.h>
 #include <aws/ivs-realtime/model/RecordingConfiguration.h>
 #include <aws/ivs-realtime/model/RecordingConfigurationFormat.h>
+#include <aws/ivs-realtime/model/RedundantIngestCredential.h>
 #include <aws/ivs-realtime/model/ReplicationState.h>
 #include <aws/ivs-realtime/model/ReplicationType.h>
 #include <aws/ivs-realtime/model/ResourceNotFoundException.h>

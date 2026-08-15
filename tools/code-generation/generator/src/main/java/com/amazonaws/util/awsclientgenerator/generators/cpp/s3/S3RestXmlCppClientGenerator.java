@@ -37,6 +37,7 @@ public class S3RestXmlCppClientGenerator extends RestXmlCppClientGenerator {
     private static Set<String> opsThatDoNotSupportVirtualAddressing = new HashSet<>();
     private static Set<String> opsThatDoNotSupportArnEndpoint = new HashSet<>();
     private static Set<String> s3CrtEnabledOps = new HashSet<>(); // All other ops are in fact regular SDK calls
+    private static Set<String> emptyValueQueryMarkerOps = new HashSet<>(); // Bare query markers that must emit "?marker="
     private static Set<String> bucketLocationConstraints = new HashSet<>();
     private Set<String> functionsWithEmbeddedErrors = ImmutableSet.of(
 
@@ -142,14 +143,20 @@ public class S3RestXmlCppClientGenerator extends RestXmlCppClientGenerator {
     );
 
     private static final Set<String> REQUESTS_TO_OVERRIDE_STREAMING = ImmutableSet.of(
-            "PutBucketPolicyRequest"
+            "PutBucketPolicyRequest",
+            "PutObjectAnnotationRequest"
     );
 
     private static final Map<String, String> CHECKSUM_MEMBERS_ENUMS = ImmutableMap.of(
             "ChecksumCRC32", "CRC32",
             "ChecksumCRC32C", "CRC32C",
             "ChecksumSHA1", "SHA1",
-            "ChecksumSHA256", "SHA256"
+            "ChecksumSHA256", "SHA256",
+            "ChecksumSHA512", "SHA512",
+            "ChecksumXXHASH64", "XXHASH64",
+            "ChecksumXXHASH3", "XXHASH3",
+            "ChecksumXXHASH128", "XXHASH128",
+            "ChecksumMD5", "MD5"
     );
 
     static {
@@ -198,7 +205,7 @@ public class S3RestXmlCppClientGenerator extends RestXmlCppClientGenerator {
         if(serviceModel.isUseSmithyClient())
         {
             updateAuthSchemesFromEndpointRules(serviceModel, serviceModel.getRawEndpointRules());
-            updateAuthSchemesFromOperations(serviceModel);
+            serviceModel.setAuthSchemes(getUpdatedAuthSchemesFromOperations(serviceModel));
         }
 
         // Add ID2 and RequestId to GetObjectResult
@@ -238,6 +245,9 @@ public class S3RestXmlCppClientGenerator extends RestXmlCppClientGenerator {
             serviceModel.getOperations().values().stream()
                     .filter(operationEntry -> s3CrtEnabledOps.contains(operationEntry.getName()))
                     .forEach(operationEntry -> operationEntry.setS3CrtEnabled(true));
+            serviceModel.getOperations().values().stream()
+                    .filter(operationEntry -> emptyValueQueryMarkerOps.contains(operationEntry.getName()))
+                    .forEach(operationEntry -> operationEntry.setEmitEmptyValueQueryMarker(true));
         }
 
         Shape locationConstraints = serviceModel.getShapes().get("BucketLocationConstraint");

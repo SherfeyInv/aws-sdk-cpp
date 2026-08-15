@@ -8,17 +8,20 @@
 
 #include <aws/synthetics/SyntheticsClient.h>
 #include <aws/synthetics/SyntheticsEndpointProvider.h>
-#include <aws/synthetics/SyntheticsEndpointRules.h>
 #include <aws/synthetics/SyntheticsErrorMarshaller.h>
 #include <aws/synthetics/SyntheticsErrors.h>
 #include <aws/synthetics/SyntheticsRequest.h>
 #include <aws/synthetics/SyntheticsServiceClientModel.h>
 #include <aws/synthetics/Synthetics_EXPORTS.h>
+#include <aws/synthetics/internal/SyntheticsEndpointRules.h>
+#include <aws/synthetics/model/AddReplicaLocationInput.h>
 #include <aws/synthetics/model/ArtifactConfigInput.h>
 #include <aws/synthetics/model/ArtifactConfigOutput.h>
 #include <aws/synthetics/model/AssociateResourceRequest.h>
 #include <aws/synthetics/model/AssociateResourceResult.h>
 #include <aws/synthetics/model/BaseScreenshot.h>
+#include <aws/synthetics/model/BrowserConfig.h>
+#include <aws/synthetics/model/BrowserType.h>
 #include <aws/synthetics/model/Canary.h>
 #include <aws/synthetics/model/CanaryCodeInput.h>
 #include <aws/synthetics/model/CanaryCodeOutput.h>
@@ -46,6 +49,8 @@
 #include <aws/synthetics/model/DeleteCanaryResult.h>
 #include <aws/synthetics/model/DeleteGroupRequest.h>
 #include <aws/synthetics/model/DeleteGroupResult.h>
+#include <aws/synthetics/model/Dependency.h>
+#include <aws/synthetics/model/DependencyType.h>
 #include <aws/synthetics/model/DescribeCanariesLastRunRequest.h>
 #include <aws/synthetics/model/DescribeCanariesLastRunResult.h>
 #include <aws/synthetics/model/DescribeCanariesRequest.h>
@@ -56,6 +61,7 @@
 #include <aws/synthetics/model/DisassociateResourceResult.h>
 #include <aws/synthetics/model/DryRunConfigOutput.h>
 #include <aws/synthetics/model/EncryptionMode.h>
+#include <aws/synthetics/model/EngineConfig.h>
 #include <aws/synthetics/model/GetCanaryRequest.h>
 #include <aws/synthetics/model/GetCanaryResult.h>
 #include <aws/synthetics/model/GetCanaryRunsRequest.h>
@@ -72,7 +78,12 @@
 #include <aws/synthetics/model/ListGroupsResult.h>
 #include <aws/synthetics/model/ListTagsForResourceRequest.h>
 #include <aws/synthetics/model/ListTagsForResourceResult.h>
+#include <aws/synthetics/model/LocationType.h>
+#include <aws/synthetics/model/MultiLocationConfig.h>
 #include <aws/synthetics/model/ProvisionedResourceCleanupSetting.h>
+#include <aws/synthetics/model/Replica.h>
+#include <aws/synthetics/model/ReplicationState.h>
+#include <aws/synthetics/model/ReplicationStatus.h>
 #include <aws/synthetics/model/ResourceToTag.h>
 #include <aws/synthetics/model/RetryConfigInput.h>
 #include <aws/synthetics/model/RetryConfigOutput.h>

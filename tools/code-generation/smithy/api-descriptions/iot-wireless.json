@@ -135,6 +135,20 @@
                 "smithy.api#default": false
             }
         },
+        "com.amazonaws.iotwireless#AdvancedConfiguration": {
+            "type": "structure",
+            "members": {
+                "WiFiCellular": {
+                    "target": "com.amazonaws.iotwireless#WiFiCellular",
+                    "traits": {
+                        "smithy.api#documentation": "Configuration for WiFi and cellular-based payloads for location estimates."
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "Optional configuration to customize location estimates."
+            }
+        },
         "com.amazonaws.iotwireless#AggregationPeriod": {
             "type": "enum",
             "members": {
@@ -1239,6 +1253,15 @@
                 "smithy.api#pattern": "^[a-zA-Z0-9-_]+$"
             }
         },
+        "com.amazonaws.iotwireless#ConfidencePercent": {
+            "type": "integer",
+            "traits": {
+                "smithy.api#range": {
+                    "min": 50,
+                    "max": 99
+                }
+            }
+        },
         "com.amazonaws.iotwireless#ConflictException": {
             "type": "structure",
             "members": {
@@ -1479,7 +1502,7 @@
                 "Name": {
                     "target": "com.amazonaws.iotwireless#DeviceProfileName",
                     "traits": {
-                        "smithy.api#documentation": "<p>The name of the new resource.</p>"
+                        "smithy.api#documentation": "<p>The name of the new resource.</p>\n         <note>\n            <p>The following special characters aren't accepted: <code><>^#~$</code>\n            </p>\n         </note>"
                     }
                 },
                 "LoRaWAN": {
@@ -1858,7 +1881,7 @@
                 "Name": {
                     "target": "com.amazonaws.iotwireless#ServiceProfileName",
                     "traits": {
-                        "smithy.api#documentation": "<p>The name of the new resource.</p>"
+                        "smithy.api#documentation": "<p>The name of the new resource.</p>\n         <note>\n            <p>The following special characters aren't accepted: <code><>^#~$</code>\n            </p>\n         </note>"
                     }
                 },
                 "LoRaWAN": {
@@ -1955,7 +1978,7 @@
                 "Name": {
                     "target": "com.amazonaws.iotwireless#WirelessDeviceName",
                     "traits": {
-                        "smithy.api#documentation": "<p>The name of the new resource.</p>"
+                        "smithy.api#documentation": "<p>The name of the new resource.</p>\n         <note>\n            <p>The following special characters aren't accepted: <code><>^#~$</code>\n            </p>\n         </note>"
                     }
                 },
                 "Description": {
@@ -1993,7 +2016,7 @@
                 "Positioning": {
                     "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
                     "traits": {
-                        "smithy.api#documentation": "<p>FPort values for the GNSS, stream, and ClockSync functions of the positioning\n            information.</p>"
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for LoRaWAN and Sidewalk devices.</p>"
                     }
                 },
                 "Sidewalk": {
@@ -2067,7 +2090,7 @@
                 "Name": {
                     "target": "com.amazonaws.iotwireless#WirelessGatewayName",
                     "traits": {
-                        "smithy.api#documentation": "<p>The name of the new resource.</p>"
+                        "smithy.api#documentation": "<p>The name of the new resource.</p>\n         <note>\n            <p>The following special characters aren't accepted: <code><>^#~$</code>\n            </p>\n         </note>"
                     }
                 },
                 "Description": {
@@ -2366,6 +2389,20 @@
             "type": "list",
             "member": {
                 "target": "com.amazonaws.iotwireless#DakCertificateMetadata"
+            }
+        },
+        "com.amazonaws.iotwireless#DefaultSessionParametersMulticast": {
+            "type": "structure",
+            "members": {
+                "DlDr": {
+                    "target": "com.amazonaws.iotwireless#DlDr"
+                },
+                "DlFreq": {
+                    "target": "com.amazonaws.iotwireless#DlFreq"
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>The default session parameters for the multicast group.</p>"
             }
         },
         "com.amazonaws.iotwireless#DeleteDestination": {
@@ -4232,12 +4269,6 @@
         "com.amazonaws.iotwireless#EventNotificationResourceType": {
             "type": "enum",
             "members": {
-                "FuotaTask": {
-                    "target": "smithy.api#Unit",
-                    "traits": {
-                        "smithy.api#enumValue": "FuotaTask"
-                    }
-                },
                 "SidewalkAccount": {
                     "target": "smithy.api#Unit",
                     "traits": {
@@ -5639,7 +5670,7 @@
                 "smithy.api#deprecated": {
                     "message": "This operation is no longer supported."
                 },
-                "smithy.api#documentation": "<p>Get the position information for a given resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to retrieve the position information\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/2020-11-22/apireference/API_GetResourcePosition.html\">GetResourcePosition</a> API operation instead.</p>\n         </important>",
+                "smithy.api#documentation": "<p>Get the position information for a given resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to retrieve the position information\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/apireference/API_GetResourcePosition.html\">GetResourcePosition</a> API operation instead.</p>\n         </important>",
                 "smithy.api#http": {
                     "method": "GET",
                     "uri": "/positions/{ResourceIdentifier}",
@@ -5676,7 +5707,7 @@
                 "smithy.api#deprecated": {
                     "message": "This operation is no longer supported."
                 },
-                "smithy.api#documentation": "<p>Get position configuration for a given resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to retrieve the position configuration\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/2020-11-22/apireference/API_GetResourcePosition.html\">GetResourcePosition</a> API operation instead.</p>\n         </important>",
+                "smithy.api#documentation": "<p>Get position configuration for a given resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to retrieve the position configuration\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/apireference/API_GetResourcePosition.html\">GetResourcePosition</a> API operation instead.</p>\n         </important>",
                 "smithy.api#http": {
                     "method": "GET",
                     "uri": "/position-configurations/{ResourceIdentifier}",
@@ -5799,6 +5830,12 @@
                     "target": "com.amazonaws.iotwireless#CreationDate",
                     "traits": {
                         "smithy.api#documentation": "<p>Optional information that specifies the time when the position information will be\n            resolved. It uses the Unix timestamp format. If not specified, the time at which the\n            request was received will be used.</p>"
+                    }
+                },
+                "AdvancedConfiguration": {
+                    "target": "com.amazonaws.iotwireless#AdvancedConfiguration",
+                    "traits": {
+                        "smithy.api#documentation": "Optional configuration to customize position estimates.\n        If not provided, defaults are applied."
                     }
                 }
             },
@@ -6401,6 +6438,12 @@
                         "smithy.api#documentation": "<p>The name of the destination that's assigned to the wireless devices in the import\n            task.</p>"
                     }
                 },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for LoRaWAN and Sidewalk devices.</p>"
+                    }
+                },
                 "Sidewalk": {
                     "target": "com.amazonaws.iotwireless#SidewalkGetStartImportInfo",
                     "traits": {
@@ -6544,7 +6587,7 @@
                 "Positioning": {
                     "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
                     "traits": {
-                        "smithy.api#documentation": "<p>FPort values for the GNSS, stream, and ClockSync functions of the positioning\n            information.</p>"
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for LoRaWAN and Sidewalk devices.</p>"
                     }
                 }
             },
@@ -7405,12 +7448,6 @@
                         "smithy.api#enumValue": "DevEui"
                     }
                 },
-                "FuotaTaskId": {
-                    "target": "smithy.api#Unit",
-                    "traits": {
-                        "smithy.api#enumValue": "FuotaTaskId"
-                    }
-                },
                 "GatewayEui": {
                     "target": "smithy.api#Unit",
                     "traits": {
@@ -7920,6 +7957,18 @@
                         "smithy.api#documentation": "<p>The name of the Sidewalk destination that describes the IoT rule to route messages\n            received from devices in an import task that are onboarded to AWS IoT Wireless.</p>"
                     }
                 },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for Sidewalk devices.</p>"
+                    }
+                },
+                "Sidewalk": {
+                    "target": "com.amazonaws.iotwireless#SidewalkListDevicesForImportInfo",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Sidewalk object containing Sidewalk-related device information.</p>"
+                    }
+                },
                 "ImportedWirelessDeviceList": {
                     "target": "com.amazonaws.iotwireless#ImportedWirelessDeviceList",
                     "traits": {
@@ -8425,7 +8474,7 @@
                 "smithy.api#deprecated": {
                     "message": "This operation is no longer supported."
                 },
-                "smithy.api#documentation": "<p>List position configurations for a given resource, such as positioning solvers.</p>\n         <important>\n            <p>This action is no longer supported. Calls to retrieve position information should\n                use the <a href=\"https://docs.aws.amazon.com/iot-wireless/2020-11-22/apireference/API_GetResourcePosition.html\">GetResourcePosition</a> API operation instead.</p>\n         </important>",
+                "smithy.api#documentation": "<p>List position configurations for a given resource, such as positioning solvers.</p>\n         <important>\n            <p>This action is no longer supported. Calls to retrieve position information should\n                use the <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/apireference/API_GetResourcePosition.html\">GetResourcePosition</a> API operation instead.</p>\n         </important>",
                 "smithy.api#http": {
                     "method": "GET",
                     "uri": "/position-configurations",
@@ -8762,7 +8811,7 @@
                 }
             ],
             "traits": {
-                "smithy.api#documentation": "<p>List wireless devices that have been added to an import task.</p>",
+                "smithy.api#documentation": "<p>List of import tasks and summary information of onboarding status of devices in each\n            import task.</p>",
                 "smithy.api#http": {
                     "method": "GET",
                     "uri": "/wireless_device_import_tasks",
@@ -8869,7 +8918,7 @@
                 "DestinationName": {
                     "target": "com.amazonaws.iotwireless#DestinationName",
                     "traits": {
-                        "smithy.api#documentation": "<p>A filter to list only the wireless devices that use this destination.</p>",
+                        "smithy.api#documentation": "<p>A filter to list only the wireless devices that use as uplink destination.</p>",
                         "smithy.api#httpQuery": "destinationName"
                     }
                 },
@@ -9611,6 +9660,30 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The MinGwDiversity value.</p>"
                     }
+                },
+                "TxPowerIndexMin": {
+                    "target": "com.amazonaws.iotwireless#TxPowerIndexMin",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Transmit Power Index minimum value.</p>\n         <p>Default: <code>0</code>\n         </p>"
+                    }
+                },
+                "TxPowerIndexMax": {
+                    "target": "com.amazonaws.iotwireless#TxPowerIndexMax",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Transmit Power Index maximum value.</p>\n         <p>Default: <code>15</code>\n         </p>"
+                    }
+                },
+                "NbTransMin": {
+                    "target": "com.amazonaws.iotwireless#NbTransMin",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The minimum number of transmissions.</p>\n         <p>Default: <code>0</code>\n         </p>"
+                    }
+                },
+                "NbTransMax": {
+                    "target": "com.amazonaws.iotwireless#NbTransMax",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The maximum number of transmissions.</p>\n         <p>Default: <code>3</code>\n         </p>"
+                    }
                 }
             },
             "traits": {
@@ -9670,6 +9743,12 @@
                 },
                 "ParticipatingGateways": {
                     "target": "com.amazonaws.iotwireless#ParticipatingGatewaysMulticast"
+                },
+                "DefaultSessionParameters": {
+                    "target": "com.amazonaws.iotwireless#DefaultSessionParametersMulticast",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The default session parameters for the multicast group.</p>"
+                    }
                 }
             },
             "traits": {
@@ -9693,6 +9772,12 @@
                 },
                 "ParticipatingGateways": {
                     "target": "com.amazonaws.iotwireless#ParticipatingGatewaysMulticast"
+                },
+                "DefaultSessionParameters": {
+                    "target": "com.amazonaws.iotwireless#DefaultSessionParametersMulticast",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The default session parameters for the multicast group.</p>"
+                    }
                 }
             },
             "traits": {
@@ -9834,6 +9919,30 @@
                     "traits": {
                         "smithy.api#default": false,
                         "smithy.api#documentation": "<p>The RAAllowed value that describes whether roaming activation is allowed.</p>"
+                    }
+                },
+                "TxPowerIndexMin": {
+                    "target": "com.amazonaws.iotwireless#TxPowerIndexMin",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Transmit Power Index minimum.</p>\n         <p>Default: <code>0</code>\n         </p>"
+                    }
+                },
+                "TxPowerIndexMax": {
+                    "target": "com.amazonaws.iotwireless#TxPowerIndexMax",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Transmit Power Index maximum.</p>\n         <p>Default: <code>15</code>\n         </p>"
+                    }
+                },
+                "NbTransMin": {
+                    "target": "com.amazonaws.iotwireless#NbTransMin",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The minimum number of transmissions.</p>\n         <p>Default: <code>0</code>\n         </p>"
+                    }
+                },
+                "NbTransMax": {
+                    "target": "com.amazonaws.iotwireless#NbTransMax",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The maximum number of transmissions.</p>\n         <p>Default: <code>3</code>\n         </p>"
                     }
                 }
             },
@@ -10766,6 +10875,24 @@
                 "smithy.api#default": false
             }
         },
+        "com.amazonaws.iotwireless#NbTransMax": {
+            "type": "integer",
+            "traits": {
+                "smithy.api#range": {
+                    "min": 0,
+                    "max": 15
+                }
+            }
+        },
+        "com.amazonaws.iotwireless#NbTransMin": {
+            "type": "integer",
+            "traits": {
+                "smithy.api#range": {
+                    "min": 0,
+                    "max": 15
+                }
+            }
+        },
         "com.amazonaws.iotwireless#NetId": {
             "type": "string",
             "traits": {
@@ -11442,7 +11569,7 @@
                 "smithy.api#deprecated": {
                     "message": "This operation is no longer supported."
                 },
-                "smithy.api#documentation": "<p>Put position configuration for a given resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to update the position configuration\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/2020-11-22/apireference/API_UpdateResourcePosition.html\">UpdateResourcePosition</a> API operation instead.</p>\n         </important>",
+                "smithy.api#documentation": "<p>Put position configuration for a given resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to update the position configuration\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/apireference/API_UpdateResourcePosition.html\">UpdateResourcePosition</a> API operation instead.</p>\n         </important>",
                 "smithy.api#http": {
                     "method": "PUT",
                     "uri": "/position-configurations/{ResourceIdentifier}",
@@ -12238,7 +12365,7 @@
         "com.amazonaws.iotwireless#SessionTimeout": {
             "type": "integer",
             "traits": {
-                "smithy.api#documentation": "<p>How long before a multicast group session is to timeout.</p>",
+                "smithy.api#documentation": "<p>How long before a multicast group session is to timeout.</p>\n         <note>\n            <p>We recommend that you provide a timeout value that is a power-of-two (such as 64,\n                128, 256). If a non-power-of-two value is provided, it will automatically be rounded\n                up to the next supported power-of-two within the allowed range.</p>\n         </note>",
                 "smithy.api#range": {
                     "min": 60,
                     "max": 172800
@@ -12312,6 +12439,18 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The ID of the Sidewalk device profile.</p>"
                     }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
+                    }
+                },
+                "SidewalkManufacturingSn": {
+                    "target": "com.amazonaws.iotwireless#SidewalkManufacturingSn",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Sidewalk manufacturing serial number.</p>"
+                    }
                 }
             },
             "traits": {
@@ -12364,6 +12503,12 @@
                     "target": "com.amazonaws.iotwireless#WirelessDeviceSidewalkStatus",
                     "traits": {
                         "smithy.api#documentation": "<p>The Sidewalk device status, such as provisioned or registered.</p>"
+                    }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
                     }
                 }
             },
@@ -12457,6 +12602,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The IAM role that allows AWS IoT Wireless to access the CSV file in the S3\n            bucket.</p>"
                     }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
+                    }
                 }
             },
             "traits": {
@@ -12511,10 +12662,30 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The status of the Sidewalk devices, such as provisioned or registered.</p>"
                     }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
+                    }
                 }
             },
             "traits": {
                 "smithy.api#documentation": "<p>Sidewalk object used by list functions.</p>"
+            }
+        },
+        "com.amazonaws.iotwireless#SidewalkListDevicesForImportInfo": {
+            "type": "structure",
+            "members": {
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>The Sidewalk-related object containing positioning information used to configure Sidewalk devices during import.</p>"
             }
         },
         "com.amazonaws.iotwireless#SidewalkManufacturingSn": {
@@ -12524,6 +12695,20 @@
                     "min": 0,
                     "max": 64
                 }
+            }
+        },
+        "com.amazonaws.iotwireless#SidewalkPositioning": {
+            "type": "structure",
+            "members": {
+                "DestinationName": {
+                    "target": "com.amazonaws.iotwireless#DestinationName",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The location destination name of the Sidewalk device.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
             }
         },
         "com.amazonaws.iotwireless#SidewalkResourceTypeEventConfiguration": {
@@ -12571,6 +12756,12 @@
                     "traits": {
                         "smithy.api#documentation": "<p>The Sidewalk manufacturing serial number (SMSN) of the device added to the import\n            task.</p>"
                     }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
+                    }
                 }
             },
             "traits": {
@@ -12590,6 +12781,12 @@
                     "target": "com.amazonaws.iotwireless#Role",
                     "traits": {
                         "smithy.api#documentation": "<p>The IAM role that allows AWS IoT Wireless to access the CSV file in the S3\n            bucket.</p>"
+                    }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
                     }
                 }
             },
@@ -12623,6 +12820,20 @@
             },
             "traits": {
                 "smithy.api#documentation": "<p>Sidewalk object information for updating an import task.</p>"
+            }
+        },
+        "com.amazonaws.iotwireless#SidewalkUpdateWirelessDevice": {
+            "type": "structure",
+            "members": {
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#SidewalkPositioning",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The Positioning object of the Sidewalk device.</p>"
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "<p>Sidewalk object for updating a wireless device.</p>"
             }
         },
         "com.amazonaws.iotwireless#SigningAlg": {
@@ -12958,6 +13169,12 @@
                 "Tags": {
                     "target": "com.amazonaws.iotwireless#TagList"
                 },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for Sidewalk devices.</p>"
+                    }
+                },
                 "Sidewalk": {
                     "target": "com.amazonaws.iotwireless#SidewalkSingleStartImportInfo",
                     "traits": {
@@ -13052,6 +13269,12 @@
                 },
                 "Tags": {
                     "target": "com.amazonaws.iotwireless#TagList"
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for Sidewalk devices.</p>"
+                    }
                 },
                 "Sidewalk": {
                     "target": "com.amazonaws.iotwireless#SidewalkStartImportInfo",
@@ -13857,6 +14080,24 @@
                 }
             }
         },
+        "com.amazonaws.iotwireless#TxPowerIndexMax": {
+            "type": "integer",
+            "traits": {
+                "smithy.api#range": {
+                    "min": 0,
+                    "max": 15
+                }
+            }
+        },
+        "com.amazonaws.iotwireless#TxPowerIndexMin": {
+            "type": "integer",
+            "traits": {
+                "smithy.api#range": {
+                    "min": 0,
+                    "max": 15
+                }
+            }
+        },
         "com.amazonaws.iotwireless#UARFCN": {
             "type": "integer",
             "traits": {
@@ -14654,7 +14895,7 @@
                 "smithy.api#deprecated": {
                     "message": "This operation is no longer supported."
                 },
-                "smithy.api#documentation": "<p>Update the position information of a resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to update the position information\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/2020-11-22/apireference/API_UpdateResourcePosition.html\">UpdateResourcePosition</a> API operation instead.</p>\n         </important>",
+                "smithy.api#documentation": "<p>Update the position information of a resource.</p>\n         <important>\n            <p>This action is no longer supported. Calls to update the position information\n                should use the <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/apireference/API_UpdateResourcePosition.html\">UpdateResourcePosition</a> API operation instead.</p>\n         </important>",
                 "smithy.api#http": {
                     "method": "PATCH",
                     "uri": "/positions/{ResourceIdentifier}",
@@ -15013,7 +15254,7 @@
                 "Name": {
                     "target": "com.amazonaws.iotwireless#WirelessDeviceName",
                     "traits": {
-                        "smithy.api#documentation": "<p>The new name of the resource.</p>"
+                        "smithy.api#documentation": "<p>The new name of the resource.</p>\n         <note>\n            <p>The following special characters aren't accepted: <code><>^#~$</code>\n            </p>\n         </note>"
                     }
                 },
                 "Description": {
@@ -15031,7 +15272,13 @@
                 "Positioning": {
                     "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
                     "traits": {
-                        "smithy.api#documentation": "<p>FPort values for the GNSS, stream, and ClockSync functions of the positioning\n            information.</p>"
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for LoRaWAN and Sidewalk devices.</p>"
+                    }
+                },
+                "Sidewalk": {
+                    "target": "com.amazonaws.iotwireless#SidewalkUpdateWirelessDevice",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The updated sidewalk properties.</p>"
                     }
                 }
             },
@@ -15094,7 +15341,7 @@
                 "Name": {
                     "target": "com.amazonaws.iotwireless#WirelessGatewayName",
                     "traits": {
-                        "smithy.api#documentation": "<p>The new name of the resource.</p>"
+                        "smithy.api#documentation": "<p>The new name of the resource.</p>\n         <note>\n            <p>The following special characters aren't accepted: <code><>^#~$</code>\n            </p>\n         </note>"
                     }
                 },
                 "Description": {
@@ -15389,6 +15636,21 @@
                 "target": "com.amazonaws.iotwireless#WiFiAccessPoint"
             }
         },
+        "com.amazonaws.iotwireless#WiFiCellular": {
+            "type": "structure",
+            "members": {
+                "ConfidencePercent": {
+                    "target": "com.amazonaws.iotwireless#ConfidencePercent",
+                    "traits": {
+                        "smithy.api#default": 68,
+                        "smithy.api#documentation": "Confidence level for WiFi and cellular position estimates, expressed as a\n        percentage. Valid range: 50–99 inclusive. Defaults to 68 if not specified."
+                    }
+                }
+            },
+            "traits": {
+                "smithy.api#documentation": "Configuration for WiFi and cellular location payloads."
+            }
+        },
         "com.amazonaws.iotwireless#WirelessDeviceArn": {
             "type": "string"
         },
@@ -15537,6 +15799,12 @@
                     "target": "com.amazonaws.iotwireless#DestinationName",
                     "traits": {
                         "smithy.api#documentation": "<p>The name of the Sidewalk destination that that describes the IoT rule to route\n            messages from the device in the import task that will be onboarded to AWS IoT\n            Wireless</p>"
+                    }
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for Sidewalk devices.</p>"
                     }
                 },
                 "Sidewalk": {
@@ -15743,6 +16011,12 @@
                 },
                 "McGroupId": {
                     "target": "com.amazonaws.iotwireless#McGroupId"
+                },
+                "Positioning": {
+                    "target": "com.amazonaws.iotwireless#PositioningConfigStatus",
+                    "traits": {
+                        "smithy.api#documentation": "<p>The integration status of the Device Location feature for LoRaWAN and Amazon Sidewalk enabled devices.</p>"
+                    }
                 }
             },
             "traits": {
@@ -16438,8 +16712,196 @@
                     "name": "iotwireless"
                 },
                 "aws.protocols#restJson1": {},
-                "smithy.api#documentation": "<p>AWS IoT Wireless provides bi-directional communication between internet-connected\n            wireless devices and the AWS Cloud. To onboard both LoRaWAN and Sidewalk devices to AWS\n            IoT, use the IoT Wireless API. These wireless devices use the Low Power Wide Area\n            Networking (LPWAN) communication protocol to communicate with AWS IoT. </p>\n         <p>Using the API, you can perform create, read, update, and delete operations for your\n            wireless devices, gateways, destinations, and profiles. After onboarding your devices,\n            you can use the API operations to set log levels and monitor your devices with\n            CloudWatch.</p>\n         <p>You can also use the API operations to create multicast groups and schedule a\n            multicast session for sending a downlink message to devices in the group. By using\n            Firmware Updates Over-The-Air (FUOTA) API operations, you can create a FUOTA task and\n            schedule a session to update the firmware of individual devices or an entire group of\n            devices in a multicast group.</p>\n         <p>To connect to the AWS IoT Wireless Service, use the Service endpoints as described in\n            <a href=\"https://docs.aws.amazon.com/general/latest/gr/iot-lorawan.html#iot-wireless_region\">IoT \n            Wireless Service endpoints</a>. You can use both IPv4 and IPv6 protocols to connect\n            to the endpoints and send requests to the AWS IoT Wireless service. For more information,\n            see <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/developerguide/wireless-ipv6-access.html\">Using\n\t\t\tIPv6 with AWS IoT Wireless</a>.</p>",
+                "smithy.api#documentation": "<p>AWS IoT Wireless provides bi-directional communication between internet-connected\n            wireless devices and the AWS Cloud. To onboard both <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/developerguide/iot-lorawan.html\">LoRaWAN</a> and <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/developerguide/iot-sidewalk.html\">Sidewalk</a> devices to AWS IoT, use the IoT Wireless API. These wireless\n            devices use the Low Power Wide Area Networking (LPWAN) communication protocol to\n            communicate with AWS IoT. </p>\n         <p>Using the API, you can perform create, read, update, and delete operations for your\n            wireless devices, gateways, destinations, and profiles. After onboarding your devices,\n            you can use the API operations to set log levels and monitor your devices with\n            CloudWatch.</p>\n         <p>You can also use the API operations to create multicast groups and schedule a\n            multicast session for sending a downlink message to devices in the group. By using\n            Firmware Updates Over-The-Air (FUOTA) API operations, you can create a FUOTA task and\n            schedule a session to update the firmware of individual devices or an entire group of\n            devices in a multicast group.</p>\n         <p>To connect to the AWS IoT Wireless Service, use the Service endpoints as described in\n            <a href=\"https://docs.aws.amazon.com/general/latest/gr/iot-lorawan.html#iot-wireless_region\">IoT\n            Wireless Service endpoints</a>. You can use both IPv4 and IPv6 protocols to connect\n            to the endpoints and send requests to the AWS IoT Wireless service. For more information,\n            see <a href=\"https://docs.aws.amazon.com/iot-wireless/latest/developerguide/wireless-ipv6-access.html\">Using\n\t\t\tIPv6 with AWS IoT Wireless</a>.</p>",
                 "smithy.api#title": "AWS IoT Wireless",
+                "smithy.rules#endpointBdd": {
+                    "version": "1.1",
+                    "parameters": {
+                        "Region": {
+                            "builtIn": "AWS::Region",
+                            "required": false,
+                            "documentation": "The AWS region used to dispatch the request.",
+                            "type": "string"
+                        },
+                        "UseDualStack": {
+                            "builtIn": "AWS::UseDualStack",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
+                            "type": "boolean"
+                        },
+                        "UseFIPS": {
+                            "builtIn": "AWS::UseFIPS",
+                            "required": true,
+                            "default": false,
+                            "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
+                            "type": "boolean"
+                        },
+                        "Endpoint": {
+                            "builtIn": "SDK::Endpoint",
+                            "required": false,
+                            "documentation": "Override the endpoint used to send this request",
+                            "type": "string"
+                        }
+                    },
+                    "conditions": [
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Endpoint"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "isSet",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ]
+                        },
+                        {
+                            "fn": "aws.partition",
+                            "argv": [
+                                {
+                                    "ref": "Region"
+                                }
+                            ],
+                            "assign": "PartitionResult"
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseFIPS"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "ref": "UseDualStack"
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsDualStack"
+                                    ]
+                                },
+                                true
+                            ]
+                        },
+                        {
+                            "fn": "booleanEquals",
+                            "argv": [
+                                {
+                                    "fn": "getAttr",
+                                    "argv": [
+                                        {
+                                            "ref": "PartitionResult"
+                                        },
+                                        "supportsFIPS"
+                                    ]
+                                },
+                                true
+                            ]
+                        }
+                    ],
+                    "results": [
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: FIPS and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Dualstack and custom endpoint are not supported",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": {
+                                    "ref": "Endpoint"
+                                },
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://api.iotwireless-fips.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS and DualStack are enabled, but this partition does not support one or both",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://api.iotwireless-fips.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "FIPS is enabled but this partition does not support FIPS",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://api.iotwireless.{Region}.{PartitionResult#dualStackDnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "DualStack is enabled but this partition does not support DualStack",
+                            "type": "error"
+                        },
+                        {
+                            "conditions": [],
+                            "endpoint": {
+                                "url": "https://api.iotwireless.{Region}.{PartitionResult#dnsSuffix}",
+                                "properties": {},
+                                "headers": {}
+                            },
+                            "type": "endpoint"
+                        },
+                        {
+                            "conditions": [],
+                            "error": "Invalid Configuration: Missing Region",
+                            "type": "error"
+                        }
+                    ],
+                    "root": 2,
+                    "nodeCount": 13,
+                    "nodes": "/////wAAAAH/////AAAAAAAAAAwAAAADAAAAAQAAAAQF9eELAAAAAgAAAAUF9eELAAAAAwAAAAgAAAAGAAAABAAAAAcF9eEKAAAABQX14QgF9eEJAAAABAAAAAoAAAAJAAAABgX14QYF9eEHAAAABQAAAAsF9eEFAAAABgX14QQF9eEFAAAAAwX14QEAAAANAAAABAX14QIF9eED"
+                },
                 "smithy.rules#endpointRuleSet": {
                     "version": "1.0",
                     "parameters": {
@@ -16447,27 +16909,27 @@
                             "builtIn": "AWS::Region",
                             "required": false,
                             "documentation": "The AWS region used to dispatch the request.",
-                            "type": "String"
+                            "type": "string"
                         },
                         "UseDualStack": {
                             "builtIn": "AWS::UseDualStack",
                             "required": true,
                             "default": false,
                             "documentation": "When true, use the dual-stack endpoint. If the configured endpoint does not support dual-stack, dispatching the request MAY return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "UseFIPS": {
                             "builtIn": "AWS::UseFIPS",
                             "required": true,
                             "default": false,
                             "documentation": "When true, send this request to the FIPS-compliant regional endpoint. If the configured endpoint does not have a FIPS compliant endpoint, dispatching the request will return an error.",
-                            "type": "Boolean"
+                            "type": "boolean"
                         },
                         "Endpoint": {
                             "builtIn": "SDK::Endpoint",
                             "required": false,
                             "documentation": "Override the endpoint used to send this request",
-                            "type": "String"
+                            "type": "string"
                         }
                     },
                     "rules": [
@@ -16965,17 +17427,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-iso-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -16986,17 +17437,6 @@
                                 "Region": "us-iso-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-iso-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-iso-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {
@@ -17013,17 +17453,6 @@
                             }
                         },
                         {
-                            "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack enabled",
-                            "expect": {
-                                "error": "FIPS and DualStack are enabled, but this partition does not support one or both"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": true,
-                                "UseDualStack": true
-                            }
-                        },
-                        {
                             "documentation": "For region us-isob-east-1 with FIPS enabled and DualStack disabled",
                             "expect": {
                                 "endpoint": {
@@ -17034,17 +17463,6 @@
                                 "Region": "us-isob-east-1",
                                 "UseFIPS": true,
                                 "UseDualStack": false
-                            }
-                        },
-                        {
-                            "documentation": "For region us-isob-east-1 with FIPS disabled and DualStack enabled",
-                            "expect": {
-                                "error": "DualStack is enabled but this partition does not support DualStack"
-                            },
-                            "params": {
-                                "Region": "us-isob-east-1",
-                                "UseFIPS": false,
-                                "UseDualStack": true
                             }
                         },
                         {

@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/autoscaling/AutoScalingEndpointRules.h>
-
-
-namespace Aws
-{
-namespace AutoScaling
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace AutoScaling {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using AutoScalingClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using AutoScalingDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_AUTOSCALING_API AutoScalingEndpointProvider : public AutoScalingDefaultEpProviderBase
-{
-public:
-    using AutoScalingResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_AUTOSCALING_API AutoScalingEndpointProvider : public AutoScalingDefaultEpProviderBase {
+ public:
+  using AutoScalingResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    AutoScalingEndpointProvider()
-      : AutoScalingDefaultEpProviderBase(Aws::AutoScaling::AutoScalingEndpointRules::GetRulesBlob(), Aws::AutoScaling::AutoScalingEndpointRules::RulesBlobSize)
-    {}
+  AutoScalingEndpointProvider();
 
-    ~AutoScalingEndpointProvider()
-    {
-    }
+  ~AutoScalingEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace AutoScaling
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace AutoScaling
+}  // namespace Aws

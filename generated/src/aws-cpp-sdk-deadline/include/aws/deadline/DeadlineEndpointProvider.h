@@ -4,25 +4,19 @@
  */
 
 #pragma once
-#include <aws/deadline/Deadline_EXPORTS.h>
 #include <aws/core/client/GenericClientConfiguration.h>
 #include <aws/core/endpoint/DefaultEndpointProvider.h>
 #include <aws/core/endpoint/EndpointParameter.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
+#include <aws/deadline/Deadline_EXPORTS.h>
 
-#include <aws/deadline/DeadlineEndpointRules.h>
-
-
-namespace Aws
-{
-namespace deadline
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace deadline {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using DeadlineClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using DeadlineDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_DEADLINE_API DeadlineEndpointProvider : public DeadlineDefaultEpProviderBase
-{
-public:
-    using DeadlineResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_DEADLINE_API DeadlineEndpointProvider : public DeadlineDefaultEpProviderBase {
+ public:
+  using DeadlineResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    DeadlineEndpointProvider()
-      : DeadlineDefaultEpProviderBase(Aws::deadline::DeadlineEndpointRules::GetRulesBlob(), Aws::deadline::DeadlineEndpointRules::RulesBlobSize)
-    {}
+  DeadlineEndpointProvider();
 
-    ~DeadlineEndpointProvider()
-    {
-    }
+  ~DeadlineEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace deadline
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace deadline
+}  // namespace Aws

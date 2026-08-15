@@ -64,6 +64,9 @@
     "ALLOC",
     "ISOE",
     "isoe",
+    "authscheme",
+    "Vistor",
+    "eventstreaming",
     // AWS general
     "Arns",
     "AMZN",
@@ -77,6 +80,9 @@
     "AWSSTL",
     "reparsed",
     "reparses",
+    "MRAP",
+    "ISOF",
+    "isof",
     // AWS Signature
     "SIGV",
     "AUTHV",
@@ -131,6 +137,7 @@
     "DENABLED",
     "DENFORCE",
     "APPSTORE",
+    "UCRT",
     // Compiler and linker
     "Wpedantic",
     "Wextra",
@@ -179,6 +186,9 @@
     "overengineered",
     "callfopen",
     "throughs",
+    "msteiger",
+    "fseeki",
+    "ftelli",
     // Json parser
     "Jsonize",
     "CJSON",
@@ -260,6 +270,7 @@
     "ossl",
     "ccrng",
     "KEYWRAP",
+    "HKDF",
     "NVME",
     // EC2
     "IMDS",
@@ -299,7 +310,9 @@
     "OTLP",
     // Region
     "eusc",
-    "EUSC"
+    "EUSC",
+    "CBOR",
+    "cbor"
   ],
   "ignoreWords": [
     // variables defined in ConcurrentStreamBuf

@@ -8,12 +8,12 @@
 
 #include <aws/elasticmapreduce/EMRClient.h>
 #include <aws/elasticmapreduce/EMREndpointProvider.h>
-#include <aws/elasticmapreduce/EMREndpointRules.h>
 #include <aws/elasticmapreduce/EMRErrorMarshaller.h>
 #include <aws/elasticmapreduce/EMRErrors.h>
 #include <aws/elasticmapreduce/EMRRequest.h>
 #include <aws/elasticmapreduce/EMRServiceClientModel.h>
 #include <aws/elasticmapreduce/EMR_EXPORTS.h>
+#include <aws/elasticmapreduce/internal/EMREndpointRules.h>
 #include <aws/elasticmapreduce/model/ActionOnFailure.h>
 #include <aws/elasticmapreduce/model/AddInstanceFleetRequest.h>
 #include <aws/elasticmapreduce/model/AddInstanceFleetResult.h>
@@ -42,6 +42,7 @@
 #include <aws/elasticmapreduce/model/CancelStepsRequestStatus.h>
 #include <aws/elasticmapreduce/model/CancelStepsResult.h>
 #include <aws/elasticmapreduce/model/CloudWatchAlarmDefinition.h>
+#include <aws/elasticmapreduce/model/CloudWatchLogConfiguration.h>
 #include <aws/elasticmapreduce/model/Cluster.h>
 #include <aws/elasticmapreduce/model/ClusterState.h>
 #include <aws/elasticmapreduce/model/ClusterStateChangeReason.h>
@@ -102,6 +103,10 @@
 #include <aws/elasticmapreduce/model/GetOnClusterAppUIPresignedURLResult.h>
 #include <aws/elasticmapreduce/model/GetPersistentAppUIPresignedURLRequest.h>
 #include <aws/elasticmapreduce/model/GetPersistentAppUIPresignedURLResult.h>
+#include <aws/elasticmapreduce/model/GetSessionEndpointRequest.h>
+#include <aws/elasticmapreduce/model/GetSessionEndpointResult.h>
+#include <aws/elasticmapreduce/model/GetSessionRequest.h>
+#include <aws/elasticmapreduce/model/GetSessionResult.h>
 #include <aws/elasticmapreduce/model/GetStudioSessionMappingRequest.h>
 #include <aws/elasticmapreduce/model/GetStudioSessionMappingResult.h>
 #include <aws/elasticmapreduce/model/HadoopJarStepConfig.h>
@@ -164,6 +169,8 @@
 #include <aws/elasticmapreduce/model/ListReleaseLabelsResult.h>
 #include <aws/elasticmapreduce/model/ListSecurityConfigurationsRequest.h>
 #include <aws/elasticmapreduce/model/ListSecurityConfigurationsResult.h>
+#include <aws/elasticmapreduce/model/ListSessionsRequest.h>
+#include <aws/elasticmapreduce/model/ListSessionsResult.h>
 #include <aws/elasticmapreduce/model/ListStepsRequest.h>
 #include <aws/elasticmapreduce/model/ListStepsResult.h>
 #include <aws/elasticmapreduce/model/ListStudioSessionMappingsRequest.h>
@@ -172,6 +179,8 @@
 #include <aws/elasticmapreduce/model/ListStudiosResult.h>
 #include <aws/elasticmapreduce/model/ListSupportedInstanceTypesRequest.h>
 #include <aws/elasticmapreduce/model/ListSupportedInstanceTypesResult.h>
+#include <aws/elasticmapreduce/model/LogType.h>
+#include <aws/elasticmapreduce/model/LogUploadPolicyValue.h>
 #include <aws/elasticmapreduce/model/ManagedScalingPolicy.h>
 #include <aws/elasticmapreduce/model/MarketType.h>
 #include <aws/elasticmapreduce/model/MetricDimension.h>
@@ -179,6 +188,7 @@
 #include <aws/elasticmapreduce/model/ModifyClusterResult.h>
 #include <aws/elasticmapreduce/model/ModifyInstanceFleetRequest.h>
 #include <aws/elasticmapreduce/model/ModifyInstanceGroupsRequest.h>
+#include <aws/elasticmapreduce/model/MonitoringConfiguration.h>
 #include <aws/elasticmapreduce/model/NotebookExecution.h>
 #include <aws/elasticmapreduce/model/NotebookExecutionStatus.h>
 #include <aws/elasticmapreduce/model/NotebookExecutionSummary.h>
@@ -223,6 +233,8 @@
 #include <aws/elasticmapreduce/model/RepoUpgradeOnBoot.h>
 #include <aws/elasticmapreduce/model/RunJobFlowRequest.h>
 #include <aws/elasticmapreduce/model/RunJobFlowResult.h>
+#include <aws/elasticmapreduce/model/S3LoggingConfiguration.h>
+#include <aws/elasticmapreduce/model/S3MonitoringConfiguration.h>
 #include <aws/elasticmapreduce/model/ScaleDownBehavior.h>
 #include <aws/elasticmapreduce/model/ScalingAction.h>
 #include <aws/elasticmapreduce/model/ScalingConstraints.h>
@@ -231,8 +243,14 @@
 #include <aws/elasticmapreduce/model/ScalingTrigger.h>
 #include <aws/elasticmapreduce/model/ScriptBootstrapActionConfig.h>
 #include <aws/elasticmapreduce/model/SecurityConfigurationSummary.h>
+#include <aws/elasticmapreduce/model/Session.h>
+#include <aws/elasticmapreduce/model/SessionCloudWatchLoggingConfiguration.h>
+#include <aws/elasticmapreduce/model/SessionManagedLoggingConfiguration.h>
 #include <aws/elasticmapreduce/model/SessionMappingDetail.h>
 #include <aws/elasticmapreduce/model/SessionMappingSummary.h>
+#include <aws/elasticmapreduce/model/SessionMonitoringConfiguration.h>
+#include <aws/elasticmapreduce/model/SessionS3LoggingConfiguration.h>
+#include <aws/elasticmapreduce/model/SessionState.h>
 #include <aws/elasticmapreduce/model/SetKeepJobFlowAliveWhenNoStepsRequest.h>
 #include <aws/elasticmapreduce/model/SetTerminationProtectionRequest.h>
 #include <aws/elasticmapreduce/model/SetUnhealthyNodeReplacementRequest.h>
@@ -246,6 +264,8 @@
 #include <aws/elasticmapreduce/model/SpotResizingSpecification.h>
 #include <aws/elasticmapreduce/model/StartNotebookExecutionRequest.h>
 #include <aws/elasticmapreduce/model/StartNotebookExecutionResult.h>
+#include <aws/elasticmapreduce/model/StartSessionRequest.h>
+#include <aws/elasticmapreduce/model/StartSessionResult.h>
 #include <aws/elasticmapreduce/model/Statistic.h>
 #include <aws/elasticmapreduce/model/Step.h>
 #include <aws/elasticmapreduce/model/StepCancellationOption.h>
@@ -253,6 +273,7 @@
 #include <aws/elasticmapreduce/model/StepDetail.h>
 #include <aws/elasticmapreduce/model/StepExecutionState.h>
 #include <aws/elasticmapreduce/model/StepExecutionStatusDetail.h>
+#include <aws/elasticmapreduce/model/StepMonitoringConfiguration.h>
 #include <aws/elasticmapreduce/model/StepState.h>
 #include <aws/elasticmapreduce/model/StepStateChangeReason.h>
 #include <aws/elasticmapreduce/model/StepStateChangeReasonCode.h>
@@ -266,6 +287,8 @@
 #include <aws/elasticmapreduce/model/SupportedProductConfig.h>
 #include <aws/elasticmapreduce/model/Tag.h>
 #include <aws/elasticmapreduce/model/TerminateJobFlowsRequest.h>
+#include <aws/elasticmapreduce/model/TerminateSessionRequest.h>
+#include <aws/elasticmapreduce/model/TerminateSessionResult.h>
 #include <aws/elasticmapreduce/model/Unit.h>
 #include <aws/elasticmapreduce/model/UpdateStudioRequest.h>
 #include <aws/elasticmapreduce/model/UpdateStudioSessionMappingRequest.h>

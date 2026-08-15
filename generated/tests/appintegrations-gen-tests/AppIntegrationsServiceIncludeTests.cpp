@@ -8,15 +8,19 @@
 
 #include <aws/appintegrations/AppIntegrationsServiceClient.h>
 #include <aws/appintegrations/AppIntegrationsServiceEndpointProvider.h>
-#include <aws/appintegrations/AppIntegrationsServiceEndpointRules.h>
 #include <aws/appintegrations/AppIntegrationsServiceErrorMarshaller.h>
 #include <aws/appintegrations/AppIntegrationsServiceErrors.h>
 #include <aws/appintegrations/AppIntegrationsServiceRequest.h>
 #include <aws/appintegrations/AppIntegrationsServiceServiceClientModel.h>
 #include <aws/appintegrations/AppIntegrationsService_EXPORTS.h>
+#include <aws/appintegrations/internal/AppIntegrationsServiceEndpointRules.h>
 #include <aws/appintegrations/model/ApplicationAssociationSummary.h>
+#include <aws/appintegrations/model/ApplicationConfig.h>
 #include <aws/appintegrations/model/ApplicationSourceConfig.h>
 #include <aws/appintegrations/model/ApplicationSummary.h>
+#include <aws/appintegrations/model/ApplicationType.h>
+#include <aws/appintegrations/model/ContactHandling.h>
+#include <aws/appintegrations/model/ContactHandlingScope.h>
 #include <aws/appintegrations/model/CreateApplicationRequest.h>
 #include <aws/appintegrations/model/CreateApplicationResult.h>
 #include <aws/appintegrations/model/CreateDataIntegrationAssociationRequest.h>
@@ -47,6 +51,7 @@
 #include <aws/appintegrations/model/GetDataIntegrationResult.h>
 #include <aws/appintegrations/model/GetEventIntegrationRequest.h>
 #include <aws/appintegrations/model/GetEventIntegrationResult.h>
+#include <aws/appintegrations/model/IframeConfig.h>
 #include <aws/appintegrations/model/LastExecutionStatus.h>
 #include <aws/appintegrations/model/ListApplicationAssociationsRequest.h>
 #include <aws/appintegrations/model/ListApplicationAssociationsResult.h>

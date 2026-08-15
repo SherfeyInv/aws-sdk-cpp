@@ -8,12 +8,12 @@
 
 #include <aws/neptune-graph/NeptuneGraphClient.h>
 #include <aws/neptune-graph/NeptuneGraphEndpointProvider.h>
-#include <aws/neptune-graph/NeptuneGraphEndpointRules.h>
 #include <aws/neptune-graph/NeptuneGraphErrorMarshaller.h>
 #include <aws/neptune-graph/NeptuneGraphErrors.h>
 #include <aws/neptune-graph/NeptuneGraphRequest.h>
 #include <aws/neptune-graph/NeptuneGraphServiceClientModel.h>
 #include <aws/neptune-graph/NeptuneGraph_EXPORTS.h>
+#include <aws/neptune-graph/internal/NeptuneGraphEndpointRules.h>
 #include <aws/neptune-graph/model/BlankNodeHandling.h>
 #include <aws/neptune-graph/model/CancelExportTaskRequest.h>
 #include <aws/neptune-graph/model/CancelExportTaskResult.h>
@@ -104,8 +104,12 @@
 #include <aws/neptune-graph/model/SnapshotStatus.h>
 #include <aws/neptune-graph/model/StartExportTaskRequest.h>
 #include <aws/neptune-graph/model/StartExportTaskResult.h>
+#include <aws/neptune-graph/model/StartGraphRequest.h>
+#include <aws/neptune-graph/model/StartGraphResult.h>
 #include <aws/neptune-graph/model/StartImportTaskRequest.h>
 #include <aws/neptune-graph/model/StartImportTaskResult.h>
+#include <aws/neptune-graph/model/StopGraphRequest.h>
+#include <aws/neptune-graph/model/StopGraphResult.h>
 #include <aws/neptune-graph/model/TagResourceRequest.h>
 #include <aws/neptune-graph/model/TagResourceResult.h>
 #include <aws/neptune-graph/model/UnprocessableException.h>

@@ -8,12 +8,12 @@
 
 #include <aws/secretsmanager/SecretsManagerClient.h>
 #include <aws/secretsmanager/SecretsManagerEndpointProvider.h>
-#include <aws/secretsmanager/SecretsManagerEndpointRules.h>
 #include <aws/secretsmanager/SecretsManagerErrorMarshaller.h>
 #include <aws/secretsmanager/SecretsManagerErrors.h>
 #include <aws/secretsmanager/SecretsManagerRequest.h>
 #include <aws/secretsmanager/SecretsManagerServiceClientModel.h>
 #include <aws/secretsmanager/SecretsManager_EXPORTS.h>
+#include <aws/secretsmanager/internal/SecretsManagerEndpointRules.h>
 #include <aws/secretsmanager/model/APIErrorType.h>
 #include <aws/secretsmanager/model/BatchGetSecretValueRequest.h>
 #include <aws/secretsmanager/model/BatchGetSecretValueResult.h>
@@ -27,6 +27,7 @@
 #include <aws/secretsmanager/model/DeleteSecretResult.h>
 #include <aws/secretsmanager/model/DescribeSecretRequest.h>
 #include <aws/secretsmanager/model/DescribeSecretResult.h>
+#include <aws/secretsmanager/model/ExternalSecretRotationMetadataItem.h>
 #include <aws/secretsmanager/model/Filter.h>
 #include <aws/secretsmanager/model/FilterNameStringType.h>
 #include <aws/secretsmanager/model/GetRandomPasswordRequest.h>
@@ -57,6 +58,7 @@
 #include <aws/secretsmanager/model/SecretListEntry.h>
 #include <aws/secretsmanager/model/SecretValueEntry.h>
 #include <aws/secretsmanager/model/SecretVersionsListEntry.h>
+#include <aws/secretsmanager/model/SortByType.h>
 #include <aws/secretsmanager/model/SortOrderType.h>
 #include <aws/secretsmanager/model/StatusType.h>
 #include <aws/secretsmanager/model/StopReplicationToReplicaRequest.h>

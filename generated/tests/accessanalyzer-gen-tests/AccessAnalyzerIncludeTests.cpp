@@ -8,12 +8,12 @@
 
 #include <aws/accessanalyzer/AccessAnalyzerClient.h>
 #include <aws/accessanalyzer/AccessAnalyzerEndpointProvider.h>
-#include <aws/accessanalyzer/AccessAnalyzerEndpointRules.h>
 #include <aws/accessanalyzer/AccessAnalyzerErrorMarshaller.h>
 #include <aws/accessanalyzer/AccessAnalyzerErrors.h>
 #include <aws/accessanalyzer/AccessAnalyzerRequest.h>
 #include <aws/accessanalyzer/AccessAnalyzerServiceClientModel.h>
 #include <aws/accessanalyzer/AccessAnalyzer_EXPORTS.h>
+#include <aws/accessanalyzer/internal/AccessAnalyzerEndpointRules.h>
 #include <aws/accessanalyzer/model/Access.h>
 #include <aws/accessanalyzer/model/AccessCheckPolicyType.h>
 #include <aws/accessanalyzer/model/AccessCheckResourceType.h>
@@ -54,9 +54,12 @@
 #include <aws/accessanalyzer/model/CreateAnalyzerRequest.h>
 #include <aws/accessanalyzer/model/CreateAnalyzerResult.h>
 #include <aws/accessanalyzer/model/CreateArchiveRuleRequest.h>
+#include <aws/accessanalyzer/model/CreateServiceLinkedAnalyzerRequest.h>
+#include <aws/accessanalyzer/model/CreateServiceLinkedAnalyzerResult.h>
 #include <aws/accessanalyzer/model/Criterion.h>
 #include <aws/accessanalyzer/model/DeleteAnalyzerRequest.h>
 #include <aws/accessanalyzer/model/DeleteArchiveRuleRequest.h>
+#include <aws/accessanalyzer/model/DeleteServiceLinkedAnalyzerRequest.h>
 #include <aws/accessanalyzer/model/DynamodbStreamConfiguration.h>
 #include <aws/accessanalyzer/model/DynamodbTableConfiguration.h>
 #include <aws/accessanalyzer/model/EbsSnapshotConfiguration.h>
@@ -101,6 +104,13 @@
 #include <aws/accessanalyzer/model/GetGeneratedPolicyResult.h>
 #include <aws/accessanalyzer/model/IamRoleConfiguration.h>
 #include <aws/accessanalyzer/model/InlineArchiveRule.h>
+#include <aws/accessanalyzer/model/InternalAccessAnalysisRule.h>
+#include <aws/accessanalyzer/model/InternalAccessAnalysisRuleCriteria.h>
+#include <aws/accessanalyzer/model/InternalAccessConfiguration.h>
+#include <aws/accessanalyzer/model/InternalAccessDetails.h>
+#include <aws/accessanalyzer/model/InternalAccessFindingsStatistics.h>
+#include <aws/accessanalyzer/model/InternalAccessResourceTypeDetails.h>
+#include <aws/accessanalyzer/model/InternalAccessType.h>
 #include <aws/accessanalyzer/model/InternalServerException.h>
 #include <aws/accessanalyzer/model/InternetConfiguration.h>
 #include <aws/accessanalyzer/model/JobDetails.h>
@@ -138,6 +148,7 @@
 #include <aws/accessanalyzer/model/PolicyGenerationDetails.h>
 #include <aws/accessanalyzer/model/PolicyType.h>
 #include <aws/accessanalyzer/model/Position.h>
+#include <aws/accessanalyzer/model/PrincipalType.h>
 #include <aws/accessanalyzer/model/RdsDbClusterSnapshotAttributeValue.h>
 #include <aws/accessanalyzer/model/RdsDbClusterSnapshotConfiguration.h>
 #include <aws/accessanalyzer/model/RdsDbSnapshotAttributeValue.h>
@@ -159,6 +170,7 @@
 #include <aws/accessanalyzer/model/S3ExpressDirectoryBucketConfiguration.h>
 #include <aws/accessanalyzer/model/S3PublicAccessBlockConfiguration.h>
 #include <aws/accessanalyzer/model/SecretsManagerSecretConfiguration.h>
+#include <aws/accessanalyzer/model/ServiceControlPolicyRestriction.h>
 #include <aws/accessanalyzer/model/ServiceQuotaExceededException.h>
 #include <aws/accessanalyzer/model/SnsTopicConfiguration.h>
 #include <aws/accessanalyzer/model/SortCriteria.h>

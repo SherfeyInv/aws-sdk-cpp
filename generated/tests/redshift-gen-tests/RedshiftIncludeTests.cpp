@@ -8,12 +8,12 @@
 
 #include <aws/redshift/RedshiftClient.h>
 #include <aws/redshift/RedshiftEndpointProvider.h>
-#include <aws/redshift/RedshiftEndpointRules.h>
 #include <aws/redshift/RedshiftErrorMarshaller.h>
 #include <aws/redshift/RedshiftErrors.h>
 #include <aws/redshift/RedshiftRequest.h>
 #include <aws/redshift/RedshiftServiceClientModel.h>
 #include <aws/redshift/Redshift_EXPORTS.h>
+#include <aws/redshift/internal/RedshiftEndpointRules.h>
 #include <aws/redshift/model/AcceptReservedNodeExchangeRequest.h>
 #include <aws/redshift/model/AcceptReservedNodeExchangeResult.h>
 #include <aws/redshift/model/AccountAttribute.h>
@@ -21,6 +21,7 @@
 #include <aws/redshift/model/ActionType.h>
 #include <aws/redshift/model/AddPartnerRequest.h>
 #include <aws/redshift/model/AddPartnerResult.h>
+#include <aws/redshift/model/ApplicationType.h>
 #include <aws/redshift/model/AquaConfiguration.h>
 #include <aws/redshift/model/AquaConfigurationStatus.h>
 #include <aws/redshift/model/AquaStatus.h>
@@ -60,6 +61,7 @@
 #include <aws/redshift/model/ClusterSnapshotCopyStatus.h>
 #include <aws/redshift/model/ClusterSubnetGroup.h>
 #include <aws/redshift/model/ClusterVersion.h>
+#include <aws/redshift/model/Connect.h>
 #include <aws/redshift/model/CopyClusterSnapshotRequest.h>
 #include <aws/redshift/model/CopyClusterSnapshotResult.h>
 #include <aws/redshift/model/CreateAuthenticationProfileRequest.h>
@@ -86,6 +88,8 @@
 #include <aws/redshift/model/CreateHsmConfigurationResult.h>
 #include <aws/redshift/model/CreateIntegrationRequest.h>
 #include <aws/redshift/model/CreateIntegrationResult.h>
+#include <aws/redshift/model/CreateQev2IdcApplicationRequest.h>
+#include <aws/redshift/model/CreateQev2IdcApplicationResult.h>
 #include <aws/redshift/model/CreateRedshiftIdcApplicationRequest.h>
 #include <aws/redshift/model/CreateRedshiftIdcApplicationResult.h>
 #include <aws/redshift/model/CreateScheduledActionRequest.h>
@@ -128,6 +132,7 @@
 #include <aws/redshift/model/DeleteIntegrationResult.h>
 #include <aws/redshift/model/DeletePartnerRequest.h>
 #include <aws/redshift/model/DeletePartnerResult.h>
+#include <aws/redshift/model/DeleteQev2IdcApplicationRequest.h>
 #include <aws/redshift/model/DeleteRedshiftIdcApplicationRequest.h>
 #include <aws/redshift/model/DeleteResourcePolicyRequest.h>
 #include <aws/redshift/model/DeleteScheduledActionRequest.h>
@@ -197,6 +202,8 @@
 #include <aws/redshift/model/DescribeOrderableClusterOptionsResult.h>
 #include <aws/redshift/model/DescribePartnersRequest.h>
 #include <aws/redshift/model/DescribePartnersResult.h>
+#include <aws/redshift/model/DescribeQev2IdcApplicationsRequest.h>
+#include <aws/redshift/model/DescribeQev2IdcApplicationsResult.h>
 #include <aws/redshift/model/DescribeRedshiftIdcApplicationsRequest.h>
 #include <aws/redshift/model/DescribeRedshiftIdcApplicationsResult.h>
 #include <aws/redshift/model/DescribeReservedNodeExchangeStatusRequest.h>
@@ -246,6 +253,8 @@
 #include <aws/redshift/model/GetClusterCredentialsResult.h>
 #include <aws/redshift/model/GetClusterCredentialsWithIAMRequest.h>
 #include <aws/redshift/model/GetClusterCredentialsWithIAMResult.h>
+#include <aws/redshift/model/GetIdentityCenterAuthTokenRequest.h>
+#include <aws/redshift/model/GetIdentityCenterAuthTokenResult.h>
 #include <aws/redshift/model/GetReservedNodeExchangeConfigurationOptionsRequest.h>
 #include <aws/redshift/model/GetReservedNodeExchangeConfigurationOptionsResult.h>
 #include <aws/redshift/model/GetReservedNodeExchangeOfferingsRequest.h>
@@ -262,6 +271,8 @@
 #include <aws/redshift/model/IntegrationError.h>
 #include <aws/redshift/model/LakeFormationQuery.h>
 #include <aws/redshift/model/LakeFormationScopeUnion.h>
+#include <aws/redshift/model/LakehouseIdcRegistration.h>
+#include <aws/redshift/model/LakehouseRegistration.h>
 #include <aws/redshift/model/ListRecommendationsRequest.h>
 #include <aws/redshift/model/ListRecommendationsResult.h>
 #include <aws/redshift/model/LogDestinationType.h>
@@ -294,6 +305,10 @@
 #include <aws/redshift/model/ModifyEventSubscriptionResult.h>
 #include <aws/redshift/model/ModifyIntegrationRequest.h>
 #include <aws/redshift/model/ModifyIntegrationResult.h>
+#include <aws/redshift/model/ModifyLakehouseConfigurationRequest.h>
+#include <aws/redshift/model/ModifyLakehouseConfigurationResult.h>
+#include <aws/redshift/model/ModifyQev2IdcApplicationRequest.h>
+#include <aws/redshift/model/ModifyQev2IdcApplicationResult.h>
 #include <aws/redshift/model/ModifyRedshiftIdcApplicationRequest.h>
 #include <aws/redshift/model/ModifyRedshiftIdcApplicationResult.h>
 #include <aws/redshift/model/ModifyScheduledActionRequest.h>
@@ -325,6 +340,7 @@
 #include <aws/redshift/model/PurchaseReservedNodeOfferingResult.h>
 #include <aws/redshift/model/PutResourcePolicyRequest.h>
 #include <aws/redshift/model/PutResourcePolicyResult.h>
+#include <aws/redshift/model/Qev2IdcApplication.h>
 #include <aws/redshift/model/ReadWriteAccess.h>
 #include <aws/redshift/model/RebootClusterRequest.h>
 #include <aws/redshift/model/RebootClusterResult.h>
@@ -333,6 +349,7 @@
 #include <aws/redshift/model/RecommendedActionType.h>
 #include <aws/redshift/model/RecurringCharge.h>
 #include <aws/redshift/model/RedshiftIdcApplication.h>
+#include <aws/redshift/model/RedshiftScopeUnion.h>
 #include <aws/redshift/model/ReferenceLink.h>
 #include <aws/redshift/model/RegisterNamespaceRequest.h>
 #include <aws/redshift/model/RegisterNamespaceResult.h>

@@ -38,6 +38,7 @@ if (LEGACY_BUILD)
     option(NO_ENCRYPTION "If enabled, no platform-default encryption will be included in the library.  For the library to be used you will need to provide your own platform-specific implementations" OFF)
     option(USE_IXML_HTTP_REQUEST_2 "If enabled on windows, the com object IXmlHttpRequest2 will be used for the http stack" OFF)
     option(ENABLE_RTTI "Flag to enable/disable rtti within the library" ON)
+    option(NO_CPPSTD_IN_PKG_CONFIG "Removes cpp language standard from being included in pkg config installs" OFF)
     option(ENABLE_TESTING "Flag to enable/disable building unit and integration tests" ON)
     option(AUTORUN_UNIT_TESTS "Flag to enable/disable automatically run unit tests after building" ON)
     option(ANDROID_BUILD_CURL "When building for Android, should curl be built as well" ON)
@@ -61,6 +62,7 @@ if (LEGACY_BUILD)
     option(ENABLE_ZLIB_REQUEST_COMPRESSION "For services that support it, request content will be compressed. On by default if dependency available" ON)
     option(DISABLE_INTERNAL_IMDSV1_CALLS "Disables IMDSv1 internal client calls" OFF)
     option(BUILD_BENCHMARKS "Enables building the benchmark executable" OFF)
+    option(BUILD_PERFORMANCE_TESTS "Enables building the performance test executables" OFF)
     option(BUILD_OPTEL "Enables building the open telemetry implementation of tracing" OFF)
     option(AWS_SDK_WARNINGS_ARE_ERRORS "Compiler warning is treated as an error. Try turning this off when observing errors on a new or uncommon compiler" ON)
     option(BUILD_OPTEL_OTLP_BENCHMARKS "Enables building the benchmark tests with open telemetry OTLP clients" OFF)
@@ -70,6 +72,7 @@ if (LEGACY_BUILD)
     option(ENABLE_PROTOCOL_TESTS "Enable protocol tests" OFF)
     option(DISABLE_DNS_REQUIRED_TESTS "Disable unit tests that require DNS lookup to succeed, useful when using a http client that does not perform DNS lookup" OFF)
     option(AWS_APPSTORE_SAFE "Remove reference to private Apple APIs for AES GCM in Common Crypto. If set to OFF you application will get rejected from the apple app store." OFF)
+    option(AWS_ENABLE_CORE_INTEGRATION_TEST "Enables the core integration tests to be built which contains dependencies on other clients for setup and tear down" OFF)
 
 
     set(AWS_USER_AGENT_CUSTOMIZATION "" CACHE STRING "User agent extension")
@@ -151,11 +154,6 @@ if (LEGACY_BUILD)
         endif ()
     endif ()
 
-    # use response files to prevent command-line-too-big errors for large libraries like iam
-    set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1)
-    set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 1)
-    set(CMAKE_CXX_RESPONSE_FILE_LINK_FLAG "@")
-
     if (COMMAND apply_pre_project_platform_settings)
         apply_pre_project_platform_settings()
     endif ()
@@ -170,6 +168,13 @@ if (LEGACY_BUILD)
 
     # build the sdk targets
     project("aws-cpp-sdk-all" VERSION "${PROJECT_VERSION}" LANGUAGES CXX)
+
+    if(NOT CMAKE_SYSTEM_NAME STREQUAL "AIX")
+        # use response files to prevent command-line-too-big errors for large libraries like iam
+        set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS 1)
+        set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES 1)
+        set(CMAKE_CXX_RESPONSE_FILE_LINK_FLAG "@")
+    endif()
 
     find_package(Python3 COMPONENTS Interpreter Development)
     set(PYTHON3_CMD ${PYTHON_EXECUTABLE})
@@ -340,6 +345,11 @@ if (LEGACY_BUILD)
 
     add_sdks()
     include(tests)
+
+    # Performance tests for services
+    if (BUILD_PERFORMANCE_TESTS)
+        add_subdirectory(tests/performance-tests)
+    endif()
 
     # for user friendly cmake usage
     include(setup_cmake_find_module)

@@ -20,9 +20,6 @@
 \#include <aws/core/utils/memory/stl/AWSString.h>
 \#include <aws/core/utils/memory/stl/AWSVector.h>
 
-#if($serviceModel.endpointRules)
-\#include <aws/${metadata.projectName}/${metadata.classNamePrefix}EndpointRules.h>
-#end
 
 
 namespace ${rootNamespace}
@@ -75,6 +72,12 @@ public:
     virtual ~${epBuiltInClassName}(){};
     using Aws::Endpoint::BuiltInParameters::SetFromClientConfiguration;
     virtual void SetFromClientConfiguration(const ${metadata.classNamePrefix}ClientConfiguration& config);
+#if($serviceModel.metadata.serviceId == "S3")
+    virtual void SetFromClientConfiguration(const ${metadata.classNamePrefix}ClientConfiguration& config, const Aws::String& serviceName);
+
+private:
+    void SetS3SpecificParameters(const ${metadata.classNamePrefix}ClientConfiguration& config);
+#end
 };
 #else
 using ${epBuiltInClassName} = Aws::Endpoint::BuiltInParameters;
@@ -120,9 +123,7 @@ class ${exportMacro} ${epProviderClassName} : public ${metadata.classNamePrefix}
 public:
     using ${metadata.classNamePrefix}ResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ${epProviderClassName}()
-      : ${metadata.classNamePrefix}DefaultEpProviderBase(${rootNamespace}::${serviceNamespace}::${metadata.classNamePrefix}EndpointRules::GetRulesBlob(), ${rootNamespace}::${serviceNamespace}::${metadata.classNamePrefix}EndpointRules::RulesBlobSize)
-    {}
+    ${epProviderClassName}();
 
     ~${metadata.classNamePrefix}EndpointProvider()
     {

@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/chime-sdk-identity/ChimeSDKIdentityEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ChimeSDKIdentity
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ChimeSDKIdentity {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ChimeSDKIdentityClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -38,24 +32,20 @@ using ChimeSDKIdentityEndpointProviderBase =
     EndpointProviderBase<ChimeSDKIdentityClientConfiguration, ChimeSDKIdentityBuiltInParameters, ChimeSDKIdentityClientContextParameters>;
 
 using ChimeSDKIdentityDefaultEpProviderBase =
-    DefaultEndpointProvider<ChimeSDKIdentityClientConfiguration, ChimeSDKIdentityBuiltInParameters, ChimeSDKIdentityClientContextParameters>;
+    DefaultEndpointProvider<ChimeSDKIdentityClientConfiguration, ChimeSDKIdentityBuiltInParameters,
+                            ChimeSDKIdentityClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CHIMESDKIDENTITY_API ChimeSDKIdentityEndpointProvider : public ChimeSDKIdentityDefaultEpProviderBase
-{
-public:
-    using ChimeSDKIdentityResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CHIMESDKIDENTITY_API ChimeSDKIdentityEndpointProvider : public ChimeSDKIdentityDefaultEpProviderBase {
+ public:
+  using ChimeSDKIdentityResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ChimeSDKIdentityEndpointProvider()
-      : ChimeSDKIdentityDefaultEpProviderBase(Aws::ChimeSDKIdentity::ChimeSDKIdentityEndpointRules::GetRulesBlob(), Aws::ChimeSDKIdentity::ChimeSDKIdentityEndpointRules::RulesBlobSize)
-    {}
+  ChimeSDKIdentityEndpointProvider();
 
-    ~ChimeSDKIdentityEndpointProvider()
-    {
-    }
+  ~ChimeSDKIdentityEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ChimeSDKIdentity
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ChimeSDKIdentity
+}  // namespace Aws

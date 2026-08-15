@@ -3,54 +3,62 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 
+#include <aws/crt/cbor/Cbor.h>
 #include <aws/gamelift/model/ListFleetsRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
 
 #include <utility>
 
 using namespace Aws::GameLift::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String ListFleetsRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String ListFleetsRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_buildIdHasBeenSet)
-  {
-   payload.WithString("BuildId", m_buildId);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_buildIdHasBeenSet) {
+    mapSize++;
+  }
+  if (m_scriptIdHasBeenSet) {
+    mapSize++;
+  }
+  if (m_limitHasBeenSet) {
+    mapSize++;
+  }
+  if (m_nextTokenHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_scriptIdHasBeenSet)
-  {
-   payload.WithString("ScriptId", m_scriptId);
+  encoder.WriteMapStart(mapSize);
 
+  if (m_buildIdHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("BuildId"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_buildId.c_str()));
   }
 
-  if(m_limitHasBeenSet)
-  {
-   payload.WithInteger("Limit", m_limit);
-
+  if (m_scriptIdHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("ScriptId"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_scriptId.c_str()));
   }
 
-  if(m_nextTokenHasBeenSet)
-  {
-   payload.WithString("NextToken", m_nextToken);
-
+  if (m_limitHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("Limit"));
+    (m_limit >= 0) ? encoder.WriteUInt(m_limit) : encoder.WriteNegInt(m_limit);
   }
 
-  return payload.View().WriteReadable();
+  if (m_nextTokenHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("NextToken"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_nextToken.c_str()));
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection ListFleetsRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection ListFleetsRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "GameLift.ListFleets"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

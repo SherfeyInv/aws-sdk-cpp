@@ -4,13 +4,15 @@
  */
 
 #include <aws/partnercentral-selling/PartnerCentralSellingEndpointProvider.h>
+#include <aws/partnercentral-selling/internal/PartnerCentralSellingEndpointRules.h>
 
-namespace Aws
-{
-namespace PartnerCentralSelling
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace PartnerCentralSelling
-} // namespace Aws
+namespace Aws {
+namespace PartnerCentralSelling {
+namespace Endpoint {
+PartnerCentralSellingEndpointProvider::PartnerCentralSellingEndpointProvider()
+    : PartnerCentralSellingDefaultEpProviderBase(Aws::PartnerCentralSelling::PartnerCentralSellingEndpointRules::GetRulesBlob(),
+                                                 Aws::PartnerCentralSelling::PartnerCentralSellingEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace PartnerCentralSelling
+}  // namespace Aws

@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 #include <aws/core/utils/logging/LogMacros.h>
-#include <aws/testing/AwsProtocolTestHelpers.h>
 #include <aws/json-protocol/JsonProtocolClient.h>
 #include <aws/json-protocol/model/SimpleScalarPropertiesRequest.h>
+#include <aws/testing/AwsProtocolTestHelpers.h>
 
 using SimpleScalarProperties = AWS_PROTOCOL_TEST_SUITE;
 using JsonProtocolClient = Aws::JsonProtocol::JsonProtocolClient;
@@ -25,7 +25,7 @@ AWS_PROTOCOL_TEST(SimpleScalarProperties, AwsJson11SupportsNaNFloatInputs) {
   expectedRq.method = "POST";
   expectedRq.body = "ewogICAgImZsb2F0VmFsdWUiOiAiTmFOIiwKICAgICJkb3VibGVWYWx1ZSI6ICJOYU4iCn0=";
   expectedRq.uri = "/";
-  expectedRq.headers = {{"Content-Type", R"(application/x-amz-json-1.1)"}, {"X-Amz-Target", R"(JsonProtocol.SimpleScalarProperties)"}};
+  expectedRq.headers = {{"X-Amz-Target", R"(JsonProtocol.SimpleScalarProperties)"}, {"Content-Type", R"(application/x-amz-json-1.1)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -44,7 +44,7 @@ AWS_PROTOCOL_TEST(SimpleScalarProperties, AwsJson11SupportsInfinityFloatInputs) 
   expectedRq.method = "POST";
   expectedRq.body = "ewogICAgImZsb2F0VmFsdWUiOiAiSW5maW5pdHkiLAogICAgImRvdWJsZVZhbHVlIjogIkluZmluaXR5Igp9";
   expectedRq.uri = "/";
-  expectedRq.headers = {{"Content-Type", R"(application/x-amz-json-1.1)"}, {"X-Amz-Target", R"(JsonProtocol.SimpleScalarProperties)"}};
+  expectedRq.headers = {{"X-Amz-Target", R"(JsonProtocol.SimpleScalarProperties)"}, {"Content-Type", R"(application/x-amz-json-1.1)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }
@@ -63,7 +63,7 @@ AWS_PROTOCOL_TEST(SimpleScalarProperties, AwsJson11SupportsNegativeInfinityFloat
   expectedRq.method = "POST";
   expectedRq.body = "ewogICAgImZsb2F0VmFsdWUiOiAiLUluZmluaXR5IiwKICAgICJkb3VibGVWYWx1ZSI6ICItSW5maW5pdHkiCn0=";
   expectedRq.uri = "/";
-  expectedRq.headers = {{"Content-Type", R"(application/x-amz-json-1.1)"}, {"X-Amz-Target", R"(JsonProtocol.SimpleScalarProperties)"}};
+  expectedRq.headers = {{"X-Amz-Target", R"(JsonProtocol.SimpleScalarProperties)"}, {"Content-Type", R"(application/x-amz-json-1.1)"}};
   ValidateRequestSent(expectedRq);
   AWS_ASSERT_SUCCESS(outcome) << outcome.GetError();
 }

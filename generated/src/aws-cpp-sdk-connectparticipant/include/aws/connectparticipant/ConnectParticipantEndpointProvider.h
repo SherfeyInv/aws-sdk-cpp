@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/connectparticipant/ConnectParticipantEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ConnectParticipant
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ConnectParticipant {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ConnectParticipantClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -35,27 +29,24 @@ using ConnectParticipantBuiltInParameters = Aws::Endpoint::BuiltInParameters;
  * The SDK must use service-specific type for each service per specification.
  */
 using ConnectParticipantEndpointProviderBase =
-    EndpointProviderBase<ConnectParticipantClientConfiguration, ConnectParticipantBuiltInParameters, ConnectParticipantClientContextParameters>;
+    EndpointProviderBase<ConnectParticipantClientConfiguration, ConnectParticipantBuiltInParameters,
+                         ConnectParticipantClientContextParameters>;
 
 using ConnectParticipantDefaultEpProviderBase =
-    DefaultEndpointProvider<ConnectParticipantClientConfiguration, ConnectParticipantBuiltInParameters, ConnectParticipantClientContextParameters>;
+    DefaultEndpointProvider<ConnectParticipantClientConfiguration, ConnectParticipantBuiltInParameters,
+                            ConnectParticipantClientContextParameters>;
 
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CONNECTPARTICIPANT_API ConnectParticipantEndpointProvider : public ConnectParticipantDefaultEpProviderBase
-{
-public:
-    using ConnectParticipantResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CONNECTPARTICIPANT_API ConnectParticipantEndpointProvider : public ConnectParticipantDefaultEpProviderBase {
+ public:
+  using ConnectParticipantResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ConnectParticipantEndpointProvider()
-      : ConnectParticipantDefaultEpProviderBase(Aws::ConnectParticipant::ConnectParticipantEndpointRules::GetRulesBlob(), Aws::ConnectParticipant::ConnectParticipantEndpointRules::RulesBlobSize)
-    {}
+  ConnectParticipantEndpointProvider();
 
-    ~ConnectParticipantEndpointProvider()
-    {
-    }
+  ~ConnectParticipantEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ConnectParticipant
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ConnectParticipant
+}  // namespace Aws

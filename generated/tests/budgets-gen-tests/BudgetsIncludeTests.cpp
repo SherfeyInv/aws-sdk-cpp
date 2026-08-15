@@ -8,12 +8,12 @@
 
 #include <aws/budgets/BudgetsClient.h>
 #include <aws/budgets/BudgetsEndpointProvider.h>
-#include <aws/budgets/BudgetsEndpointRules.h>
 #include <aws/budgets/BudgetsErrorMarshaller.h>
 #include <aws/budgets/BudgetsErrors.h>
 #include <aws/budgets/BudgetsRequest.h>
 #include <aws/budgets/BudgetsServiceClientModel.h>
 #include <aws/budgets/Budgets_EXPORTS.h>
+#include <aws/budgets/internal/BudgetsEndpointRules.h>
 #include <aws/budgets/model/Action.h>
 #include <aws/budgets/model/ActionHistory.h>
 #include <aws/budgets/model/ActionHistoryDetails.h>
@@ -77,6 +77,9 @@
 #include <aws/budgets/model/ExecutionType.h>
 #include <aws/budgets/model/Expression.h>
 #include <aws/budgets/model/ExpressionDimensionValues.h>
+#include <aws/budgets/model/HealthStatus.h>
+#include <aws/budgets/model/HealthStatusReason.h>
+#include <aws/budgets/model/HealthStatusValue.h>
 #include <aws/budgets/model/HistoricalOptions.h>
 #include <aws/budgets/model/IamActionDefinition.h>
 #include <aws/budgets/model/ListTagsForResourceRequest.h>

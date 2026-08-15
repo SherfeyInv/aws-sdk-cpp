@@ -4,25 +4,19 @@
  */
 
 #pragma once
-#include <aws/license-manager/LicenseManager_EXPORTS.h>
 #include <aws/core/client/GenericClientConfiguration.h>
 #include <aws/core/endpoint/DefaultEndpointProvider.h>
 #include <aws/core/endpoint/EndpointParameter.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
+#include <aws/license-manager/LicenseManager_EXPORTS.h>
 
-#include <aws/license-manager/LicenseManagerEndpointRules.h>
-
-
-namespace Aws
-{
-namespace LicenseManager
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace LicenseManager {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using LicenseManagerClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using LicenseManagerDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_LICENSEMANAGER_API LicenseManagerEndpointProvider : public LicenseManagerDefaultEpProviderBase
-{
-public:
-    using LicenseManagerResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_LICENSEMANAGER_API LicenseManagerEndpointProvider : public LicenseManagerDefaultEpProviderBase {
+ public:
+  using LicenseManagerResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    LicenseManagerEndpointProvider()
-      : LicenseManagerDefaultEpProviderBase(Aws::LicenseManager::LicenseManagerEndpointRules::GetRulesBlob(), Aws::LicenseManager::LicenseManagerEndpointRules::RulesBlobSize)
-    {}
+  LicenseManagerEndpointProvider();
 
-    ~LicenseManagerEndpointProvider()
-    {
-    }
+  ~LicenseManagerEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace LicenseManager
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace LicenseManager
+}  // namespace Aws

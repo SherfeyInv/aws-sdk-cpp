@@ -4,29 +4,42 @@
  */
 
 #pragma once
-#include <aws/observabilityadmin/ObservabilityAdmin_EXPORTS.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
+#include <aws/observabilityadmin/ObservabilityAdmin_EXPORTS.h>
 
-namespace Aws
-{
-namespace ObservabilityAdmin
-{
-namespace Model
-{
-  enum class ResourceType
-  {
-    NOT_SET,
-    AWS_EC2_Instance,
-    AWS_EC2_VPC,
-    AWS_Lambda_Function
-  };
+namespace Aws {
+namespace ObservabilityAdmin {
+namespace Model {
+enum class ResourceType {
+  NOT_SET,
+  AWS_EC2_Instance,
+  AWS_EC2_VPC,
+  AWS_Lambda_Function,
+  AWS_CloudTrail,
+  AWS_EKS_Cluster,
+  AWS_WAFv2_WebACL,
+  AWS_ElasticLoadBalancingV2_LoadBalancer,
+  AWS_Route53Resolver_ResolverEndpoint,
+  AWS_BedrockAgentCore_Runtime,
+  AWS_BedrockAgentCore_Browser,
+  AWS_BedrockAgentCore_CodeInterpreter,
+  AWS_BedrockAgentCore_Gateway,
+  AWS_BedrockAgentCore_Memory,
+  AWS_BedrockAgentCore_WorkloadIdentity,
+  AWS_SecurityHub_Hub,
+  AWS_CloudFront_Distribution,
+  AWS_SecurityHub_HubV2,
+  AWS_CloudWatch_OTelEnrichment,
+  AWS_MSK_Cluster,
+  AWS_S3_Bucket,
+  AWS_Bedrock_KnowledgeBase
+};
 
-namespace ResourceTypeMapper
-{
+namespace ResourceTypeMapper {
 AWS_OBSERVABILITYADMIN_API ResourceType GetResourceTypeForName(const Aws::String& name);
 
 AWS_OBSERVABILITYADMIN_API Aws::String GetNameForResourceType(ResourceType value);
-} // namespace ResourceTypeMapper
-} // namespace Model
-} // namespace ObservabilityAdmin
-} // namespace Aws
+}  // namespace ResourceTypeMapper
+}  // namespace Model
+}  // namespace ObservabilityAdmin
+}  // namespace Aws

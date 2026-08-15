@@ -2122,6 +2122,10 @@
         "scopeConfiguration":{
           "shape":"ScopeConfiguration",
           "documentation":"<p>The scope configuration for global or organization webhooks.</p> <note> <p>Global or organization webhooks are only available for GitHub and Github Enterprise webhooks.</p> </note>"
+        },
+        "pullRequestBuildPolicy":{
+          "shape":"PullRequestBuildPolicy",
+          "documentation":"<p>A PullRequestBuildPolicy object that defines comment-based approval requirements for triggering builds on pull requests. This policy helps control when automated builds are executed based on contributor permissions and approval workflows.</p>"
         }
       }
     },
@@ -2382,7 +2386,7 @@
         },
         "status":{
           "shape":"DockerServerStatus",
-          "documentation":"<p>A DockerServerStatus object to use for this docker server.</p>"
+          "documentation":"<p>A DockerServerStatus object to use for this docker server.</p> <note> <p>Note that <code>status</code> is only an output and cannot be passed in as an input.</p> </note>"
         }
       },
       "documentation":"<p>Contains docker server information.</p>"
@@ -2826,6 +2830,14 @@
         }
       },
       "documentation":"<p> Information about the Git submodules configuration for an CodeBuild build project. </p>"
+    },
+    "HostKernel":{
+      "type":"string",
+      "enum":[
+        "LINUX_KERNEL_4",
+        "LINUX_KERNEL_6",
+        "LINUX_KERNEL_LATEST"
+      ]
     },
     "Identifiers":{
       "type":"list",
@@ -3845,6 +3857,10 @@
         "dockerServer":{
           "shape":"DockerServer",
           "documentation":"<p>A DockerServer object to use for this build project.</p>"
+        },
+        "hostKernel":{
+          "shape":"HostKernel",
+          "documentation":"<p>The host operating system kernel used for on-demand builds in the build project. The host kernel does not affect the build environment operating system, which is determined by the image you specify. Valid values are:</p> <ul> <li> <p> <code>LINUX_KERNEL_4</code>: Runs on an Amazon Linux 2 host (kernel 4.x).</p> </li> <li> <p> <code>LINUX_KERNEL_6</code>: Runs on an Amazon Linux 2023 host (kernel 6.x).</p> </li> <li> <p> <code>LINUX_KERNEL_LATEST</code>: Runs on the latest supported host kernel.</p> </li> </ul> <p>This setting applies to the <code>LINUX_CONTAINER</code>, <code>ARM_CONTAINER</code>, <code>LINUX_EC2</code>, and <code>ARM_EC2</code> environment types. It is not applicable to Windows, Lambda, or Mac environment types.</p>"
         }
       },
       "documentation":"<p>Information about the build environment of the build project.</p>"
@@ -4011,6 +4027,52 @@
         }
       },
       "documentation":"<p>Information about the proxy configurations that apply network access control to your reserved capacity instances.</p>"
+    },
+    "PullRequestBuildApproverRole":{
+      "type":"string",
+      "enum":[
+        "GITHUB_READ",
+        "GITHUB_TRIAGE",
+        "GITHUB_WRITE",
+        "GITHUB_MAINTAIN",
+        "GITHUB_ADMIN",
+        "GITLAB_GUEST",
+        "GITLAB_PLANNER",
+        "GITLAB_REPORTER",
+        "GITLAB_DEVELOPER",
+        "GITLAB_MAINTAINER",
+        "GITLAB_OWNER",
+        "BITBUCKET_READ",
+        "BITBUCKET_WRITE",
+        "BITBUCKET_ADMIN"
+      ]
+    },
+    "PullRequestBuildApproverRoles":{
+      "type":"list",
+      "member":{"shape":"PullRequestBuildApproverRole"}
+    },
+    "PullRequestBuildCommentApproval":{
+      "type":"string",
+      "enum":[
+        "DISABLED",
+        "ALL_PULL_REQUESTS",
+        "FORK_PULL_REQUESTS"
+      ]
+    },
+    "PullRequestBuildPolicy":{
+      "type":"structure",
+      "required":["requiresCommentApproval"],
+      "members":{
+        "requiresCommentApproval":{
+          "shape":"PullRequestBuildCommentApproval",
+          "documentation":"<p>Specifies when comment-based approval is required before triggering a build on pull requests. This setting determines whether builds run automatically or require explicit approval through comments.</p> <ul> <li> <p> <i>DISABLED</i>: Builds trigger automatically without requiring comment approval</p> </li> <li> <p> <i>ALL_PULL_REQUESTS</i>: All pull requests require comment approval before builds execute (unless contributor is one of the approver roles)</p> </li> <li> <p> <i>FORK_PULL_REQUESTS</i>: Only pull requests from forked repositories require comment approval (unless contributor is one of the approver roles)</p> </li> </ul>"
+        },
+        "approverRoles":{
+          "shape":"PullRequestBuildApproverRoles",
+          "documentation":"<p>List of repository roles that have approval privileges for pull request builds when comment approval is required. Only users with these roles can provide valid comment approvals. If a pull request contributor is one of these roles, their pull request builds will trigger automatically. This field is only applicable when <code>requiresCommentApproval</code> is not <i>DISABLED</i>.</p>"
+        }
+      },
+      "documentation":"<p>A PullRequestBuildPolicy object that defines comment-based approval requirements for triggering builds on pull requests. This policy helps control when automated builds are executed based on contributor permissions and approval workflows.</p>"
     },
     "PutResourcePolicyInput":{
       "type":"structure",
@@ -4968,7 +5030,7 @@
         },
         "buildspecOverride":{
           "shape":"String",
-          "documentation":"<p>A buildspec file declaration that overrides the latest one defined in the build project, for this build only. The buildspec defined on the project is not changed.</p> <p>If this value is set, it can be either an inline buildspec definition, the path to an alternate buildspec file relative to the value of the built-in <code>CODEBUILD_SRC_DIR</code> environment variable, or the path to an S3 bucket. The bucket must be in the same Amazon Web Services Region as the build project. Specify the buildspec file using its ARN (for example, <code>arn:aws:s3:::my-codebuild-sample2/buildspec.yml</code>). If this value is not provided or is set to an empty string, the source code must contain a buildspec file in its root directory. For more information, see <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage\">Buildspec File Name and Storage Location</a>.</p> <note> <p>Since this property allows you to change the build commands that will run in the container, you should note that an IAM principal with the ability to call this API and set this parameter can override the default settings. Moreover, we encourage that you use a trustworthy buildspec location like a file in your source repository or a Amazon S3 bucket.</p> </note>"
+          "documentation":"<p>A buildspec file declaration that overrides the latest one defined in the build project, for this build only. The buildspec defined on the project is not changed.</p> <p>If this value is set, it can be either an inline buildspec definition, the path to an alternate buildspec file relative to the value of the built-in <code>CODEBUILD_SRC_DIR</code> environment variable, or the path to an S3 bucket. The bucket must be in the same Amazon Web Services Region as the build project. Specify the buildspec file using its ARN (for example, <code>arn:aws:s3:::my-codebuild-sample2/buildspec.yml</code>). If this value is not provided or is set to an empty string, the source code must contain a buildspec file in its root directory. For more information, see <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage\">Buildspec File Name and Storage Location</a>.</p> <note> <p>Since this property allows you to change the build commands that will run in the container, you should note that an IAM principal with the ability to call this API and set this parameter can override the default settings. Moreover, we encourage that you use a trustworthy buildspec location like a file in your source repository or a Amazon S3 bucket. Alternatively, you can restrict overrides to the buildspec by using a condition key: <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/action-context-keys.html#action-context-keys-example-overridebuildspec.html\">Prevent unauthorized modifications to project buildspec</a>.</p> </note>"
         },
         "insecureSslOverride":{
           "shape":"WrapperBoolean",
@@ -5049,6 +5111,10 @@
         "autoRetryLimitOverride":{
           "shape":"WrapperInt",
           "documentation":"<p>The maximum number of additional automatic retries after a failed build. For example, if the auto-retry limit is set to 2, CodeBuild will call the <code>RetryBuild</code> API to automatically retry your build for up to 2 additional times.</p>"
+        },
+        "hostKernelOverride":{
+          "shape":"HostKernel",
+          "documentation":"<p>The host operating system kernel for this build that overrides the one specified in the build project.</p>"
         }
       }
     },
@@ -5572,6 +5638,10 @@
         "buildType":{
           "shape":"WebhookBuildType",
           "documentation":"<p>Specifies the type of build this webhook will trigger.</p> <note> <p> <code>RUNNER_BUILDKITE_BUILD</code> is only available for <code>NO_SOURCE</code> source type projects configured for Buildkite runner builds. For more information about CodeBuild-hosted Buildkite runner builds, see <a href=\"https://docs.aws.amazon.com/codebuild/latest/userguide/sample-runner-buildkite.html\">Tutorial: Configure a CodeBuild-hosted Buildkite runner</a> in the <i>CodeBuild user guide</i>.</p> </note>"
+        },
+        "pullRequestBuildPolicy":{
+          "shape":"PullRequestBuildPolicy",
+          "documentation":"<p>A PullRequestBuildPolicy object that defines comment-based approval requirements for triggering builds on pull requests. This policy helps control when automated builds are executed based on contributor permissions and approval workflows.</p>"
         }
       }
     },
@@ -5654,7 +5724,8 @@
         "statusMessage":{
           "shape":"String",
           "documentation":"<p>A message associated with the status of a webhook.</p>"
-        }
+        },
+        "pullRequestBuildPolicy":{"shape":"PullRequestBuildPolicy"}
       },
       "documentation":"<p>Information about a webhook that connects repository events to a build project in CodeBuild.</p>"
     },

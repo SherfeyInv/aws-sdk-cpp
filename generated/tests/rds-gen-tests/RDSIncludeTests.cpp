@@ -8,12 +8,12 @@
 
 #include <aws/rds/RDSClient.h>
 #include <aws/rds/RDSEndpointProvider.h>
-#include <aws/rds/RDSEndpointRules.h>
 #include <aws/rds/RDSErrorMarshaller.h>
 #include <aws/rds/RDSErrors.h>
 #include <aws/rds/RDSRequest.h>
 #include <aws/rds/RDSServiceClientModel.h>
 #include <aws/rds/RDS_EXPORTS.h>
+#include <aws/rds/internal/RDSEndpointRules.h>
 #include <aws/rds/model/AccountQuota.h>
 #include <aws/rds/model/ActivityStreamMode.h>
 #include <aws/rds/model/ActivityStreamPolicyStatus.h>
@@ -23,6 +23,8 @@
 #include <aws/rds/model/AddSourceIdentifierToSubscriptionRequest.h>
 #include <aws/rds/model/AddSourceIdentifierToSubscriptionResult.h>
 #include <aws/rds/model/AddTagsToResourceRequest.h>
+#include <aws/rds/model/AdditionalStorageVolume.h>
+#include <aws/rds/model/AdditionalStorageVolumeOutput.h>
 #include <aws/rds/model/ApplyMethod.h>
 #include <aws/rds/model/ApplyPendingMaintenanceActionRequest.h>
 #include <aws/rds/model/ApplyPendingMaintenanceActionResult.h>
@@ -32,6 +34,7 @@
 #include <aws/rds/model/AuthorizeDBSecurityGroupIngressResult.h>
 #include <aws/rds/model/AutomationMode.h>
 #include <aws/rds/model/AvailabilityZone.h>
+#include <aws/rds/model/AvailableAdditionalStorageVolumesOption.h>
 #include <aws/rds/model/AvailableProcessorFeature.h>
 #include <aws/rds/model/BacktrackDBClusterRequest.h>
 #include <aws/rds/model/BacktrackDBClusterResult.h>
@@ -102,6 +105,7 @@
 #include <aws/rds/model/CustomDBEngineVersionAMI.h>
 #include <aws/rds/model/CustomEngineVersionStatus.h>
 #include <aws/rds/model/DBCluster.h>
+#include <aws/rds/model/DBClusterAssociatedRole.h>
 #include <aws/rds/model/DBClusterAutomatedBackup.h>
 #include <aws/rds/model/DBClusterBacktrack.h>
 #include <aws/rds/model/DBClusterEndpoint.h>
@@ -139,6 +143,7 @@
 #include <aws/rds/model/DBSnapshotTenantDatabase.h>
 #include <aws/rds/model/DBSubnetGroup.h>
 #include <aws/rds/model/DatabaseInsightsMode.h>
+#include <aws/rds/model/DefaultAuthScheme.h>
 #include <aws/rds/model/DeleteBlueGreenDeploymentRequest.h>
 #include <aws/rds/model/DeleteBlueGreenDeploymentResult.h>
 #include <aws/rds/model/DeleteCustomDBEngineVersionRequest.h>
@@ -265,6 +270,8 @@
 #include <aws/rds/model/DescribeReservedDBInstancesOfferingsResult.h>
 #include <aws/rds/model/DescribeReservedDBInstancesRequest.h>
 #include <aws/rds/model/DescribeReservedDBInstancesResult.h>
+#include <aws/rds/model/DescribeServerlessV2PlatformVersionsRequest.h>
+#include <aws/rds/model/DescribeServerlessV2PlatformVersionsResult.h>
 #include <aws/rds/model/DescribeSourceRegionsRequest.h>
 #include <aws/rds/model/DescribeSourceRegionsResult.h>
 #include <aws/rds/model/DescribeTenantDatabasesRequest.h>
@@ -282,6 +289,7 @@
 #include <aws/rds/model/EnableHttpEndpointRequest.h>
 #include <aws/rds/model/EnableHttpEndpointResult.h>
 #include <aws/rds/model/Endpoint.h>
+#include <aws/rds/model/EndpointNetworkType.h>
 #include <aws/rds/model/EngineDefaults.h>
 #include <aws/rds/model/EngineFamily.h>
 #include <aws/rds/model/Event.h>
@@ -311,6 +319,7 @@
 #include <aws/rds/model/ListTagsForResourceRequest.h>
 #include <aws/rds/model/ListTagsForResourceResult.h>
 #include <aws/rds/model/LocalWriteForwardingStatus.h>
+#include <aws/rds/model/MasterUserAuthenticationType.h>
 #include <aws/rds/model/MasterUserSecret.h>
 #include <aws/rds/model/Metric.h>
 #include <aws/rds/model/MetricQuery.h>
@@ -318,6 +327,7 @@
 #include <aws/rds/model/MinimumEngineVersionPerAllowedValue.h>
 #include <aws/rds/model/ModifyActivityStreamRequest.h>
 #include <aws/rds/model/ModifyActivityStreamResult.h>
+#include <aws/rds/model/ModifyAdditionalStorageVolume.h>
 #include <aws/rds/model/ModifyCertificatesRequest.h>
 #include <aws/rds/model/ModifyCertificatesResult.h>
 #include <aws/rds/model/ModifyCurrentDBClusterCapacityRequest.h>
@@ -436,6 +446,7 @@
 #include <aws/rds/model/ScalingConfiguration.h>
 #include <aws/rds/model/ScalingConfigurationInfo.h>
 #include <aws/rds/model/ServerlessV2FeaturesSupport.h>
+#include <aws/rds/model/ServerlessV2PlatformVersionInfo.h>
 #include <aws/rds/model/ServerlessV2ScalingConfiguration.h>
 #include <aws/rds/model/ServerlessV2ScalingConfigurationInfo.h>
 #include <aws/rds/model/SourceRegion.h>
@@ -458,6 +469,7 @@
 #include <aws/rds/model/StopDBInstanceAutomatedBackupsReplicationResult.h>
 #include <aws/rds/model/StopDBInstanceRequest.h>
 #include <aws/rds/model/StopDBInstanceResult.h>
+#include <aws/rds/model/StorageEncryptionType.h>
 #include <aws/rds/model/Subnet.h>
 #include <aws/rds/model/SupportedEngineLifecycle.h>
 #include <aws/rds/model/SwitchoverBlueGreenDeploymentRequest.h>
@@ -468,6 +480,8 @@
 #include <aws/rds/model/SwitchoverReadReplicaRequest.h>
 #include <aws/rds/model/SwitchoverReadReplicaResult.h>
 #include <aws/rds/model/Tag.h>
+#include <aws/rds/model/TagSpecification.h>
+#include <aws/rds/model/TargetConnectionNetworkType.h>
 #include <aws/rds/model/TargetHealth.h>
 #include <aws/rds/model/TargetHealthReason.h>
 #include <aws/rds/model/TargetRole.h>
@@ -476,11 +490,14 @@
 #include <aws/rds/model/TenantDatabase.h>
 #include <aws/rds/model/TenantDatabasePendingModifiedValues.h>
 #include <aws/rds/model/Timezone.h>
+#include <aws/rds/model/UpgradeRolloutOrder.h>
 #include <aws/rds/model/UpgradeTarget.h>
 #include <aws/rds/model/UserAuthConfig.h>
 #include <aws/rds/model/UserAuthConfigInfo.h>
+#include <aws/rds/model/ValidAdditionalStorageOptions.h>
 #include <aws/rds/model/ValidDBInstanceModificationsMessage.h>
 #include <aws/rds/model/ValidStorageOptions.h>
+#include <aws/rds/model/ValidVolumeOptions.h>
 #include <aws/rds/model/VpcSecurityGroupMembership.h>
 #include <aws/rds/model/WriteForwardingStatus.h>
 

@@ -4,13 +4,15 @@
  */
 
 #include <aws/notifications/NotificationsEndpointProvider.h>
+#include <aws/notifications/internal/NotificationsEndpointRules.h>
 
-namespace Aws
-{
-namespace Notifications
-{
-namespace Endpoint
-{
-} // namespace Endpoint
-} // namespace Notifications
-} // namespace Aws
+namespace Aws {
+namespace Notifications {
+namespace Endpoint {
+NotificationsEndpointProvider::NotificationsEndpointProvider()
+    : NotificationsDefaultEpProviderBase(Aws::Notifications::NotificationsEndpointRules::GetRulesBlob(),
+                                         Aws::Notifications::NotificationsEndpointRules::RulesBlobSize) {}
+
+}  // namespace Endpoint
+}  // namespace Notifications
+}  // namespace Aws

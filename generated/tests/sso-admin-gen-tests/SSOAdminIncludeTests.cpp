@@ -8,18 +8,22 @@
 
 #include <aws/sso-admin/SSOAdminClient.h>
 #include <aws/sso-admin/SSOAdminEndpointProvider.h>
-#include <aws/sso-admin/SSOAdminEndpointRules.h>
 #include <aws/sso-admin/SSOAdminErrorMarshaller.h>
 #include <aws/sso-admin/SSOAdminErrors.h>
 #include <aws/sso-admin/SSOAdminRequest.h>
 #include <aws/sso-admin/SSOAdminServiceClientModel.h>
 #include <aws/sso-admin/SSOAdmin_EXPORTS.h>
+#include <aws/sso-admin/internal/SSOAdminEndpointRules.h>
 #include <aws/sso-admin/model/AccessControlAttribute.h>
 #include <aws/sso-admin/model/AccessControlAttributeValue.h>
+#include <aws/sso-admin/model/AccessDeniedException.h>
+#include <aws/sso-admin/model/AccessDeniedExceptionReason.h>
 #include <aws/sso-admin/model/AccountAssignment.h>
 #include <aws/sso-admin/model/AccountAssignmentForPrincipal.h>
 #include <aws/sso-admin/model/AccountAssignmentOperationStatus.h>
 #include <aws/sso-admin/model/AccountAssignmentOperationStatusMetadata.h>
+#include <aws/sso-admin/model/AddRegionRequest.h>
+#include <aws/sso-admin/model/AddRegionResult.h>
 #include <aws/sso-admin/model/Application.h>
 #include <aws/sso-admin/model/ApplicationAssignment.h>
 #include <aws/sso-admin/model/ApplicationAssignmentForPrincipal.h>
@@ -90,6 +94,8 @@
 #include <aws/sso-admin/model/DescribePermissionSetProvisioningStatusResult.h>
 #include <aws/sso-admin/model/DescribePermissionSetRequest.h>
 #include <aws/sso-admin/model/DescribePermissionSetResult.h>
+#include <aws/sso-admin/model/DescribeRegionRequest.h>
+#include <aws/sso-admin/model/DescribeRegionResult.h>
 #include <aws/sso-admin/model/DescribeTrustedTokenIssuerRequest.h>
 #include <aws/sso-admin/model/DescribeTrustedTokenIssuerResult.h>
 #include <aws/sso-admin/model/DetachCustomerManagedPolicyReferenceFromPermissionSetRequest.h>
@@ -97,6 +103,8 @@
 #include <aws/sso-admin/model/DetachManagedPolicyFromPermissionSetRequest.h>
 #include <aws/sso-admin/model/DetachManagedPolicyFromPermissionSetResult.h>
 #include <aws/sso-admin/model/DisplayData.h>
+#include <aws/sso-admin/model/EncryptionConfiguration.h>
+#include <aws/sso-admin/model/EncryptionConfigurationDetails.h>
 #include <aws/sso-admin/model/FederationProtocol.h>
 #include <aws/sso-admin/model/GetApplicationAccessScopeRequest.h>
 #include <aws/sso-admin/model/GetApplicationAccessScopeResult.h>
@@ -106,6 +114,8 @@
 #include <aws/sso-admin/model/GetApplicationAuthenticationMethodResult.h>
 #include <aws/sso-admin/model/GetApplicationGrantRequest.h>
 #include <aws/sso-admin/model/GetApplicationGrantResult.h>
+#include <aws/sso-admin/model/GetApplicationSessionConfigurationRequest.h>
+#include <aws/sso-admin/model/GetApplicationSessionConfigurationResult.h>
 #include <aws/sso-admin/model/GetInlinePolicyForPermissionSetRequest.h>
 #include <aws/sso-admin/model/GetInlinePolicyForPermissionSetResult.h>
 #include <aws/sso-admin/model/GetPermissionsBoundaryForPermissionSetRequest.h>
@@ -120,6 +130,8 @@
 #include <aws/sso-admin/model/InstanceStatus.h>
 #include <aws/sso-admin/model/JwksRetrievalOption.h>
 #include <aws/sso-admin/model/JwtBearerGrant.h>
+#include <aws/sso-admin/model/KmsKeyStatus.h>
+#include <aws/sso-admin/model/KmsKeyType.h>
 #include <aws/sso-admin/model/ListAccountAssignmentCreationStatusRequest.h>
 #include <aws/sso-admin/model/ListAccountAssignmentCreationStatusResult.h>
 #include <aws/sso-admin/model/ListAccountAssignmentDeletionStatusRequest.h>
@@ -159,6 +171,8 @@
 #include <aws/sso-admin/model/ListPermissionSetsProvisionedToAccountResult.h>
 #include <aws/sso-admin/model/ListPermissionSetsRequest.h>
 #include <aws/sso-admin/model/ListPermissionSetsResult.h>
+#include <aws/sso-admin/model/ListRegionsRequest.h>
+#include <aws/sso-admin/model/ListRegionsResult.h>
 #include <aws/sso-admin/model/ListTagsForResourceRequest.h>
 #include <aws/sso-admin/model/ListTagsForResourceResult.h>
 #include <aws/sso-admin/model/ListTrustedTokenIssuersRequest.h>
@@ -181,11 +195,19 @@
 #include <aws/sso-admin/model/PutApplicationAssignmentConfigurationResult.h>
 #include <aws/sso-admin/model/PutApplicationAuthenticationMethodRequest.h>
 #include <aws/sso-admin/model/PutApplicationGrantRequest.h>
+#include <aws/sso-admin/model/PutApplicationSessionConfigurationRequest.h>
+#include <aws/sso-admin/model/PutApplicationSessionConfigurationResult.h>
 #include <aws/sso-admin/model/PutInlinePolicyToPermissionSetRequest.h>
 #include <aws/sso-admin/model/PutInlinePolicyToPermissionSetResult.h>
 #include <aws/sso-admin/model/PutPermissionsBoundaryToPermissionSetRequest.h>
 #include <aws/sso-admin/model/PutPermissionsBoundaryToPermissionSetResult.h>
 #include <aws/sso-admin/model/RefreshTokenGrant.h>
+#include <aws/sso-admin/model/RegionMetadata.h>
+#include <aws/sso-admin/model/RegionStatus.h>
+#include <aws/sso-admin/model/RemoveRegionRequest.h>
+#include <aws/sso-admin/model/RemoveRegionResult.h>
+#include <aws/sso-admin/model/ResourceNotFoundException.h>
+#include <aws/sso-admin/model/ResourceNotFoundExceptionReason.h>
 #include <aws/sso-admin/model/ResourceServerConfig.h>
 #include <aws/sso-admin/model/ResourceServerScopeDetails.h>
 #include <aws/sso-admin/model/ScopeDetails.h>
@@ -196,6 +218,8 @@
 #include <aws/sso-admin/model/TagResourceRequest.h>
 #include <aws/sso-admin/model/TagResourceResult.h>
 #include <aws/sso-admin/model/TargetType.h>
+#include <aws/sso-admin/model/ThrottlingException.h>
+#include <aws/sso-admin/model/ThrottlingExceptionReason.h>
 #include <aws/sso-admin/model/TokenExchangeGrant.h>
 #include <aws/sso-admin/model/TrustedTokenIssuerConfiguration.h>
 #include <aws/sso-admin/model/TrustedTokenIssuerMetadata.h>
@@ -214,6 +238,9 @@
 #include <aws/sso-admin/model/UpdatePermissionSetResult.h>
 #include <aws/sso-admin/model/UpdateTrustedTokenIssuerRequest.h>
 #include <aws/sso-admin/model/UpdateTrustedTokenIssuerResult.h>
+#include <aws/sso-admin/model/UserBackgroundSessionApplicationStatus.h>
+#include <aws/sso-admin/model/ValidationException.h>
+#include <aws/sso-admin/model/ValidationExceptionReason.h>
 
 using SSOAdminIncludeTest = ::testing::Test;
 

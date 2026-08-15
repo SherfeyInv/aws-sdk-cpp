@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/appflow/AppflowEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Appflow
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Appflow {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using AppflowClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using AppflowDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_APPFLOW_API AppflowEndpointProvider : public AppflowDefaultEpProviderBase
-{
-public:
-    using AppflowResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_APPFLOW_API AppflowEndpointProvider : public AppflowDefaultEpProviderBase {
+ public:
+  using AppflowResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    AppflowEndpointProvider()
-      : AppflowDefaultEpProviderBase(Aws::Appflow::AppflowEndpointRules::GetRulesBlob(), Aws::Appflow::AppflowEndpointRules::RulesBlobSize)
-    {}
+  AppflowEndpointProvider();
 
-    ~AppflowEndpointProvider()
-    {
-    }
+  ~AppflowEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Appflow
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Appflow
+}  // namespace Aws

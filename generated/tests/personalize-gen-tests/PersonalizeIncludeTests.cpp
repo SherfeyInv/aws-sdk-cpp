@@ -8,12 +8,12 @@
 
 #include <aws/personalize/PersonalizeClient.h>
 #include <aws/personalize/PersonalizeEndpointProvider.h>
-#include <aws/personalize/PersonalizeEndpointRules.h>
 #include <aws/personalize/PersonalizeErrorMarshaller.h>
 #include <aws/personalize/PersonalizeErrors.h>
 #include <aws/personalize/PersonalizeRequest.h>
 #include <aws/personalize/PersonalizeServiceClientModel.h>
 #include <aws/personalize/Personalize_EXPORTS.h>
+#include <aws/personalize/internal/PersonalizeEndpointRules.h>
 #include <aws/personalize/model/Algorithm.h>
 #include <aws/personalize/model/AlgorithmImage.h>
 #include <aws/personalize/model/AutoMLConfig.h>
@@ -189,6 +189,7 @@
 #include <aws/personalize/model/MetricAttributionSummary.h>
 #include <aws/personalize/model/ObjectiveSensitivity.h>
 #include <aws/personalize/model/OptimizationObjective.h>
+#include <aws/personalize/model/RankingInfluenceType.h>
 #include <aws/personalize/model/Recipe.h>
 #include <aws/personalize/model/RecipeProvider.h>
 #include <aws/personalize/model/RecipeSummary.h>

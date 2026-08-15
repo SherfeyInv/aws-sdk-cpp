@@ -7,7 +7,11 @@
 #else
 #set($isEventStreamInput = false)
 #end
+#if($protocol == "smithy-rpc-v2-cbor")
+#set($cppType = $CppViewHelper.computeCborCppType($shape, $member.key))
+#else
 #set($cppType = $CppViewHelper.computeCppType($shape, $member.key))
+#end
 #if($member.value.shape.isException() && !$member.value.shape.isModeledException())
 #set($cppType = "${metadata.classNamePrefix}Error")
 #end
@@ -30,11 +34,4 @@
 #set($initializer = "{${member.value.shape.name}::NOT_SET}")
 #end
     $cppType $memberVariableName$initializer;
-#end
-#set($isStreamingMember = ($shape.payload && ($shape.payload == $entry.key && !$entry.value.shape.structure)))
-#set($isRequired = $useRequiredField && $member.value.required)
-#if(($isRequired || $isIdempontencyToken) && !$isStreamingMember && !$member.value.shape.isEventStream())
-    bool ${CppViewHelper.computeVariableHasBeenSetName($member.key)} = true;
-#else
-    bool ${CppViewHelper.computeVariableHasBeenSetName($member.key)} = false;
 #end

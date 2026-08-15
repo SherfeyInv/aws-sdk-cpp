@@ -8,12 +8,12 @@
 
 #include <aws/pi/PIClient.h>
 #include <aws/pi/PIEndpointProvider.h>
-#include <aws/pi/PIEndpointRules.h>
 #include <aws/pi/PIErrorMarshaller.h>
 #include <aws/pi/PIErrors.h>
 #include <aws/pi/PIRequest.h>
 #include <aws/pi/PIServiceClientModel.h>
 #include <aws/pi/PI_EXPORTS.h>
+#include <aws/pi/internal/PIEndpointRules.h>
 #include <aws/pi/model/AcceptLanguage.h>
 #include <aws/pi/model/AnalysisReport.h>
 #include <aws/pi/model/AnalysisReportSummary.h>
@@ -49,6 +49,8 @@
 #include <aws/pi/model/ListAvailableResourceDimensionsResult.h>
 #include <aws/pi/model/ListAvailableResourceMetricsRequest.h>
 #include <aws/pi/model/ListAvailableResourceMetricsResult.h>
+#include <aws/pi/model/ListPerformanceAnalysisReportRecommendationsRequest.h>
+#include <aws/pi/model/ListPerformanceAnalysisReportRecommendationsResult.h>
 #include <aws/pi/model/ListPerformanceAnalysisReportsRequest.h>
 #include <aws/pi/model/ListPerformanceAnalysisReportsResult.h>
 #include <aws/pi/model/ListTagsForResourceRequest.h>

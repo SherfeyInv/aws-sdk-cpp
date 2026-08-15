@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/controlcatalog/ControlCatalogEndpointRules.h>
-
-
-namespace Aws
-{
-namespace ControlCatalog
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace ControlCatalog {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ControlCatalogClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using ControlCatalogDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CONTROLCATALOG_API ControlCatalogEndpointProvider : public ControlCatalogDefaultEpProviderBase
-{
-public:
-    using ControlCatalogResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CONTROLCATALOG_API ControlCatalogEndpointProvider : public ControlCatalogDefaultEpProviderBase {
+ public:
+  using ControlCatalogResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ControlCatalogEndpointProvider()
-      : ControlCatalogDefaultEpProviderBase(Aws::ControlCatalog::ControlCatalogEndpointRules::GetRulesBlob(), Aws::ControlCatalog::ControlCatalogEndpointRules::RulesBlobSize)
-    {}
+  ControlCatalogEndpointProvider();
 
-    ~ControlCatalogEndpointProvider()
-    {
-    }
+  ~ControlCatalogEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace ControlCatalog
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace ControlCatalog
+}  // namespace Aws

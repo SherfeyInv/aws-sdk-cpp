@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/cloudhsmv2/CloudHSMV2EndpointRules.h>
-
-
-namespace Aws
-{
-namespace CloudHSMV2
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CloudHSMV2 {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CloudHSMV2ClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CloudHSMV2DefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_CLOUDHSMV2_API CloudHSMV2EndpointProvider : public CloudHSMV2DefaultEpProviderBase
-{
-public:
-    using CloudHSMV2ResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_CLOUDHSMV2_API CloudHSMV2EndpointProvider : public CloudHSMV2DefaultEpProviderBase {
+ public:
+  using CloudHSMV2ResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CloudHSMV2EndpointProvider()
-      : CloudHSMV2DefaultEpProviderBase(Aws::CloudHSMV2::CloudHSMV2EndpointRules::GetRulesBlob(), Aws::CloudHSMV2::CloudHSMV2EndpointRules::RulesBlobSize)
-    {}
+  CloudHSMV2EndpointProvider();
 
-    ~CloudHSMV2EndpointProvider()
-    {
-    }
+  ~CloudHSMV2EndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CloudHSMV2
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CloudHSMV2
+}  // namespace Aws

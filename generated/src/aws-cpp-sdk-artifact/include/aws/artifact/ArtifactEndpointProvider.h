@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/artifact/ArtifactEndpointRules.h>
-
-
-namespace Aws
-{
-namespace Artifact
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace Artifact {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using ArtifactClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using ArtifactDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_ARTIFACT_API ArtifactEndpointProvider : public ArtifactDefaultEpProviderBase
-{
-public:
-    using ArtifactResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_ARTIFACT_API ArtifactEndpointProvider : public ArtifactDefaultEpProviderBase {
+ public:
+  using ArtifactResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    ArtifactEndpointProvider()
-      : ArtifactDefaultEpProviderBase(Aws::Artifact::ArtifactEndpointRules::GetRulesBlob(), Aws::Artifact::ArtifactEndpointRules::RulesBlobSize)
-    {}
+  ArtifactEndpointProvider();
 
-    ~ArtifactEndpointProvider()
-    {
-    }
+  ~ArtifactEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace Artifact
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace Artifact
+}  // namespace Aws

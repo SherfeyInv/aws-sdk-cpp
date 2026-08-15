@@ -6,14 +6,16 @@
 #pragma once
 
 #include <aws/core/Core_EXPORTS.h>
+#include <aws/core/Region.h>
+#include <aws/core/http/HttpTypes.h>
 #include <aws/core/http/Scheme.h>
 #include <aws/core/http/Version.h>
-#include <aws/core/Region.h>
-#include <aws/core/utils/memory/stl/AWSString.h>
-#include <aws/core/http/HttpTypes.h>
 #include <aws/core/utils/Array.h>
+#include <aws/core/utils/StringUtils.h>
+#include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/crt/Optional.h>
 #include <smithy/tracing/TelemetryProvider.h>
+
 #include <memory>
 
 namespace Aws
@@ -74,6 +76,16 @@ namespace Aws
         enum class ResponseChecksumValidation {
           WHEN_SUPPORTED,
           WHEN_REQUIRED,
+        };
+
+        /**
+         * Control HTTP client chunking implementation mode.
+         * DEFAULT: Use SDK's ChunkingInterceptor for aws-chunked encoding
+         * CLIENT_IMPLEMENTATION: Rely on HTTP client's native chunking (default for custom clients)
+         */
+        enum class HttpClientChunkedMode {
+          DEFAULT,
+          CLIENT_IMPLEMENTATION,
         };
 
         struct RequestCompressionConfig {
@@ -340,13 +352,16 @@ namespace Aws
             FollowRedirectsPolicy followRedirects;
 
             /**
-             * Only works for Curl http client.
-             * Curl will by default add "Expect: 100-Continue" header in a Http request so as to avoid sending http
-             * payload to wire if server respond error immediately after receiving the header.
-             * Set this option to true will tell Curl to send http request header and body together.
-             * This can save one round-trip time and especially useful when the payload is small and network latency is more important.
-             * But be careful when Http request has large payload such S3 PutObject. You don't want to spend long time sending a large payload just getting a error response for server.
-             * The default value will be false.
+             * When set to true, the SDK will NOT add "Expect: 100-Continue" header to any HTTP request,
+             * including streaming operations like S3 PutObject or UploadPart.
+             *
+             * By default (false), the SDK automatically adds "Expect: 100-Continue" only to streaming
+             * requests (operations with streaming input bodies). This allows the server to reject the
+             * request before the client sends a potentially large payload, saving bandwidth on failures.
+             * Non-streaming requests never receive the Expect header regardless of this setting.
+             *
+             * Set to true if you are going through a proxy or middleware that does not correctly
+             * handle the Expect: 100-Continue mechanism.
              */
             bool disableExpectHeader = false;
 
@@ -447,6 +462,16 @@ namespace Aws
             static Aws::String LoadConfigFromEnvOrProfile(const Aws::String& envKey, const Aws::String& profile,
                                                           const Aws::String& profileProperty, const Aws::Vector<Aws::String>& allowedValues,
                                                           const Aws::String& defaultValue);
+            /**
+             * A helper function to read config value from env variable or aws profile config. Addresses a problem in
+             * LoadConfigFromEnvOrProfile where env variables values are always mapped to their lower case equivalent.
+             * This fails for cases where ENV vars need to be case sensitive in instances like AWS_ROLE_ARN can have
+             * camel case values.
+             */
+            static Aws::String LoadConfigFromEnvOrProfileCaseSensitive(
+                const Aws::String& envKey, const Aws::String& profile, const Aws::String& profileProperty,
+                const Aws::Vector<Aws::String>& allowedValues, const Aws::String& defaultValue,
+                const std::function<Aws::String(const char*)>& envValueMapping = Utils::StringUtils::ToLower);
 
             /**
              * A wrapper for interfacing with telemetry functionality. Defaults to Noop provider.
@@ -466,6 +491,17 @@ namespace Aws
               bool useAnonymousAuth = false;
             } winHTTPOptions;
 
+            /**
+             * Configuration that is specifically used for the curl http client
+             */
+            struct CurlOptions {
+              /**
+               * If set to true, SSL connections will use best-effort revocation checking,
+               * proceeding even when CRL servers are unreachable. Off by default.
+               */
+              bool revokeBestEffort = false;
+            } curlOptions;
+
           /**
             * The AWS account ID. Used for account-based endpoint routing. An AWS account ID has a format like 111122223333.
             * Account-based endpoint routing provides better request performance for some services.
@@ -481,13 +517,146 @@ namespace Aws
            * https://docs.aws.amazon.com/sdkref/latest/guide/feature-account-endpoints.html
            */
           Aws::String accountIdEndpointMode = "preferred";
+
+          /**
+           * Control HTTP client chunking implementation mode.
+           * Default is set automatically: CLIENT_IMPLEMENTATION for custom clients, DEFAULT for AWS clients.
+           */
+          HttpClientChunkedMode httpClientChunkedMode = HttpClientChunkedMode::CLIENT_IMPLEMENTATION;
+          /**
+          * Configuration structure for credential providers in the AWS SDK.
+          * This structure allows passing configuration options to credential providers
+          * such as profile name and client configuration for HTTP requests made by
+          * credential providers that need to make network calls (e.g., InstanceProfileCredentialsProvider).
+          */
+          struct CredentialProviderConfiguration {
+            /**
+            * AWS profile name to use for credentials.
+            */
+            Aws::String profile;
+
+            /**
+             * Region to use for calls
+             */
+            Aws::String region;
+
+            /**
+             * Allow CRT-based credential providers to honor HTTP_PROXY / HTTPS_PROXY / NO_PROXY environment
+             * variables when fetching credentials. Off by default to mirror ClientConfiguration::allowSystemProxy
+             * and avoid silently routing credential traffic through an unintended proxy.
+             */
+            bool allowSystemProxy = false;
+
+            /**
+             * IMDS configuration settings
+             */
+            struct {
+              /**
+               * Number of total attempts to make when retrieving data from IMDS. Default 1.
+               */
+              long metadataServiceNumAttempts = 1;
+              
+              /**
+               * Timeout in seconds when retrieving data from IMDS. Default 1.
+               */
+              long metadataServiceTimeout = 1;
+
+              /**
+               * Retry Strategy for IMDS
+               */
+              std::shared_ptr<RetryStrategy> imdsRetryStrategy;
+              bool disableImdsV1;
+              bool disableImds;
+            } imdsConfig;
+
+            /**
+             * Configuration for the STSCredentials provider
+             */
+            struct STSCredentialsCredentialProviderConfiguration {
+              STSCredentialsCredentialProviderConfiguration() = default;
+              STSCredentialsCredentialProviderConfiguration(const Aws::String& role, const Aws::String& session, const String& tokenFile)
+                  : roleArn(role), sessionName(session), tokenFilePath(tokenFile) {};
+              /**
+               * Arn of the role to assume by fetching credentials for
+               */
+              Aws::String roleArn;
+              /**
+               * Assumed role session identifier to be associated with the sourced credentials
+               */
+              Aws::String sessionName;
+              /**
+               * The OAuth 2.0 access token or OpenID Connect ID token
+               */
+              Aws::String tokenFilePath;
+
+              /**
+               * Time out for the credentials future call.
+               */
+              std::chrono::milliseconds retrieveCredentialsFutureTimeout = std::chrono::seconds(10);
+
+              /**
+               * How long a cached credential set will be used for
+               */
+              std::chrono::milliseconds credentialCacheCacheTTL = std::chrono::minutes(50);
+            } stsCredentialsProviderConfig;
+            struct LoginProviderConfig {
+              /**
+               * ARN for AWS login session.
+               */
+              Aws::String loginSession{};
+
+              /**
+               * Overrides the login cache directory. by default the cache directory
+               * is located at `~/.aws/login/cache`.
+               */
+              Aws::String loginCacheOverride{};
+
+              /**
+               * Time out for the credentials future call.
+               */
+              std::chrono::milliseconds retrieveCredentialsFutureTimeout = std::chrono::seconds(10);
+            } loginCredentialProviderConfig;
+          } credentialProviderConfig;
+
+          /**
+           * Returns a copy of credentialProviderConfig with parent fields (such as allowSystemProxy) re-synced
+           * from their current values on this ClientConfiguration. Use this at the point of constructing a
+           * credentials provider so post-construction assignments to parent fields are picked up; reading
+           * credentialProviderConfig directly captures values from ClientConfiguration construction time only.
+           */
+          CredentialProviderConfiguration ResolveCredentialProviderConfig() const;
+
+          /**
+           * Authentication scheme preferences in order of preference.
+           * First available auth scheme will be used for each operation.
+           */
+          Aws::Vector<Aws::String> authPreferences;
+
+          /**
+           * List of AWS regions for SigV4a multi-region signing.
+           */
+          Aws::Vector<Aws::String> sigV4aSigningRegionSet;
+
+          /**
+           * Buffer size in bytes that will be used to content encode
+           * bodies using aws-chunked. Changing this is useful when you
+           * want to minimize memory use while uploading to S3. Size MUST
+           * be greater than 8KB otherwise S3 will reject the request.
+           *
+           * Defaults to 64KiB.
+           *
+           * https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-streaming.html
+           */
+          size_t awsChunkedBufferSize = 64UL * 1024;
         };
 
         /**
          * A helper function to initialize a retry strategy.
          * Default is DefaultRetryStrategy (i.e. exponential backoff)
          */
-        std::shared_ptr<RetryStrategy> InitRetryStrategy(Aws::String retryMode = "");
+        AWS_CORE_API std::shared_ptr<RetryStrategy> InitRetryStrategy(Aws::String retryMode = "");
+        AWS_CORE_API std::shared_ptr<RetryStrategy> InitRetryStrategy(int maxRetries, Aws::String retryMode = "");
+        AWS_CORE_API std::shared_ptr<RetryStrategy> InitRetryStrategy(int maxRetries, Aws::String retryMode, double transientBackoffBaseSec);
 
         /**
          * A helper function to compute a user agent
@@ -496,6 +665,5 @@ namespace Aws
         AWS_CORE_API Aws::String ComputeUserAgentString(ClientConfiguration const * const pConfig = nullptr);
 
         AWS_CORE_API Aws::String FilterUserAgentToken(char const * const token);
-
     } // namespace Client
 } // namespace Aws

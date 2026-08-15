@@ -11,18 +11,12 @@
 #include <aws/core/utils/memory/stl/AWSString.h>
 #include <aws/core/utils/memory/stl/AWSVector.h>
 
-#include <aws/cognito-sync/CognitoSyncEndpointRules.h>
-
-
-namespace Aws
-{
-namespace CognitoSync
-{
-namespace Endpoint
-{
+namespace Aws {
+namespace CognitoSync {
+namespace Endpoint {
 using EndpointParameters = Aws::Endpoint::EndpointParameters;
-using Aws::Endpoint::EndpointProviderBase;
 using Aws::Endpoint::DefaultEndpointProvider;
+using Aws::Endpoint::EndpointProviderBase;
 
 using CognitoSyncClientContextParameters = Aws::Endpoint::ClientContextParameters;
 
@@ -43,19 +37,14 @@ using CognitoSyncDefaultEpProviderBase =
 /**
  * Default endpoint provider used for this service
  */
-class AWS_COGNITOSYNC_API CognitoSyncEndpointProvider : public CognitoSyncDefaultEpProviderBase
-{
-public:
-    using CognitoSyncResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
+class AWS_COGNITOSYNC_API CognitoSyncEndpointProvider : public CognitoSyncDefaultEpProviderBase {
+ public:
+  using CognitoSyncResolveEndpointOutcome = Aws::Endpoint::ResolveEndpointOutcome;
 
-    CognitoSyncEndpointProvider()
-      : CognitoSyncDefaultEpProviderBase(Aws::CognitoSync::CognitoSyncEndpointRules::GetRulesBlob(), Aws::CognitoSync::CognitoSyncEndpointRules::RulesBlobSize)
-    {}
+  CognitoSyncEndpointProvider();
 
-    ~CognitoSyncEndpointProvider()
-    {
-    }
+  ~CognitoSyncEndpointProvider() {}
 };
-} // namespace Endpoint
-} // namespace CognitoSync
-} // namespace Aws
+}  // namespace Endpoint
+}  // namespace CognitoSync
+}  // namespace Aws

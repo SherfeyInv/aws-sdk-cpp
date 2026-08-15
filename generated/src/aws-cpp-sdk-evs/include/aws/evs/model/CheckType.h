@@ -4,30 +4,34 @@
  */
 
 #pragma once
-#include <aws/evs/EVS_EXPORTS.h>
 #include <aws/core/utils/memory/stl/AWSString.h>
+#include <aws/evs/EVS_EXPORTS.h>
 
-namespace Aws
-{
-namespace EVS
-{
-namespace Model
-{
-  enum class CheckType
-  {
-    NOT_SET,
-    KEY_REUSE,
-    KEY_COVERAGE,
-    REACHABILITY,
-    HOST_COUNT
-  };
+namespace Aws {
+namespace EVS {
+namespace Model {
+enum class CheckType {
+  NOT_SET,
+  KEY_REUSE,
+  KEY_COVERAGE,
+  REACHABILITY,
+  HOST_COUNT,
+  VCENTER_REACHABILITY,
+  VCENTER_VM_SYNC,
+  VCENTER_VM_EVENT,
+  OPERATIONS_MANAGER_REACHABILITY,
+  SDDC_MANAGER_REACHABILITY,
+  SDDC_MANAGER_HOST_COUNT,
+  SDDC_MANAGER_KEY_COVERAGE,
+  SDDC_MANAGER_KEY_REUSE,
+  CONNECTOR_HEALTH
+};
 
-namespace CheckTypeMapper
-{
+namespace CheckTypeMapper {
 AWS_EVS_API CheckType GetCheckTypeForName(const Aws::String& name);
 
 AWS_EVS_API Aws::String GetNameForCheckType(CheckType value);
-} // namespace CheckTypeMapper
-} // namespace Model
-} // namespace EVS
-} // namespace Aws
+}  // namespace CheckTypeMapper
+}  // namespace Model
+}  // namespace EVS
+}  // namespace Aws

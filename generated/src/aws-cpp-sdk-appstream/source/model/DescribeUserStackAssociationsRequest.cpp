@@ -4,58 +4,70 @@
  */
 
 #include <aws/appstream/model/DescribeUserStackAssociationsRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
+#include <aws/crt/cbor/Cbor.h>
 
 #include <utility>
 
 using namespace Aws::AppStream::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String DescribeUserStackAssociationsRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String DescribeUserStackAssociationsRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_stackNameHasBeenSet)
-  {
-   payload.WithString("StackName", m_stackName);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_stackNameHasBeenSet) {
+    mapSize++;
+  }
+  if (m_userNameHasBeenSet) {
+    mapSize++;
+  }
+  if (m_authenticationTypeHasBeenSet) {
+    mapSize++;
+  }
+  if (m_maxResultsHasBeenSet) {
+    mapSize++;
+  }
+  if (m_nextTokenHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_userNameHasBeenSet)
-  {
-   payload.WithString("UserName", m_userName);
+  encoder.WriteMapStart(mapSize);
 
+  if (m_stackNameHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("StackName"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_stackName.c_str()));
   }
 
-  if(m_authenticationTypeHasBeenSet)
-  {
-   payload.WithString("AuthenticationType", AuthenticationTypeMapper::GetNameForAuthenticationType(m_authenticationType));
+  if (m_userNameHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("UserName"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_userName.c_str()));
   }
 
-  if(m_maxResultsHasBeenSet)
-  {
-   payload.WithInteger("MaxResults", m_maxResults);
-
+  if (m_authenticationTypeHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("AuthenticationType"));
+    encoder.WriteText(
+        Aws::Crt::ByteCursorFromCString(AuthenticationTypeMapper::GetNameForAuthenticationType(m_authenticationType).c_str()));
   }
 
-  if(m_nextTokenHasBeenSet)
-  {
-   payload.WithString("NextToken", m_nextToken);
-
+  if (m_maxResultsHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("MaxResults"));
+    (m_maxResults >= 0) ? encoder.WriteUInt(m_maxResults) : encoder.WriteNegInt(m_maxResults);
   }
 
-  return payload.View().WriteReadable();
+  if (m_nextTokenHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("NextToken"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_nextToken.c_str()));
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection DescribeUserStackAssociationsRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection DescribeUserStackAssociationsRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "PhotonAdminProxyService.DescribeUserStackAssociations"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-

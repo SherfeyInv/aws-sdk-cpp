@@ -8,18 +8,19 @@
 
 #include <aws/transcribestreaming/TranscribeStreamingServiceClient.h>
 #include <aws/transcribestreaming/TranscribeStreamingServiceEndpointProvider.h>
-#include <aws/transcribestreaming/TranscribeStreamingServiceEndpointRules.h>
 #include <aws/transcribestreaming/TranscribeStreamingServiceErrorMarshaller.h>
 #include <aws/transcribestreaming/TranscribeStreamingServiceErrors.h>
 #include <aws/transcribestreaming/TranscribeStreamingServiceRequest.h>
 #include <aws/transcribestreaming/TranscribeStreamingServiceServiceClientModel.h>
 #include <aws/transcribestreaming/TranscribeStreamingService_EXPORTS.h>
+#include <aws/transcribestreaming/internal/TranscribeStreamingServiceEndpointRules.h>
 #include <aws/transcribestreaming/model/Alternative.h>
 #include <aws/transcribestreaming/model/AudioEvent.h>
 #include <aws/transcribestreaming/model/AudioStream.h>
 #include <aws/transcribestreaming/model/CallAnalyticsEntity.h>
 #include <aws/transcribestreaming/model/CallAnalyticsItem.h>
 #include <aws/transcribestreaming/model/CallAnalyticsLanguageCode.h>
+#include <aws/transcribestreaming/model/CallAnalyticsLanguageWithScore.h>
 #include <aws/transcribestreaming/model/CallAnalyticsTranscriptResultStream.h>
 #include <aws/transcribestreaming/model/CategoryEvent.h>
 #include <aws/transcribestreaming/model/ChannelDefinition.h>
@@ -48,12 +49,14 @@
 #include <aws/transcribestreaming/model/MedicalScribeAudioEvent.h>
 #include <aws/transcribestreaming/model/MedicalScribeChannelDefinition.h>
 #include <aws/transcribestreaming/model/MedicalScribeConfigurationEvent.h>
+#include <aws/transcribestreaming/model/MedicalScribeContext.h>
 #include <aws/transcribestreaming/model/MedicalScribeEncryptionSettings.h>
 #include <aws/transcribestreaming/model/MedicalScribeInputStream.h>
 #include <aws/transcribestreaming/model/MedicalScribeLanguageCode.h>
 #include <aws/transcribestreaming/model/MedicalScribeMediaEncoding.h>
 #include <aws/transcribestreaming/model/MedicalScribeNoteTemplate.h>
 #include <aws/transcribestreaming/model/MedicalScribeParticipantRole.h>
+#include <aws/transcribestreaming/model/MedicalScribePatientContext.h>
 #include <aws/transcribestreaming/model/MedicalScribePostStreamAnalyticsResult.h>
 #include <aws/transcribestreaming/model/MedicalScribePostStreamAnalyticsSettings.h>
 #include <aws/transcribestreaming/model/MedicalScribeResultStream.h>
@@ -73,6 +76,7 @@
 #include <aws/transcribestreaming/model/ParticipantRole.h>
 #include <aws/transcribestreaming/model/PointsOfInterest.h>
 #include <aws/transcribestreaming/model/PostCallAnalyticsSettings.h>
+#include <aws/transcribestreaming/model/Pronouns.h>
 #include <aws/transcribestreaming/model/Result.h>
 #include <aws/transcribestreaming/model/Sentiment.h>
 #include <aws/transcribestreaming/model/Specialty.h>

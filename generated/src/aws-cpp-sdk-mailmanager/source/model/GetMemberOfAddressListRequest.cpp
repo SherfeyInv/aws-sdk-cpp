@@ -3,42 +3,46 @@
  * SPDX-License-Identifier: Apache-2.0.
  */
 
+#include <aws/crt/cbor/Cbor.h>
 #include <aws/mailmanager/model/GetMemberOfAddressListRequest.h>
-#include <aws/core/utils/json/JsonSerializer.h>
 
 #include <utility>
 
 using namespace Aws::MailManager::Model;
-using namespace Aws::Utils::Json;
+using namespace Aws::Crt::Cbor;
 using namespace Aws::Utils;
 
-Aws::String GetMemberOfAddressListRequest::SerializePayload() const
-{
-  JsonValue payload;
+Aws::String GetMemberOfAddressListRequest::SerializePayload() const {
+  Aws::Crt::Cbor::CborEncoder encoder;
 
-  if(m_addressHasBeenSet)
-  {
-   payload.WithString("Address", m_address);
-
+  // Calculate map size
+  size_t mapSize = 0;
+  if (m_addressListIdHasBeenSet) {
+    mapSize++;
+  }
+  if (m_addressHasBeenSet) {
+    mapSize++;
   }
 
-  if(m_addressListIdHasBeenSet)
-  {
-   payload.WithString("AddressListId", m_addressListId);
+  encoder.WriteMapStart(mapSize);
 
+  if (m_addressListIdHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("AddressListId"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_addressListId.c_str()));
   }
 
-  return payload.View().WriteReadable();
+  if (m_addressHasBeenSet) {
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString("Address"));
+    encoder.WriteText(Aws::Crt::ByteCursorFromCString(m_address.c_str()));
+  }
+  const auto str = Aws::String(reinterpret_cast<char*>(encoder.GetEncodedData().ptr), encoder.GetEncodedData().len);
+  return str;
 }
 
-Aws::Http::HeaderValueCollection GetMemberOfAddressListRequest::GetRequestSpecificHeaders() const
-{
+Aws::Http::HeaderValueCollection GetMemberOfAddressListRequest::GetRequestSpecificHeaders() const {
   Aws::Http::HeaderValueCollection headers;
-  headers.insert(Aws::Http::HeaderValuePair("X-Amz-Target", "MailManagerSvc.GetMemberOfAddressList"));
+  headers.emplace(Aws::Http::CONTENT_TYPE_HEADER, Aws::CBOR_CONTENT_TYPE);
+  headers.emplace(Aws::Http::SMITHY_PROTOCOL_HEADER, Aws::RPC_V2_CBOR);
+  headers.emplace(Aws::Http::ACCEPT_HEADER, Aws::CBOR_CONTENT_TYPE);
   return headers;
-
 }
-
-
-
-
